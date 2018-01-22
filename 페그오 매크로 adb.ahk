@@ -1,8 +1,9 @@
-﻿#Include Gdip.ahk
+﻿;;;;UTF-8로 인코딩
+
+#Include Gdip.ahk
 #include functions.ahk
 #include adb_functions.ahk
 
-;;zzzzzzzzzzzzzzzzzzzzzzzzz
 #Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
 #SingleInstance Force ; 스크립트를 동시에 한개만 실행
 
@@ -69,7 +70,7 @@ Gui, 5: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 �
 IfNotExist, %OptionFile%
 {
 	initX := 100
-	initY := 100, 
+	initY := 100,
 }
 IfExist, %OptionFile%
 	Gosub, LoadOption
@@ -183,7 +184,7 @@ if(OnRunning = 1)
 /*
 Process, Exist, dnplayer.exe
 if(!ErrorLevel)
-{	
+{
 	Addlog("# 에뮬레이터 감지 못함")
 	OnRunning := 0
 	return
@@ -213,7 +214,7 @@ return
 {
 	GuiControl,, SimpleLog, <매크로 작동중>
 	AddLog("# 페그오 매크로 시작 ")
-	
+
 	;GuiControlGet, EmulSN, 1: ;adb 시리얼 받기
 	GuiControlGet, MacroMode, 1:
 	if(MacroMode = 1)
@@ -235,11 +236,11 @@ return
 	loop
 	{
 		rCount := a_index ; 반복 회차
-		
+
 		objExec := objShell.Exec(adb " devices")
 		strStdOut:=strStdErr:=""
 		while, !objExec.StdOut.AtEndOfStream
-		strStdOut := objExec.StdOut.ReadAll()		
+		strStdOut := objExec.StdOut.ReadAll()
 		IfNotInString, strStdOut, %AdbSN%
 		{
 			addlog("# " AdbSN " 에 재연결")
@@ -247,7 +248,7 @@ return
 			while(!objExec.status)
 				sleep, 10
 		}
-		
+
 		if(IsImgPlusAdb(clickX, clickY, "Image\돌아가기.bmp", 60, 0))
 		{
 			clickX := 400
@@ -259,19 +260,19 @@ return
 			sleep, 10000 ; 10초 대기
 			ii = 0
 			loop
-			{				
+			{
 				if(IsImgPlusAdb(clickX, clickY, "Image\attack.bmp", 60, 0))
 					break
-				
+
 				if(ii > 60 && IsImgPlusAdb(clickX, clickY, "Image\퀘스트개시.bmp", 60, 0))
 				{
 					ClickAdb(clickX, clickY)
 					ii := 0
-				}					
-				
+				}
+
 				ii++
 				sleep, 1000
-			}		
+			}
 			;sleep, 1000
 			라운드3 := 0
 			Loop
@@ -280,14 +281,14 @@ return
 				if(IsImgPlusAdb(clickX, clickY, "Image\attack.bmp", 60, 0))
 				{
 					sleep, 500
-					getAdbScreen()					
-					
+					getAdbScreen()
+
 					;;3라운드에는 먼저 보구부터 사용한다.
 					if(라운드3 = 0 && IsImageWithoutCap(clickX, clickY, "Image\Battle3.bmp", 120, "black", 535, 9, 545, 22))
 						라운드3 := 1
-					
+
 					;;;;;;;;;;;;;;;;;;;;;;;;;; 스킬 사용 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-					
+
 					loop, 9
 					{
 						if(IsImgWithoutCapLog(clickX, clickY, "Image\방업1.bmp", 10, 0, SkillButtonPos[a_index].sX+15, SkillButtonPos[a_index].sY+20, SkillButtonPos[a_index].eX-15, SkillButtonPos[a_index].eY-10)
@@ -309,7 +310,7 @@ return
 							sleep, 3000
 							break
 						}
-					}				
+					}
 					loop, 9
 					{
 						if(IsImgWithoutCapLog(clickX, clickY, "Image\엔피업1.bmp", 10, 0, SkillButtonPos[a_index].sX+17, SkillButtonPos[a_index].sY+3, SkillButtonPos[a_index].eX-17, SkillButtonPos[a_index].eY-15)
@@ -322,12 +323,12 @@ return
 						}
 					}
 					;DllCall("DeleteObject", Ptr, hBitmap)
-					
+
 					ClickAdb(710, 380) ;어택 클릭
 					sleep, 2000
-					
+
 					;;;;;;;;;;;;;;;;;;;커맨드 카드 사용;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-					
+
 					getAdbScreen() ;한번 가져온 스샷으로 여러번 이미지 서치
 					if(라운드3)
 					{
@@ -336,17 +337,17 @@ return
 						ClickAdb(550, 130)
 						sleep, 10
 					}
-					
+
 					loop, 5
 						card%a_index% := 0 ;skill 배열: 사용한 카드는 1
-					
+
 					loop, 5 ;이펙티브 버스터 우선 사용
 					{
 						if(IsImageWithoutCap(clickX, clickY, "Image\effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
 						&& IsImgWithoutCapLog(clickX, clickY, "Image\buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
 						&& IsImgWithoutCapLog(clickX, clickY, "Image\buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
 						{
-							ClickAdb(CmdCardPos[a_index].sX + 80, 320)							
+							ClickAdb(CmdCardPos[a_index].sX + 80, 320)
 							card%a_index% := 1
 						}
 					}
@@ -358,7 +359,7 @@ return
 						&& IsImgWithoutCapLog(clickX, clickY, "Image\arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
 						&& IsImgWithoutCapLog(clickX, clickY, "Image\arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
 						{
-							ClickAdb(CmdCardPos[a_index].sX + 80, 320)						
+							ClickAdb(CmdCardPos[a_index].sX + 80, 320)
 							card%a_index% := 1
 						}
 					}
@@ -369,7 +370,7 @@ return
 							continue
 						if(IsImageWithoutCap(clickX, clickY, "Image\effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 ))
 						{
-							ClickAdb(CmdCardPos[a_index].sX + 80, 320)							
+							ClickAdb(CmdCardPos[a_index].sX + 80, 320)
 							card%a_index% := 1
 						}
 					}
@@ -382,7 +383,7 @@ return
 						&& IsImgWithoutCapLog(clickX, clickY, "Image\buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
 						&& IsImgWithoutCapLog(clickX, clickY, "Image\buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
 						{
-							ClickAdb(CmdCardPos[a_index].sX + 80, 320)							
+							ClickAdb(CmdCardPos[a_index].sX + 80, 320)
 							card%a_index% := 1
 						}
 					}
@@ -394,7 +395,7 @@ return
 						&& IsImgWithoutCapLog(clickX, clickY, "Image\arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
 						&& IsImgWithoutCapLog(clickX, clickY, "Image\arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
 						{
-							ClickAdb(CmdCardPos[a_index].sX + 80, 320)						
+							ClickAdb(CmdCardPos[a_index].sX + 80, 320)
 							card%a_index% := 1
 						}
 					}
@@ -404,10 +405,10 @@ return
 							continue
 						if(!IsImageWithoutCap(clickX, clickY, "Image\resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 ))
 						{
-							ClickAdb(CmdCardPos[a_index].sX + 80, 320)							
+							ClickAdb(CmdCardPos[a_index].sX + 80, 320)
 							card%a_index% := 1
 						}
-					}					
+					}
 					loop, 5 ;;남은 기술들 순서대로 사용
 					{
 						if(card%a_index% = 0)
@@ -417,11 +418,11 @@ return
 						sleep, 10
 					}
 					;DllCall("DeleteObject", Ptr, hBitmap)
-					
+
 				}
-								
+
 				;;전멸했을 시
-				
+
 				;;전투가 끝났을 시
 				getAdbScreen()
 				if(IsImageWithoutCap(clickX, clickY, "Image\전투x.bmp", 60, 0))
@@ -429,7 +430,7 @@ return
 					ClickAdb(clickX, clickY)
 					sleep, 1000
 				}
-				
+
 				if(IsImageWithoutCap(clickX, clickY, "Image\result.bmp", 60, "black", 460, 20, 490, 55)
 				|| IsImageWithoutCap(clickX, clickY, "Image\인연레벨업.bmp", 60, "white", 540, 217, 570, 245))
 				{
@@ -452,7 +453,7 @@ return
 						}
 						if(mod(a_index , 5) = 0)
 							ClickAdb(100, 100)
-					}				
+					}
 					loop
 					{
 						if(IsImgPlusAdb(clickX, clickY, "Image\퀘스트보상.bmp", 60, 0))
@@ -464,11 +465,11 @@ return
 						{
 							;ClickAdb(clickX, clickY)
 							sleep, 3000
-							break						
+							break
 						}
 					}
 					;ClickToImgAdb(clickX, clickY, "Image\닫기.bmp")
-					;sleep, 3000					
+					;sleep, 3000
 					loop, 5
 					{
 						if(IsImgPlusAdb(clickX, clickY, "Image\팝업닫기.bmp", 60, 0))
@@ -479,13 +480,13 @@ return
 						sleep, 500
 					}
 					if(IsImgPlusAdb(clickX, clickY, "Image\이벤트배너.bmp", 60, 0))
-					{						
+					{
 						ClickAdb(clickX, clickY)
 						sleep, 3000
 					}
 					;;ap없으면 ap찰때까지 반복
 					loop
-					{						
+					{
 						ClickAdb(650, 120) ;;첫번째 퀘스트 다시 누르기
 						sleep, 3000
 						if(IsImgPlusAdb(clickX, clickY, "Image\ap회복.bmp", 60, 0))
@@ -501,9 +502,9 @@ return
 				}
 				sleep, 1000
 			} ;;loop
-			
-		}	
-		
+
+		}
+
 	}
 }
 
@@ -565,7 +566,7 @@ strStdOut:=strStdErr:=""
 while, !objExec.StdErr.AtEndOfStream
 	strStdErr := objExec.StdErr.ReadAll()
 addlog(strStdOut)
-addlog(strStdErr)	
+addlog(strStdErr)
 return
 */
 
