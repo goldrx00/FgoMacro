@@ -1,5 +1,5 @@
 ﻿;;;;UTF-8로 인코딩
-
+;asap
 #Include Gdip.ahk
 #include functions.ahk
 #include adb_functions.ahk
