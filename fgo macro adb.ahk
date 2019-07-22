@@ -1,4 +1,6 @@
-﻿#Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
+﻿;fgo macro adb.ahk
+
+#Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
 #SingleInstance Force ; 스크립트를 동시에 한개만 실행
 
 #Include %A_ScriptDir%\Gdip.ahk
