@@ -25,7 +25,7 @@ getAdbToGui()
 		addlog(" @ ADB 스크린 캡쳐 실패")
 		return
 	}
-	pToken := Gdip_Startup()
+	;pToken := Gdip_Startup()
 	;GuiControlGet, hwnd, 4: hwnd, PicADB
 	;setImage(hwnd, hBm2)
 	hBitmapToGui(hbm2)
@@ -36,7 +36,7 @@ getAdbToGui()
 	;Gdip_DisposeImage(ret3)	
 	DeleteObject(hBm)
 	DeleteObject(hBm2)
-	Gdip_Shutdown(gdipToken)
+	;Gdip_Shutdown(gdipToken)
 }
 
 hBitmapToGui(hbm) ;hbitmap을 ADB Screen gui에 표시
@@ -52,7 +52,7 @@ SaveAdbCropImage(filename, x1, y1, x2, y2)
 {
 	w := x2 - x1
 	h := y2 - y1
-	pToken := Gdip_Startup()
+	gdipToken := Gdip_Startup()
 	sCmd := adb " -s " AdbSN " shell screencap"
 	if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
 	{	
@@ -72,7 +72,7 @@ SaveAdbCropImage(filename, x1, y1, x2, y2)
 
 엑페이미지변환(hbm)
 {
-	pToken := Gdip_Startup()
+	gdipToken := Gdip_Startup()
 	
 	pBitmap := Gdip_CreateBitmapFromHBITMAP(hbm)
 	ret := Gdip_ResizeBitmap(pBitmap, 800)
@@ -106,108 +106,7 @@ CaptureAdb(filename)
 	return
 }
 
-IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
-{		
-	IfNotExist, %ImageName% ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
-	{
-		log := "  @ 이미지 없음: " ImageName
-		AddLog(log)		
-	}
-	
-	sCmd := adb " -s " AdbSN " shell screencap"
-	if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
-	{
-		addlog(" @ ADB 스크린 캡쳐 실패")
-		return false
-	}
-	If(Gdip_ImageSearchWithHbm(hBm, ClickX, ClickY, ImageName, errorRange, trans, sX, sY, eX, eY))
-    {
-		log := "  @ 이미지 찾음 : " ImageName
-		AddLog(log)
-		DllCall("DeleteObject", Ptr, hBm)
-        return true
-    }
-	else
-	{
-		clickX := 0
-		clickY := 0
-		DllCall("DeleteObject", Ptr, hBm)
-		return false
-	}
-}
 
-;캡쳐없이 미리 있던 파일에서 이미지 서치
-IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
-{
-	IfNotExist, %ImageName% ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
-	{
-		log := "  @ 이미지 없음: " ImageName
-		AddLog(log)
-		return false
-	}
-	
-	file := "adbCapture\sc.png"
-	If(Gdip_ImageSearchWithFile(file, ClickX, ClickY, ImageName, errorRange, trans, sX, sY, eX, eY))
-    {
-		log := "  @ 이미지 찾음 : " ImageName
-		AddLog(log)	
-        return true
-    }
-	else
-	{
-		clickX := 0
-		clickY := 0
-		;log := "  @ 이미지 못 찾음 : " ImageName
-		;AddLog(log)	
-		return false
-	}
-}
-
-IsImageWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
-{
-	IfNotExist, %ImageName% ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
-	{
-		log := "  @ 이미지 없음: " ImageName
-		AddLog(log)
-		return false
-	}
-	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, ImageName, errorRange, trans, sX, sY, eX, eY))
-    {
-		log := "  @ 이미지 찾음 : " ImageName
-		AddLog(log)	
-        return true
-    }
-	else
-	{
-		clickX := 0
-		clickY := 0
-		;log := "  @ 이미지 못 찾음 : " ImageName
-		;AddLog(log)	
-		return false
-	}
-}
-
-IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;캡쳐, 로그 둘다 없이 서치
-{
-	IfNotExist, %ImageName% 
-	{
-		log := "  @ 이미지 없음: " ImageName
-		AddLog(log)
-		return false
-	}
-	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, ImageName, errorRange, trans, sX, sY, eX, eY))
-    {
-		;log := "  @ 이미지 찾음 : " ImageName
-		;AddLog(log)	
-        return true
-    }
-	else
-	{
-		clickX := 0
-		clickY := 0
-		return false
-	}
-}
 
 ClickAdb(x, y) ; adb클릭
 {
@@ -276,26 +175,8 @@ ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName) ;;클릭투이미지 클릭
 	}
 }
 
-Gdip_ImageSearchWithHbm(hBitmap, Byref X,Byref Y,Image,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;hbitmap으로 부터 서치
-{
-	gdipToken := Gdip_Startup()
-	bmpHaystack := Gdip_CreateBitmapFromHBITMAP(hBitmap) 
-	bmpNeedle := Gdip_CreateBitmapFromFile(Image)
-	RET := Gdip_ImageSearch(bmpHaystack,bmpNeedle,LIST,sX,sY,eX,eY,Variation,Trans,1,1)
-	Gdip_DisposeImage(bmpHaystack)
-	Gdip_DisposeImage(bmpNeedle)
-	Gdip_Shutdown(gdipToken)
-	StringSplit, LISTArray, LIST, `,
-	X := LISTArray1
-	Y := LISTArray2
-	
-	if(RET = 1)
-		return true
-	else
-		return false
-}
 
-Gdip_ImageSearchWithHbm2(hBitmap, Byref X,Byref Y,bmpNeedle,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;hbitmap으로 부터 서치
+Gdip_ImageSearchWithHbm(hBitmap, Byref X,Byref Y,bmpNeedle,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;hbitmap으로 부터 서치
 {
 	;gdipToken := Gdip_Startup()
 	bmpHaystack := Gdip_CreateBitmapFromHBITMAP(hBitmap) 
@@ -318,11 +199,73 @@ IsImageWithoutCap2(ByRef clickX, ByRef clickY, bmpNeedle, errorRange, trans, sX 
 {
 	If(!bmpNeedle) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
 	{
+		log := "  @ 이미지 없음: " bmpNeedle
+		AddLog(log)
+		return false
+	}
+	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, bmpNeedle, errorRange, trans, sX, sY, eX, eY))
+    {
+		log := "  @ 이미지 찾음 : " bmpNeedle
+		AddLog(log)	
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
+		;log := "  @ 이미지 못 찾음 : " ImageName
+		;AddLog(log)	
+		return false
+	}
+}
+
+IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
+{	
+	StringReplace, ImageName2, ImageName, Image\ , , All
+	StringReplace, ImageName2, ImageName2, .bmp , , All		
+	If(!bmp_%ImageName2%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+	{
 		log := "  @ 이미지 없음: " ImageName
 		AddLog(log)
 		return false
 	}
-	If(Gdip_ImageSearchWithHbm2(g_hBitmap, ClickX, ClickY, bmpNeedle, errorRange, trans, sX, sY, eX, eY))
+	
+	sCmd := adb " -s " AdbSN " shell screencap"
+	if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
+	{
+		addlog(" @ ADB 스크린 캡쳐 실패")
+		return false
+	}
+	If(Gdip_ImageSearchWithHbm(hBm, ClickX, ClickY, bmp_%ImageName2%, errorRange, trans, sX, sY, eX, eY))
+    {
+		log := "  @ 이미지 찾음 : " ImageName
+		AddLog(log)
+		DllCall("DeleteObject", Ptr, hBm)
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
+		DllCall("DeleteObject", Ptr, hBm)
+		return false
+	}
+}
+
+;캡쳐없이 미리 있던 파일에서 이미지 서치
+IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
+{
+	StringReplace, ImageName2, ImageName, Image\ , , All
+	StringReplace, ImageName2, ImageName2, .bmp , , All		
+	If(!bmp_%ImageName2%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+	{
+		log := "  @ 이미지 없음: " ImageName
+		AddLog(log)
+		return false
+	}
+	
+	file := "adbCapture\sc.png"
+	If(Gdip_ImageSearchWithFile(file, ClickX, ClickY, bmp_%ImageName2%, errorRange, trans, sX, sY, eX, eY))
     {
 		log := "  @ 이미지 찾음 : " ImageName
 		AddLog(log)	
@@ -334,6 +277,58 @@ IsImageWithoutCap2(ByRef clickX, ByRef clickY, bmpNeedle, errorRange, trans, sX 
 		clickY := 0
 		;log := "  @ 이미지 못 찾음 : " ImageName
 		;AddLog(log)	
+		return false
+	}
+}
+
+IsImageWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
+{
+	
+	StringReplace, ImageName2, ImageName, Image\ , , All
+	StringReplace, ImageName2, ImageName2, .bmp , , All
+
+	If(!bmp_%ImageName2%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+	{
+		log := "  @ 이미지 없음: " ImageName
+		AddLog(log)
+		return false
+	}
+	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, bmp_%ImageName2%, errorRange, trans, sX, sY, eX, eY))
+    {
+		log := "  @ 이미지 찾음 : " ImageName
+		AddLog(log)	
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
+		;log := "  @ 이미지 못 찾음 : " ImageName
+		;AddLog(log)	
+		return false
+	}
+}
+
+IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;캡쳐, 로그 둘다 없이 서치
+{
+	StringReplace, ImageName2, ImageName, Image\ , , All
+	StringReplace, ImageName2, ImageName2, .bmp , , All		
+	If(!bmp_%ImageName2%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+	{
+		log := "  @ 이미지 없음: " ImageName
+		AddLog(log)
+		return false
+	}
+	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, bmp_%ImageName2%, errorRange, trans, sX, sY, eX, eY))
+    {
+		;log := "  @ 이미지 찾음 : " ImageName
+		;AddLog(log)	
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
 		return false
 	}
 }
@@ -438,3 +433,134 @@ SaveHBITMAPToFile(hBitmap, sFile)
 	DllCall("WriteFile", "UPTR", hFile, "Uint", NumGet(DIBSECTION, A_PtrSize=8? 24:20, "UPtr"), "Uint", biSizeImage, "UintP", 0, "Uint", 0)
 	DllCall("CloseHandle", "UPTR", hFile)
 }
+
+/*
+IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
+{		
+	IfNotExist, %ImageName% ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+	{
+		log := "  @ 이미지 없음: " ImageName
+		AddLog(log)		
+	}
+	
+	sCmd := adb " -s " AdbSN " shell screencap"
+	if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
+	{
+		addlog(" @ ADB 스크린 캡쳐 실패")
+		return false
+	}
+	If(Gdip_ImageSearchWithHbm(hBm, ClickX, ClickY, ImageName, errorRange, trans, sX, sY, eX, eY))
+    {
+		log := "  @ 이미지 찾음 : " ImageName
+		AddLog(log)
+		DllCall("DeleteObject", Ptr, hBm)
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
+		DllCall("DeleteObject", Ptr, hBm)
+		return false
+	}
+}
+
+;캡쳐없이 미리 있던 파일에서 이미지 서치
+IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
+{
+	IfNotExist, %ImageName% ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+	{
+		log := "  @ 이미지 없음: " ImageName
+		AddLog(log)
+		return false
+	}
+	
+	file := "adbCapture\sc.png"
+	If(Gdip_ImageSearchWithFile(file, ClickX, ClickY, ImageName, errorRange, trans, sX, sY, eX, eY))
+    {
+		log := "  @ 이미지 찾음 : " ImageName
+		AddLog(log)	
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
+		;log := "  @ 이미지 못 찾음 : " ImageName
+		;AddLog(log)	
+		return false
+	}
+}
+
+IsImageWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
+{
+	;StringReplace, ImageName2, ImageName, Image\ , , All
+	;StringReplace, ImageName2, ImageName2, .bmp , , All
+	;addlog(ImageName2)
+	IfNotExist, %ImageName% ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+	{
+		log := "  @ 이미지 없음: " ImageName
+		AddLog(log)
+		return false
+	}
+	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, ImageName, errorRange, trans, sX, sY, eX, eY))
+    {
+		log := "  @ 이미지 찾음 : " ImageName
+		AddLog(log)	
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
+		;log := "  @ 이미지 못 찾음 : " ImageName
+		;AddLog(log)	
+		return false
+	}
+}
+
+IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;캡쳐, 로그 둘다 없이 서치
+{
+	IfNotExist, %ImageName% 
+	{
+		log := "  @ 이미지 없음: " ImageName
+		AddLog(log)
+		return false
+	}
+	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, ImageName, errorRange, trans, sX, sY, eX, eY))
+    {
+		;log := "  @ 이미지 찾음 : " ImageName
+		;AddLog(log)	
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
+		return false
+	}
+}
+*/
+
+/*
+Gdip_ImageSearchWithHbm(hBitmap, Byref X,Byref Y,Image,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;hbitmap으로 부터 서치
+{
+	gdipToken := Gdip_Startup()
+	bmpHaystack := Gdip_CreateBitmapFromHBITMAP(hBitmap) 
+	bmpNeedle := Gdip_CreateBitmapFromFile(Image)
+	AddLog(bmpNeedle)
+	RET := Gdip_ImageSearch(bmpHaystack,bmpNeedle,LIST,sX,sY,eX,eY,Variation,Trans,1,1)
+	AddLog(RET)
+	Gdip_DisposeImage(bmpHaystack)
+	Gdip_DisposeImage(bmpNeedle)
+	Gdip_Shutdown(gdipToken)
+	StringSplit, LISTArray, LIST, `,
+	X := LISTArray1
+	Y := LISTArray2
+	
+	if(RET = 1)
+		return true
+	else
+		return false
+}
+*/

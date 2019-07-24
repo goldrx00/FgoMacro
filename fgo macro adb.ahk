@@ -1,4 +1,4 @@
-﻿;fgo macro adb.ahk asdf
+﻿;fgo macro adb.ahk
 
 #Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
 #SingleInstance Force ; 스크립트를 동시에 한개만 실행
@@ -92,7 +92,7 @@ Gui, Add, Button, x102 y320 w70 h30  gReset, 재시작
 Gui, 2: Add, ListBox, x12 y9 w330 h310 vLogList,
 Gui, 2: +Owner1
 
-Gui, 3: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F5 : 무료소환반복
+Gui, 3: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F5 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
 
 ;Gui, 4: Add,Picture,x0 y0 w800 h450 0xE vPicADB gClickPic ;;화면
 ;#include %A_ScriptDir%\guitest2.ahk
@@ -111,10 +111,25 @@ Gosub, Attach
 GuiControlGet, EmulSN, 1: ;adb 에뮬 시리얼
 AdbSN := EmulSN
 
-
 Gui, Show,  x%initX% y%initY% , %MacroID% ; h350 w194
+
+Gosub, LoadImage
+
 log := "# 동작 대기"
 AddLog(log)
+return
+
+LoadImage:
+AddLog("# 이미지 로딩 중...")
+gdipToken := Gdip_Startup()
+Loop, image\*.bmp, , 1  ; Recurse into subfolders.
+ {
+	 imgFileName = %A_LoopFileName%
+	 StringReplace, imgFileName, imgFileName, .bmp , , All	 
+	 bmp_%imgFileName% := Gdip_CreateBitmapFromFile(A_LoopFileFullPath)
+ }
+ AddLog("# 이미지 로딩 완료")
+;Gdip_Shutdown(gdipToken)
 return
 
 LoadOption:
@@ -754,27 +769,17 @@ loop
 return
 
 
+^f8:: ;이미지 재로딩
+	Gosub, LoadImage
+return
+
+
+
 /*
-^f8::
-	SaveAdbCropImage("image\이벤트배너.bmp", 530, 220, 630, 250)
-	addlog("이벤트 배너 저장")
-return
-*/
-
-^f3::
-	aa := "회복bmp"
-	s%aa% := "tt"
-	;addlog(s%aa%)
-	addlog(s회복bmp)
-return
-
 ^f4::
-Loop, image\*.bmp, , 1  ; Recurse into subfolders.
- {
- aaa =%aaa%`n%A_LoopFileFullPath%
- StringReplace, aaa, aaa, .bmp , s , All
- }
-msgbox, %aaa%
+ getAdbScreen()
+ if(IsImageWithoutCap2(clickX, clickY, hbm_ap회복, 60, 0))
+	ClickAdb(clickX, clickY)
 
 return
 
@@ -784,15 +789,18 @@ Loop, image\*.bmp, , 1  ; Recurse into subfolders.
  {
 	 aaa = %A_LoopFileName%
 	 StringReplace, aaa, aaa, .bmp , , All
-	 hbm%aaa% := 0
-	hbm_%aaa% := Gdip_CreateBitmapFromFile(A_LoopFileFullPath)
+	 ;hbm%aaa% := 0
+	bmp_%aaa% := Gdip_CreateBitmapFromFile(A_LoopFileFullPath)
+	;addlog(A_LoopFileFullPath)
  }
+ addlog(hbm_ap회복)
+
 
  getAdbScreen()
- if(IsImageWithoutCap2(clickX, clickY, hbm_ap회복, 60, 0))
+ if(IsImageWithoutCap2(clickX, clickY, bmp_ap회복, 60, 0))
 	ClickAdb(clickX, clickY)
 ;msgbox, %aaa%
-Gdip_Shutdown(gdipToken)
+;Gdip_Shutdown(gdipToken)
 return
 
 ;그런데 이렇게만 하면 명령만 보내고 작업이 끝났는지 알수가 없습니다. 따라서 아래의 코드를 추가합니다
