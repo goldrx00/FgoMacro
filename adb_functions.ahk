@@ -295,6 +295,49 @@ Gdip_ImageSearchWithHbm(hBitmap, Byref X,Byref Y,Image,Variation=0,Trans="",sX =
 		return false
 }
 
+Gdip_ImageSearchWithHbm2(hBitmap, Byref X,Byref Y,bmpNeedle,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;hbitmap으로 부터 서치
+{
+	;gdipToken := Gdip_Startup()
+	bmpHaystack := Gdip_CreateBitmapFromHBITMAP(hBitmap) 
+	;bmpNeedle := Gdip_CreateBitmapFromFile(Image)
+	RET := Gdip_ImageSearch(bmpHaystack,bmpNeedle,LIST,sX,sY,eX,eY,Variation,Trans,1,1)
+	Gdip_DisposeImage(bmpHaystack)
+	;Gdip_DisposeImage(bmpNeedle)
+	;Gdip_Shutdown(gdipToken)
+	StringSplit, LISTArray, LIST, `,
+	X := LISTArray1
+	Y := LISTArray2
+	
+	if(RET = 1)
+		return true
+	else
+		return false
+}
+
+IsImageWithoutCap2(ByRef clickX, ByRef clickY, bmpNeedle, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
+{
+	If(!bmpNeedle) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+	{
+		log := "  @ 이미지 없음: " ImageName
+		AddLog(log)
+		return false
+	}
+	If(Gdip_ImageSearchWithHbm2(g_hBitmap, ClickX, ClickY, bmpNeedle, errorRange, trans, sX, sY, eX, eY))
+    {
+		log := "  @ 이미지 찾음 : " ImageName
+		AddLog(log)	
+        return true
+    }
+	else
+	{
+		clickX := 0
+		clickY := 0
+		;log := "  @ 이미지 못 찾음 : " ImageName
+		;AddLog(log)	
+		return false
+	}
+}
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;adb에서 파일쓰기 없이 바로 gdip hbitmap만들기;;;;;;;;;;;;;;;;
 
 ;MCode Func

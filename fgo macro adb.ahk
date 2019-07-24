@@ -3,6 +3,8 @@
 #Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
 #SingleInstance Force ; 스크립트를 동시에 한개만 실행
 
+SetWorkingDir, %A_ScriptDir%	;스크립트의 작업 디렉토리를 변경. vscode로 작업시 넣어줘야 폴더 인식
+
 #Include %A_ScriptDir%\Gdip.ahk
 #include %A_ScriptDir%\functions.ahk
 #include %A_ScriptDir%\adb_functions.ahk
@@ -80,7 +82,6 @@ Gui, Add, checkbox, x170 y215 v보구3라1, 1
 Gui, Add, checkbox, x200 y215 v보구3라2, 2
 Gui, Add, checkbox, x230 y215 v보구3라3, 3
 Gui, Add, checkbox, x22 y240 v금사과사용, 금사과 사용
-
 
 Gui, Add, Button, x22 y280 w50 h30 gMenuInfo, 설명
 Gui, Add, Button, x82 y280 w50 h30 gMenuLog, 기록
@@ -382,8 +383,8 @@ return
 
 					loop, 9
 					{
-						if(IsImgWithoutCapLog(clickX, clickY, "Image\방업1.bmp", 10, 0, SkillButtonPos[a_index].sX+15, SkillButtonPos[a_index].sY+20, SkillButtonPos[a_index].eX-15, SkillButtonPos[a_index].eY-10)
-						&& IsImgWithoutCapLog(clickX, clickY, "Image\방업2.bmp", 10, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImageWithoutCap(clickX, clickY, "Image\방업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImageWithoutCap(clickX, clickY, "Image\방업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 방업 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
@@ -393,8 +394,9 @@ return
 					}
 					loop, 9
 					{
-						if(IsImgWithoutCapLog(clickX, clickY, "Image\공업1.bmp", 10, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						&& IsImgWithoutCapLog(clickX, clickY, "Image\공업2.bmp", 10, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImageWithoutCap(clickX, clickY, "Image\공업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImageWithoutCap(clickX, clickY, "Image\공업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImageWithoutCap(clickX, clickY, "Image\공업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 공업 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
@@ -404,10 +406,32 @@ return
 					}
 					loop, 9
 					{
-						if(IsImgWithoutCapLog(clickX, clickY, "Image\엔피업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImgWithoutCapLog(clickX, clickY, "Image\엔피업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImageWithoutCap(clickX, clickY, "Image\np획득량1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImageWithoutCap(clickX, clickY, "Image\np획득량1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 엔피 스킬 사용")
+							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
+							sleep, 3000
+							break
+						}
+					}
+					loop, 9
+					{
+						if(IsImageWithoutCap(clickX, clickY, "Image\np업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImageWithoutCap(clickX, clickY, "Image\np업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						{
+							addlog("# " a_index " 번 칸 엔피 스킬 사용")
+							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
+							sleep, 3000
+							break
+						}
+					}
+					loop, 9
+					{
+						if(IsImageWithoutCap(clickX, clickY, "Image\스타1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImageWithoutCap(clickX, clickY, "Image\스타2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						{
+							addlog("# " a_index " 번 칸 스타 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
 							sleep, 3000
 							break
@@ -700,7 +724,7 @@ return
 */
 
 
-^f5::
+^f5:: ;; 무료 소환 반복 핫키
 objExec := objShell.Exec(adb " devices")
 strStdOut:=strStdErr:=""
 while, !objExec.StdOut.AtEndOfStream
@@ -735,15 +759,40 @@ return
 	SaveAdbCropImage("image\이벤트배너.bmp", 530, 220, 630, 250)
 	addlog("이벤트 배너 저장")
 return
-
+*/
 
 ^f3::
-	objExec := objShell.Exec(adb " -s " AdbSN " shell screencap -p /sdcard/sc.png")
-	while(!objExec.status) ; objExec.status가 1이면 프로세스 완료된 상태
-		sleep, 10
-	objExec := objShell.Exec(adb " -s " AdbSN " pull /sdcard/sc.png adbCapture\")
-	while(!objExec.status) ; objExec.status가 1이면 프로세스 완료된 상태
-		sleep, 10
+	aa := "회복bmp"
+	s%aa% := "tt"
+	;addlog(s%aa%)
+	addlog(s회복bmp)
+return
+
+^f4::
+Loop, image\*.bmp, , 1  ; Recurse into subfolders.
+ {
+ aaa =%aaa%`n%A_LoopFileFullPath%
+ StringReplace, aaa, aaa, .bmp , s , All
+ }
+msgbox, %aaa%
+
+return
+
+^f2::
+gdipToken := Gdip_Startup()
+Loop, image\*.bmp, , 1  ; Recurse into subfolders.
+ {
+	 aaa = %A_LoopFileName%
+	 StringReplace, aaa, aaa, .bmp , , All
+	 hbm%aaa% := 0
+	hbm_%aaa% := Gdip_CreateBitmapFromFile(A_LoopFileFullPath)
+ }
+
+ getAdbScreen()
+ if(IsImageWithoutCap2(clickX, clickY, hbm_ap회복, 60, 0))
+	ClickAdb(clickX, clickY)
+;msgbox, %aaa%
+Gdip_Shutdown(gdipToken)
 return
 
 ;그런데 이렇게만 하면 명령만 보내고 작업이 끝났는지 알수가 없습니다. 따라서 아래의 코드를 추가합니다
