@@ -175,30 +175,6 @@ Gdip_ImageSearchWithHbm(hBitmap, Byref X,Byref Y,bmpNeedle,Variation=0,Trans="",
 		return false
 }
 
-IsImageWithoutCap2(ByRef clickX, ByRef clickY, bmpNeedle, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
-{
-	If(!bmpNeedle) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
-	{
-		log := "  @ 이미지 없음: " bmpNeedle
-		AddLog(log)
-		return false
-	}
-	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, bmpNeedle, errorRange, trans, sX, sY, eX, eY))
-    {
-		log := "  @ 이미지 찾음 : " bmpNeedle
-		AddLog(log)	
-        return true
-    }
-	else
-	{
-		clickX := 0
-		clickY := 0
-		;log := "  @ 이미지 못 찾음 : " ImageName
-		;AddLog(log)	
-		return false
-	}
-}
-
 IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
 {	
 	StringReplace, ImageName2, ImageName, Image\ , , All

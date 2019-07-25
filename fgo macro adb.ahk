@@ -415,9 +415,9 @@ return
 					}
 					loop, 9
 					{
-						if(IsImageWithoutCap(clickX, clickY, "s_공업1.bmp", 170, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImageWithoutCap(clickX, clickY, "s_공업2.bmp", 170, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImageWithoutCap(clickX, clickY, "s_공업3.bmp", 170, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImageWithoutCap(clickX, clickY, "s_공업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImageWithoutCap(clickX, clickY, "s_공업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImageWithoutCap(clickX, clickY, "s_공업3.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 공업 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
