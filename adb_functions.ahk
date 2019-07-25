@@ -70,24 +70,6 @@ SaveAdbCropImage(filename, x1, y1, x2, y2)
 	Gdip_Shutdown(gdipToken)
 }
 
-엑페이미지변환(hbm)
-{
-	gdipToken := Gdip_Startup()
-	
-	pBitmap := Gdip_CreateBitmapFromHBITMAP(hbm)
-	ret := Gdip_ResizeBitmap(pBitmap, 800)
-	;ret := Gdip_CropImage(pBitmap, 159, 240, 450, 800)
-	;ret2 := Gdip_RotateBitmap(ret, 90, 0)
-	hbm2 := Gdip_CreateHBITMAPFromBitmap(ret)
-
-	DllCall("DeleteObject", Ptr, hbm)
-	Gdip_DisposeImage(pBitmap)
-	Gdip_DisposeImage(ret)
-	;Gdip_DisposeImage(ret2)
-	Gdip_Shutdown(gdipToken)
-	return hbm2
-}
-
 CaptureAdb(filename)
 {
 	sCmd := adb " -s " AdbSN " shell screencap"
@@ -105,8 +87,6 @@ CaptureAdb(filename)
 	AddLog(log)
 	return
 }
-
-
 
 ClickAdb(x, y) ; adb클릭
 {
