@@ -116,7 +116,6 @@ return
 LoadImage:
 	imageNum := 0
 	AddLog("# 이미지 로딩 중...")
-	;array := []
 	;gdipToken := Gdip_Startup()
 	Loop, image\*.bmp, , 1  ; Recurse into subfolders.
 	{
@@ -380,7 +379,7 @@ return
 					스킬사용("s_np업")
 					스킬사용("s_스타")
 					스킬사용("s_버스터")
-					스킬사용("s_스집")
+					스킬사용("s_스집", 130)
 
 					/*
 					loop, 9
@@ -660,7 +659,7 @@ return
 	}
 }
 
-스킬사용(skillName) ;스킬이미지이름에서 숫자뺀거, 이미지 갯수
+스킬사용(skillName, errorRange = 150) ;스킬이미지이름에서 숫자뺀거, 이미지 갯수
 {
 	loop ;;스킬이미지가 몇개 인지 확인하는 루프
 	{
@@ -681,7 +680,7 @@ return
 		buttonNum := a_index
 		loop, %imageNum%
 		{			
-			if(IsImgWithoutCap(clickX, clickY, skillName a_index ".bmp", 150, 0, SkillButtonPos[buttonNum].sX, SkillButtonPos[buttonNum].sY, SkillButtonPos[buttonNum].eX, SkillButtonPos[buttonNum].eY))
+			if(IsImgWithoutCap(clickX, clickY, skillName a_index ".bmp", errorRange, 0, SkillButtonPos[buttonNum].sX, SkillButtonPos[buttonNum].sY, SkillButtonPos[buttonNum].eX, SkillButtonPos[buttonNum].eY))
 			{
 				addlog("# " buttonNum " 번 칸 " skillName " 스킬 사용")
 				ClickAdb(SkillButtonPos[buttonNum].sX+20, SkillButtonPos[buttonNum].sY+20)
