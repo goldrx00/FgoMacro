@@ -57,14 +57,10 @@ global MacroID := "페그오 매크로"
 Gui, Add, Progress, x12 y9 w80 h20 cGreen Range0-100  vProgress, 0
 Gui, Add, Text, x182 y15 w80 h20 +Center vSimpleLog, <대기 중>
 Gui, Add, GroupBox, x12 y39 w250 h330 , 옵션
-;Gui, Add, Text, x22 y59 w140 h150, 모드
-;Gui, Add, DropDownList, x22 y80 Choose1 AltSubmit vMacroMode gMacroMode, 1.에뮬모드|2.폰모드
 
 Gui, Add, Text, x22 y59 , 에뮬 ADB Serial Number: 
 Gui, Add, Edit, x22 y80 vEmulSN,
-;Gui, Add, Text, x22 y210 , 폰 ADB Serial Number:
-;Gui, Add, Edit, x22 y230 vPhoneSN,
-;Gui, Add, ComboBox, x22 y200 Choose1 vAdbSerial, | |
+
 Gui, Add, Text, x22 y120 , 1라 점사:
 Gui, Add, Text, x170 y120 , 보구 사용
 Gui, Add, DropDownList, x22 y135 Choose1 AltSubmit v점사1, 전|중|후
@@ -85,7 +81,6 @@ Gui, Add, checkbox, x22 y240 v금사과사용, 금사과 사용
 
 Gui, Add, Button, x22 y280 w50 h30 gMenuInfo, 설명
 Gui, Add, Button, x82 y280 w50 h30 gMenuLog, 기록
-;Gui, Add, Button, x142 y280 w50 h30 gADB스크린, 화면
 Gui, Add, Button, x22 y320 w70 h30  gOneClick, 실행
 Gui, Add, Button, x102 y320 w70 h30  gReset, 재시작
 
@@ -94,9 +89,7 @@ Gui, 2: +Owner1
 
 Gui, 3: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F5 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
 
-;Gui, 4: Add,Picture,x0 y0 w800 h450 0xE vPicADB gClickPic ;;화면
 ;#include %A_ScriptDir%\guitest2.ahk
-
 
 IfNotExist, %ConfigFile%
 {
@@ -381,7 +374,15 @@ return
 					}
 
 					;;;;;;;;;;;;;;;;;;;;;;;;;; 스킬 사용 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+					스킬사용("s_방업")
+					스킬사용("s_공업")
+					스킬사용("s_np획득량")
+					스킬사용("s_np업")
+					스킬사용("s_스타")
+					스킬사용("s_버스터")
+					스킬사용("s_스집")
 
+					/*
 					loop, 9
 					{
 						if(IsImgWithoutCap(clickX, clickY, "s_방업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
@@ -394,61 +395,9 @@ return
 							sleep, 2000
 							break
 						}
-					}
-					loop, 9
-					{
-						if(IsImgWithoutCap(clickX, clickY, "s_공업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImgWithoutCap(clickX, clickY, "s_공업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImgWithoutCap(clickX, clickY, "s_공업3.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
-						{
-							addlog("# " a_index " 번 칸 공업 스킬 사용")
-							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
-							sleep, 1000
-							ClickAdb(690, 110)
-							sleep, 2000
-							break
-						}
-					}
-					loop, 9
-					{
-						if(IsImgWithoutCap(clickX, clickY, "s_np획득량1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImgWithoutCap(clickX, clickY, "s_np획득량1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
-						{
-							addlog("# " a_index " 번 칸 엔피 스킬 사용")
-							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
-							sleep, 1000
-							ClickAdb(690, 110)
-							sleep, 2000
-							break
-						}
-					}
-					loop, 9
-					{
-						if(IsImgWithoutCap(clickX, clickY, "s_np업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImgWithoutCap(clickX, clickY, "s_np업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
-						{
-							addlog("# " a_index " 번 칸 엔피 스킬 사용")
-							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
-							sleep, 1000
-							ClickAdb(690, 110)
-							sleep, 2000
-							break
-						}
-					}
-					loop, 9
-					{
-						if(IsImgWithoutCap(clickX, clickY, "s_스타1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImgWithoutCap(clickX, clickY, "s_스타2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
-						{
-							addlog("# " a_index " 번 칸 스타 스킬 사용")
-							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
-							sleep, 1000
-							ClickAdb(690, 110)
-							sleep, 2000
-							break
-						}
-					}
-					
+					}		
+					*/
+
 					ClickAdb(710, 410) ;어택 클릭					
 					sleep, 2000
 
@@ -711,6 +660,45 @@ return
 	}
 }
 
+스킬사용(skillName) ;스킬이미지이름에서 숫자뺀거, 이미지 갯수
+{
+	loop ;;스킬이미지가 몇개 인지 확인하는 루프
+	{
+		if(!bmpPtrArr[(skillName) a_index])
+		{
+			imageNum := a_index - 1
+			break
+		}
+		;addlog("루프수"a_index)
+		
+	}
+	;addlog("최종 " imageNum)
+	;addlog(imageNum)
+	;getAdbScreen()
+	breakLoop := 0
+	loop, 9
+	{
+		buttonNum := a_index
+		loop, %imageNum%
+		{			
+			if(IsImgWithoutCap(clickX, clickY, skillName a_index ".bmp", 150, 0, SkillButtonPos[buttonNum].sX, SkillButtonPos[buttonNum].sY, SkillButtonPos[buttonNum].eX, SkillButtonPos[buttonNum].eY))
+			{
+				addlog("# " buttonNum " 번 칸 " skillName " 스킬 사용")
+				ClickAdb(SkillButtonPos[buttonNum].sX+20, SkillButtonPos[buttonNum].sY+20)
+				sleep, 500
+				ClickAdb(690, 110) ; 선택창 떴을 때 끄기
+				sleep, 2500
+				breakLoop := 1
+				break
+			}
+			;addlog(a_index)
+		}
+		;addlog(buttonNum)
+		if(breakLoop)
+			break		
+	}
+}
+
 ^f6::
 	fileName := A_DD "_" A_HOUR "_" A_MIN "_" A_SEC "_capture.png"
 	CaptureAdb(fileName)
@@ -771,13 +759,9 @@ return
 
 
 
-
+/*
 ^f4::
-Arrays:= []
-Arrays := {aaas: 3, ab.sd: 7, aakk: 15}
-Arrays["aaas"] := 27
-addlog(Arrays["aakk"])
-addlog(Arrays["aaas"])
+스킬사용("s_공업")
 return
 
 ^f2::

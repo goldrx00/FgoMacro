@@ -211,10 +211,8 @@ IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0
 	
 	StringReplace, ImageName2, ImageName, Image\ , , All
 	StringReplace, ImageName2, ImageName2, .bmp , , All
-	;addlog(array[(ImageName2)])
-	;addlog(array["ap회복"])
-	;If(!bmp_%ImageName2%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
-	if(!bmpPtrArr[(ImageName2)])
+
+	if(!bmpPtrArr[(ImageName2)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
 	{
 		log := "  @ 이미지 없음: " ImageName
 		AddLog(log)
