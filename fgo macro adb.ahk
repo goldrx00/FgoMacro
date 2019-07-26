@@ -22,7 +22,7 @@ global TIME_REFRESH := 250 ;매크로 대기시간 (화면전환 등)
 global nLog := 1 ;;기록
 global OnRunning := 0
 global g_hBitmap ;adb 이미지 서치용 hBitmap
-;global 폰모드 := 0 ;매크로 모드
+global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포인터를 저장하는 배열
 global ConfigFile := "Config.ini"
 
 global SkillButtonPos := [{sX: 23, 	sY: 341,		eX: 63, 	eY: 380}
@@ -121,18 +121,22 @@ AddLog(log)
 return
 
 LoadImage:
+	imageNum := 0
 	AddLog("# 이미지 로딩 중...")
+	;array := []
 	;gdipToken := Gdip_Startup()
 	Loop, image\*.bmp, , 1  ; Recurse into subfolders.
 	{
 		imgFileName = %A_LoopFileName%
 		StringReplace, imgFileName, imgFileName, .bmp , , All
-		if(!bmp_%imgFileName% := Gdip_CreateBitmapFromFile(A_LoopFileFullPath))
-			Addlog("  " A_LoopFileName " 로딩 실패")	 	
+
+		if(!bmpPtrArr[(imgFileName)] := Gdip_CreateBitmapFromFile(A_LoopFileFullPath))
+			Addlog("  " A_LoopFileName " 로딩 실패")		
 		;else
-			;Addlog("  " A_LoopFileName )	
+			;Addlog("  " A_LoopFileName )
+		imageNum++
 	}
-	AddLog("# 이미지 로딩 완료")
+	AddLog("# 이미지 " imageNum "장 로딩 완료")
 return
 
 LoadOption:
@@ -214,28 +218,6 @@ MenuInfo:
 	ChildY := posY
 	Gui, 3: Show, x%ChildX% y%ChildY% , 설명
 Return
-
-ADB스크린:
-	RealWinSize(posX, posY, width, height, MacroID)
-	ChildX := posX + width + 10
-	ChildY := posY
-	;Gui, 4: Add,Picture,x0 y0 0xE vPic
-	Gui, 4: Show, x%ChildX% y%ChildY%  , ADB Screen
-Return
-
-ClickPic:
-	SysGet, wCaption, 4
-	SysGet, wFrame, 7
-	MouseGetPos, MouseX, MouseY	
-	x := MouseX - wFrame
-	y := MouseY - wFrame - wCaption
-	;addlog("마우스클릭" MouseX " " MouseY)
-	ClickAdb(x, y)
-	sleep, 500
-	getAdbToGui()
-	getAdbToGui()
-	;getAdbToGui()
-return
 
 GuiClose:
 Clean_up: ;매크로 끌때
@@ -356,13 +338,13 @@ return
 					getAdbScreen()				
 
 					;;라운드 알아내기
-					if(IsImageWithoutCap(clickX, clickY, "Battle2.bmp", 120, "black", 541, 9, 551, 22))
+					if(IsImgWithoutCap(clickX, clickY, "Battle2.bmp", 120, "black", 541, 9, 551, 22))
 					{
 						if(라운드 = 1)
 							라운드시작 := true	
 						라운드 := 2											
 					}
-					else if(IsImageWithoutCap(clickX, clickY, "Battle3.bmp", 120, "black", 541, 9, 551, 22))
+					else if(IsImgWithoutCap(clickX, clickY, "Battle3.bmp", 120, "black", 541, 9, 551, 22))
 					{
 						if(라운드 = 2)
 							라운드시작 := true
@@ -402,8 +384,8 @@ return
 
 					loop, 9
 					{
-						if(IsImageWithoutCap(clickX, clickY, "s_방업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImageWithoutCap(clickX, clickY, "s_방업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImgWithoutCap(clickX, clickY, "s_방업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImgWithoutCap(clickX, clickY, "s_방업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 방업 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
@@ -415,9 +397,9 @@ return
 					}
 					loop, 9
 					{
-						if(IsImageWithoutCap(clickX, clickY, "s_공업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImageWithoutCap(clickX, clickY, "s_공업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImageWithoutCap(clickX, clickY, "s_공업3.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImgWithoutCap(clickX, clickY, "s_공업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImgWithoutCap(clickX, clickY, "s_공업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImgWithoutCap(clickX, clickY, "s_공업3.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 공업 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
@@ -429,8 +411,8 @@ return
 					}
 					loop, 9
 					{
-						if(IsImageWithoutCap(clickX, clickY, "s_np획득량1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImageWithoutCap(clickX, clickY, "s_np획득량1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImgWithoutCap(clickX, clickY, "s_np획득량1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImgWithoutCap(clickX, clickY, "s_np획득량1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 엔피 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
@@ -442,8 +424,8 @@ return
 					}
 					loop, 9
 					{
-						if(IsImageWithoutCap(clickX, clickY, "s_np업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImageWithoutCap(clickX, clickY, "s_np업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImgWithoutCap(clickX, clickY, "s_np업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImgWithoutCap(clickX, clickY, "s_np업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 엔피 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
@@ -455,8 +437,8 @@ return
 					}
 					loop, 9
 					{
-						if(IsImageWithoutCap(clickX, clickY, "s_스타1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImageWithoutCap(clickX, clickY, "s_스타2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
+						if(IsImgWithoutCap(clickX, clickY, "s_스타1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
+						|| IsImgWithoutCap(clickX, clickY, "s_스타2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
 						{
 							addlog("# " a_index " 번 칸 스타 스킬 사용")
 							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
@@ -474,7 +456,7 @@ return
 					Loop
 					{
 						getAdbScreen() ;한번 가져온 스샷으로 여러번 이미지 서치
-						if(!IsImageWithoutCap(clickX, clickY, "attack.bmp", 60, 0))
+						if(!IsImgWithoutCap(clickX, clickY, "attack.bmp", 60, 0))
 						{
 							break
 						}
@@ -514,7 +496,7 @@ return
 
 					loop, 5 ;이펙티브 버스터 우선 사용
 					{
-						if(IsImageWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
+						if(IsImgWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
 						&& IsImgWithoutCapLog(clickX, clickY, "buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
 						&& IsImgWithoutCapLog(clickX, clickY, "buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
 						{
@@ -527,7 +509,7 @@ return
 					{
 						if(card%a_index% = 1)
 							continue
-						if(IsImageWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
+						if(IsImgWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
 						&& IsImgWithoutCapLog(clickX, clickY, "arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
 						&& IsImgWithoutCapLog(clickX, clickY, "arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
 						{
@@ -541,7 +523,7 @@ return
 					{
 						if(card%a_index% = 1)
 							continue
-						if(IsImageWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 ))
+						if(IsImgWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 ))
 						{
 							ClickAdb(CmdCardPos[a_index].sX + 80, 320)
 							card%a_index% := 1
@@ -552,7 +534,7 @@ return
 					{
 						if(card%a_index% = 1)
 							continue
-						if(!IsImageWithoutCap(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
+						if(!IsImgWithoutCap(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
 						&& IsImgWithoutCapLog(clickX, clickY, "buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
 						&& IsImgWithoutCapLog(clickX, clickY, "buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
 						{
@@ -565,7 +547,7 @@ return
 					{
 						if(card%a_index% = 1)
 							continue
-						if(!IsImageWithoutCap(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
+						if(!IsImgWithoutCap(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
 						&& IsImgWithoutCapLog(clickX, clickY, "arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
 						&& IsImgWithoutCapLog(clickX, clickY, "arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
 						{
@@ -578,7 +560,7 @@ return
 					{
 						if(card%a_index% = 1)
 							continue
-						if(!IsImageWithoutCap(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 ))
+						if(!IsImgWithoutCap(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 ))
 						{
 							ClickAdb(CmdCardPos[a_index].sX + 80, 320)
 							card%a_index% := 1
@@ -601,32 +583,32 @@ return
 
 				;;전투가 끝났을 시
 				getAdbScreen()
-				if(IsImageWithoutCap(clickX, clickY, "전투x.bmp", 60, 0))
+				if(IsImgWithoutCap(clickX, clickY, "전투x.bmp", 60, 0))
 				{
 					ClickAdb(clickX, clickY)
 					sleep, 2000
 				}
 				/*
-				if(IsImageWithoutCap(clickX, clickY, "보구렉.bmp", 60, 0))
+				if(IsImgWithoutCap(clickX, clickY, "보구렉.bmp", 60, 0))
 				{					
 					sleeplog(7000)
 				} 
 				*/
-				if(IsImageWithoutCap(clickX, clickY, "result.bmp", 45, "black", 462, 20, 492, 55))
-				;|| IsImageWithoutCap(clickX, clickY, "인연레벨업.bmp", 60, "white", 540, 217, 570, 245))
+				if(IsImgWithoutCap(clickX, clickY, "result.bmp", 45, "black", 462, 20, 492, 55))
+				;|| IsImgWithoutCap(clickX, clickY, "인연레벨업.bmp", 60, "white", 540, 217, 570, 245))
 				{
 					ClickAdb(clickX, clickY)
 					sleep, 3000
 					loop
 					{
 						getAdbScreen()
-						if(IsImageWithoutCap(clickX, clickY, "result.bmp", 60, "black", 462, 20, 492, 55))
-						;|| IsImageWithoutCap(clickX, clickY, "인연레벨업.bmp", 60, "white", 540, 217, 570, 245))
+						if(IsImgWithoutCap(clickX, clickY, "result.bmp", 60, "black", 462, 20, 492, 55))
+						;|| IsImgWithoutCap(clickX, clickY, "인연레벨업.bmp", 60, "white", 540, 217, 570, 245))
 						{
 							ClickAdb(clickX, clickY)
 							sleep, 3000
 						}
-						if(IsImageWithoutCap(clickX, clickY, "다음.bmp", 60, 0))
+						if(IsImgWithoutCap(clickX, clickY, "다음.bmp", 60, 0))
 						{
 							ClickAdb(clickX, clickY)
 							sleep, 3000
@@ -638,23 +620,23 @@ return
 					loop
 					{
 						getAdbScreen()
-						if(IsImageWithoutCap(clickX, clickY, "다음.bmp", 60, 0)) ;이벤트 포인트 받기용 다음
+						if(IsImgWithoutCap(clickX, clickY, "다음.bmp", 60, 0)) ;이벤트 포인트 받기용 다음
 						{
 							ClickAdb(clickX, clickY)
 							sleep, 3000
 							;break
 						}
-						if(IsImageWithoutCap(clickX, clickY, "신청안함.bmp", 60, 0))
+						if(IsImgWithoutCap(clickX, clickY, "신청안함.bmp", 60, 0))
 						{
 							ClickAdb(clickX, clickY)
 							sleep, 3000
 						}
-						if(IsImageWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0))
+						if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0))
 						{
 							ClickAdb(clickX, clickY)
 							sleep, 3000
 						}
-						if(IsImageWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
+						if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
 						{
 							;ClickAdb(clickX, clickY)
 							sleep, 5000
@@ -685,8 +667,8 @@ return
 						ClickAdb(650, 120) ;;첫번째 퀘스트 다시 누르기
 						sleep, 3000
 						getAdbScreen()
-						if(IsImageWithoutCap(clickX, clickY, "ap회복.bmp", 60, 0)
-						|| IsImageWithoutCap(clickX, clickY, "bp회복.bmp", 60, 0))
+						if(IsImgWithoutCap(clickX, clickY, "ap회복.bmp", 60, 0)
+						|| IsImgWithoutCap(clickX, clickY, "bp회복.bmp", 60, 0))
 						{
 							GuiControlGet, 금사과사용, 1:
 
@@ -769,8 +751,8 @@ IfNotInString, strStdOut, %AdbSN%
 loop
 {
 	getAdbScreen()
-	if(IsImageWithoutCap(clickX, clickY, "친구10회소환.bmp", 60, 0)
-	|| IsImageWithoutCap(clickX, clickY, "무료10회소환.bmp", 60, 0))
+	if(IsImgWithoutCap(clickX, clickY, "친구10회소환.bmp", 60, 0)
+	|| IsImgWithoutCap(clickX, clickY, "무료10회소환.bmp", 60, 0))
 	{
 		ClickToImgAdb(clickX, clickY, "무료소환확인.bmp")
 		ClickAdb(clickX, clickY)
@@ -789,32 +771,20 @@ return
 
 
 
-/*
-^f4::
- getAdbScreen()
- if(IsImageWithoutCap2(clickX, clickY, hbm_ap회복, 60, 0))
-	ClickAdb(clickX, clickY)
 
+^f4::
+Arrays:= []
+Arrays := {aaas: 3, ab.sd: 7, aakk: 15}
+Arrays["aaas"] := 27
+addlog(Arrays["aakk"])
+addlog(Arrays["aaas"])
 return
 
 ^f2::
-gdipToken := Gdip_Startup()
-Loop, image\*.bmp, , 1  ; Recurse into subfolders.
- {
-	 aaa = %A_LoopFileName%
-	 StringReplace, aaa, aaa, .bmp , , All
-	 ;hbm%aaa% := 0
-	bmp_%aaa% := Gdip_CreateBitmapFromFile(A_LoopFileFullPath)
-	;addlog(A_LoopFileFullPath)
- }
- addlog(hbm_ap회복)
-
-
- getAdbScreen()
- if(IsImageWithoutCap2(clickX, clickY, bmp_ap회복, 60, 0))
+getAdbScreen()
+if(IsImgWithoutCap(clickX, clickY, "ap회복.bmp", 60, 0))
 	ClickAdb(clickX, clickY)
-;msgbox, %aaa%
-;Gdip_Shutdown(gdipToken)
+
 return
 
 ;그런데 이렇게만 하면 명령만 보내고 작업이 끝났는지 알수가 없습니다. 따라서 아래의 코드를 추가합니다
