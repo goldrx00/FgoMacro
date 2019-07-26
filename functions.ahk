@@ -5,14 +5,14 @@ global EmulTitle:= "[MOMO]앱플레이어"
 
 AddLog(String) ;;애드로그
 {
-	Gui, 2: Font, S7 CDefault, Verdana
-	GuiControl, 2: Font, LogList
-	nowTime := "(" A_HOUR ":" A_MIN ") "
+	Gui,  Font, S7 CDefault, Verdana
+	GuiControl,  Font, LogList
+	nowTime := "" A_HOUR ":" A_MIN " "
 	LogList .= nowTime String "|"
-	GuiControl, 2:, LogList, %LogList%
-	GuiControl, 2: Choose, LogList, %nLog%
+	GuiControl, , LogList, %LogList%
+	GuiControl,  Choose, LogList, %nLog%
 	nLog++
-	Gui, 2: Font, S8 CDefault, Verdana
+	Gui,  Font, S8 CDefault, Verdana
 }
 
 SleepLog(SleepTime) ;;슬립로그

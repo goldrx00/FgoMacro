@@ -56,38 +56,37 @@ global MacroID := "페그오 매크로"
 ;Menu, Tray, Icon, Image\Icon1.ico
 Gui, Add, Progress, x12 y9 w80 h20 cGreen Range0-100  vProgress, 0
 Gui, Add, Text, x182 y15 w80 h20 +Center vSimpleLog, <대기 중>
-Gui, Add, GroupBox, x12 y39 w250 h330 , 옵션
+;Gui, Add, GroupBox, x12 y39 w250 h330 , 옵션
 
-Gui, Add, Text, x22 y59 , 에뮬 ADB Serial Number: 
-Gui, Add, Edit, x22 y80 vEmulSN,
+Gui, Add, Text, x12 y59 , 에뮬 ADB Serial Number: 
+Gui, Add, Edit, x12 y80 vEmulSN,
 
-Gui, Add, Text, x22 y120 , 1라 점사:
+Gui, Add, Text, x12 y120 , 1라 점사:
 Gui, Add, Text, x170 y120 , 보구 사용
-Gui, Add, DropDownList, x22 y135 Choose1 AltSubmit v점사1, 전|중|후
+Gui, Add, DropDownList, x12 y135 Choose1 AltSubmit v점사1, 전|중|후
 Gui, Add, checkbox, x170 y135 v보구1라1, 1
 Gui, Add, checkbox, x200 y135 v보구1라2, 2
 Gui, Add, checkbox, x230 y135 v보구1라3, 3
-Gui, Add, Text, x22 y160 , 2라 점사:
-Gui, Add, DropDownList, x22 y175 Choose1 AltSubmit v점사2, 전|중|후
+Gui, Add, Text, x12 y160 , 2라 점사:
+Gui, Add, DropDownList, x12 y175 Choose1 AltSubmit v점사2, 전|중|후
 Gui, Add, checkbox, x170 y175 v보구2라1, 1
 Gui, Add, checkbox, x200 y175 v보구2라2, 2
 Gui, Add, checkbox, x230 y175 v보구2라3, 3
-Gui, Add, Text, x22 y200 , 3라 점사:
-Gui, Add, DropDownList, x22 y215 Choose1 AltSubmit v점사3, 전|중|후
+Gui, Add, Text, x12 y200 , 3라 점사:
+Gui, Add, DropDownList, x12 y215 Choose1 AltSubmit v점사3, 전|중|후
 Gui, Add, checkbox, x170 y215 v보구3라1, 1
 Gui, Add, checkbox, x200 y215 v보구3라2, 2
 Gui, Add, checkbox, x230 y215 v보구3라3, 3
-Gui, Add, checkbox, x22 y240 v금사과사용, 금사과 사용
+Gui, Add, checkbox, x12 y240 v금사과사용, 금사과 사용
 
-Gui, Add, Button, x22 y280 w50 h30 gMenuInfo, 설명
-Gui, Add, Button, x82 y280 w50 h30 gMenuLog, 기록
-Gui, Add, Button, x22 y320 w70 h30  gOneClick, 실행
-Gui, Add, Button, x102 y320 w70 h30  gReset, 재시작
+Gui, Add, Button, x200 y280 w50 h30 gMenuInfo, 설명
+Gui, Add, Button, x12 y280 w70 h30  gOneClick, 실행
+Gui, Add, Button, x92 y280 w70 h30  gReset, 재시작
 
-Gui, 2: Add, ListBox, x12 y9 w330 h310 vLogList,
+Gui, Add, ListBox, x12 y320 w330 h150 vLogList,
 Gui, 2: +Owner1
 
-Gui, 3: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F5 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
+Gui, 2: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F5 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
 
 ;#include %A_ScriptDir%\guitest2.ahk
 
@@ -142,11 +141,7 @@ LoadOption:
 	;재입장
 	IniRead, IniEmulSN, %ConfigFile%, Option, EmulSN
 	GuiControl,, EmulSN, %IniEmulSN%
-	;IniRead, IniPhoneSN, %ConfigFile%, Option, PhoneSN
-	;GuiControl,, PhoneSN, %IniPhoneSN%
-
-	;IniRead, MacroMode, %ConfigFile%, Option, MacroMode
-	;GuiControl, Choose, MacroMode, %MacroMode%
+	
 	loop, 3
 	{
 		IniRead, 점사%a_index%, %ConfigFile%, Option, 점사%a_index%
@@ -174,11 +169,7 @@ SaveOption: ;세이브옵션
 	;ADB 시리얼
 	GuiControlGet, EmulSN, 1:
 	IniWrite, %EmulSN%, %ConfigFile%,  Option, EmulSN
-	;GuiControlGet, PhoneSN, 1:
-	;IniWrite, %PhoneSN%, %ConfigFile%,  Option, PhoneSN
-	;매크로모드
-	;GuiControlGet, MacroMode, 1:
-	;IniWrite, %MacroMode%, %ConfigFile%,  Option, MacroMode
+	
 	loop, 3
 	{
 		GuiControlGet, 점사%a_index%, 1:
@@ -197,18 +188,21 @@ SaveOption: ;세이브옵션
 	}
 return
 
-MenuLog:
-	RealWinSize(posX, posY, width, height, MacroID)
-	ChildX := posX + width + 10
-	ChildY := posY
-	Gui, 2: Show, x%ChildX% y%ChildY%  h320 , 기록 ;
-Return
-
+showInfo := 0
 MenuInfo:
-	RealWinSize(posX, posY, width, height, MacroID)
-	ChildX := posX + width + 10
-	ChildY := posY
-	Gui, 3: Show, x%ChildX% y%ChildY% , 설명
+	if(!showInfo)
+	{
+		RealWinSize(posX, posY, width, height, MacroID)
+		ChildX := posX + width + 10
+		ChildY := posY
+		Gui, 2: Show, x%ChildX% y%ChildY% , 설명
+		showInfo := 1
+	}
+	else
+	{
+		Gui, 2: Show, hide
+		showInfo := 0
+	}
 Return
 
 GuiClose:
@@ -252,13 +246,13 @@ Reload
 Return
 
 Attach: ;;adb방식 컨트롤 하는 cmd 생성
-;DetectHiddenWindows, on ;숨겨진 윈도우 조작 가능
-Run, %comspec% /k ,, UseErrorLevel, cPid ;;hide 추가하면 숨겨짐
-WinWait, ahk_pid %cPid%,, 10
-WinHide, ahk_pid %cPid% ;나중에 숨기기
-DllCall("AttachConsole","uint",cPid)
-hCon:=DllCall("CreateFile","str","CONOUT$","uint",0xC0000000,"uint",7,"uint",0,"uint",3,"uint",0,"uint",0)
-global objShell := ComObjCreate("WScript.Shell")
+	;DetectHiddenWindows, on ;숨겨진 윈도우 조작 가능
+	Run, %comspec% /k ,, UseErrorLevel, cPid ;;hide 추가하면 숨겨짐
+	WinWait, ahk_pid %cPid%,, 10
+	WinHide, ahk_pid %cPid% ;나중에 숨기기
+	DllCall("AttachConsole","uint",cPid)
+	hCon:=DllCall("CreateFile","str","CONOUT$","uint",0xC0000000,"uint",7,"uint",0,"uint",3,"uint",0,"uint",0)
+	global objShell := ComObjCreate("WScript.Shell")
 return
 
 메인함수()
@@ -378,8 +372,8 @@ return
 					스킬사용("s_np획득량")
 					스킬사용("s_np업")
 					스킬사용("s_스타")
-					스킬사용("s_버스터")
-					스킬사용("s_스집", 130)
+					;스킬사용("s_버스터")
+					;스킬사용("s_스집", 130)
 
 					/*
 					loop, 9
@@ -536,12 +530,7 @@ return
 					ClickAdb(clickX, clickY)
 					sleep, 2000
 				}
-				/*
-				if(IsImgWithoutCap(clickX, clickY, "보구렉.bmp", 60, 0))
-				{					
-					sleeplog(7000)
-				} 
-				*/
+		
 				if(IsImgWithoutCap(clickX, clickY, "result.bmp", 45, "black", 462, 20, 492, 55))
 				;|| IsImgWithoutCap(clickX, clickY, "인연레벨업.bmp", 60, "white", 540, 217, 570, 245))
 				{
@@ -667,14 +656,10 @@ return
 		{
 			imageNum := a_index - 1
 			break
-		}
-		;addlog("루프수"a_index)
-		
+		}		
 	}
-	;addlog("최종 " imageNum)
-	;addlog(imageNum)
-	;getAdbScreen()
-	breakLoop := 0
+
+	;breakLoop := 0
 	loop, 9
 	{
 		buttonNum := a_index
@@ -687,14 +672,13 @@ return
 				sleep, 500
 				ClickAdb(690, 110) ; 선택창 떴을 때 끄기
 				sleep, 2500
-				breakLoop := 1
-				break
-			}
-			;addlog(a_index)
-		}
-		;addlog(buttonNum)
-		if(breakLoop)
-			break		
+				;breakLoop := 1
+				;break
+				return
+			}			
+		}		
+		;if(breakLoop)
+		;	break		
 	}
 }
 
@@ -704,22 +688,6 @@ return
 	;CaptureAdb2("adbCapture\" filename)
 return
 
-
-
-/*
-^f4::
-addlog("스샷")
-;objExec := objShell.Exec(comspec " /c " adb " -s " AdbSN " shell screencap -p | " perl " -pe ""binmode(STDOUT); s/\r\n/\n/g"" > test.png")
-objExec := objShell.Exec(comspec " /c " adb " -s " AdbSN " shell screencap -p | " perl " -pe ""binmode(STDOUT); s/\r\n/\n/g""")
-;objExec := objShell.Exec(adb " -s " AdbSN " shell screencap -p | perl.exe -pe ""binmode STDOUT; s/\r\n/\n/g"" > test.png")
-;Runwait, %ComSpec% /c %adb% -s %AdbSN% shell screencap -p | %perl% -pe "binmode(STDOUT);s/\r\n/\n/g" > test.png, ,
-strStdOut:=strStdErr:=""
-while, !objExec.StdErr.AtEndOfStream
-	strStdErr := objExec.StdErr.ReadAll()
-addlog(strStdOut)
-addlog(strStdErr)
-return
-*/
 
 
 ^f5:: ;; 무료 소환 반복 핫키
@@ -734,7 +702,6 @@ IfNotInString, strStdOut, %AdbSN%
 	while(!objExec.status)
 		sleep, 10
 }
-
 loop
 {
 	getAdbScreen()
