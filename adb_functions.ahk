@@ -95,7 +95,7 @@ ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName) ;;클릭투이미지 클릭
 	{
 		ClickAdb(x, y)
 		;objExec := objShell.Exec(adb " -s " AdbSN " shell input tap " x " " y )
-		log := " @ 이미지 대기 " ImageName
+		log := "  @ 이미지 대기 " ImageName
 		AddLog(log)
 		;while(!objExec.status)
 		;	sleep, 10		
@@ -158,7 +158,7 @@ IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0
 	sCmd := adb " -s " AdbSN " shell screencap"
 	if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
 	{
-		addlog(" @ ADB 스크린 캡쳐 실패")
+		addlog("  @ ADB 스크린 캡쳐 실패")
 		return false
 	}
 	If(Gdip_ImageSearchWithHbm(hBm, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))

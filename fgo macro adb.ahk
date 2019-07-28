@@ -54,36 +54,36 @@ global FriendListPos := [{sX: 30, 	sY: 113,		eX: 755, 	eY: 227}
 
 global MacroID := "페그오 매크로"
 ;Menu, Tray, Icon, Image\Icon1.ico
-Gui, Add, Progress, x12 y9 w80 h20 cGreen Range0-100  vProgress, 0
-Gui, Add, Text, x182 y15 w80 h20 +Center vSimpleLog, <대기 중>
+Gui, Add, Progress, x12 y9 w140 h20 cGreen Range0-100  vProgress, 0
+Gui, Add, Text, x162 y15 w100 h20 +Center vSimpleLog, <대기 중>
 ;Gui, Add, GroupBox, x12 y39 w250 h330 , 옵션
 
-Gui, Add, Text, x12 y59 , 에뮬 ADB Serial Number: 
-Gui, Add, Edit, x12 y80 vEmulSN,
+Gui, Add, Text, x12 y50 , ADB Serial Number: 
+Gui, Add, Edit, x140 y45 vEmulSN,
 
-Gui, Add, Text, x12 y120 , 1라 점사:
-Gui, Add, Text, x170 y120 , 보구 사용
-Gui, Add, DropDownList, x12 y135 Choose1 AltSubmit v점사1, 전|중|후
-Gui, Add, checkbox, x170 y135 v보구1라1, 1
-Gui, Add, checkbox, x200 y135 v보구1라2, 2
-Gui, Add, checkbox, x230 y135 v보구1라3, 3
-Gui, Add, Text, x12 y160 , 2라 점사:
-Gui, Add, DropDownList, x12 y175 Choose1 AltSubmit v점사2, 전|중|후
-Gui, Add, checkbox, x170 y175 v보구2라1, 1
-Gui, Add, checkbox, x200 y175 v보구2라2, 2
-Gui, Add, checkbox, x230 y175 v보구2라3, 3
-Gui, Add, Text, x12 y200 , 3라 점사:
-Gui, Add, DropDownList, x12 y215 Choose1 AltSubmit v점사3, 전|중|후
-Gui, Add, checkbox, x170 y215 v보구3라1, 1
-Gui, Add, checkbox, x200 y215 v보구3라2, 2
-Gui, Add, checkbox, x230 y215 v보구3라3, 3
-Gui, Add, checkbox, x12 y240 v금사과사용, 금사과 사용
+Gui, Add, Text, x12 y90 , 1라 점사:
+Gui, Add, Text, x170 y90 , 보구 사용
+Gui, Add, DropDownList, x12 y105 Choose1 AltSubmit v점사1, 전|중|후
+Gui, Add, checkbox, x170 y105 v보구1라1, 1
+Gui, Add, checkbox, x200 y105 v보구1라2, 2
+Gui, Add, checkbox, x230 y105 v보구1라3, 3
+Gui, Add, Text, x12 y130 , 2라 점사:
+Gui, Add, DropDownList, x12 y145 Choose1 AltSubmit v점사2, 전|중|후
+Gui, Add, checkbox, x170 y145 v보구2라1, 1
+Gui, Add, checkbox, x200 y145 v보구2라2, 2
+Gui, Add, checkbox, x230 y145 v보구2라3, 3
+Gui, Add, Text, x12 y170 , 3라 점사:
+Gui, Add, DropDownList, x12 y185 Choose1 AltSubmit v점사3, 전|중|후
+Gui, Add, checkbox, x170 y185 v보구3라1, 1
+Gui, Add, checkbox, x200 y185 v보구3라2, 2
+Gui, Add, checkbox, x230 y185 v보구3라3, 3
+Gui, Add, checkbox, x12 y210 v금사과사용, 금사과 사용
 
-Gui, Add, Button, x200 y280 w50 h30 gMenuInfo, 설명
-Gui, Add, Button, x12 y280 w70 h30  gOneClick, 실행
-Gui, Add, Button, x92 y280 w70 h30  gReset, 재시작
+Gui, Add, Button, x12 y240 w70 h30  gOneClick, 실행
+Gui, Add, Button, x92 y240 w70 h30  gReset, 재시작
+Gui, Add, Button, x200 y240 w50 h30 gMenuInfo, 설명
 
-Gui, Add, ListBox, x12 y320 w330 h150 vLogList,
+Gui, Add, ListBox, x12 y290 w330 h180 vLogList,
 Gui, 2: +Owner1
 
 Gui, 2: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F5 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
