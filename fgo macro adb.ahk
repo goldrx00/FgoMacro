@@ -86,7 +86,7 @@ Gui, Add, Button, x200 y240 w50 h30 gMenuInfo, 설명
 Gui, Add, ListBox, x12 y290 w330 h180 vLogList,
 Gui, 2: +Owner1
 
-Gui, 2: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F5 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
+Gui, 2: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
 
 ;#include %A_ScriptDir%\guitest2.ahk
 
@@ -690,7 +690,7 @@ return
 
 
 
-^f5:: ;; 무료 소환 반복 핫키
+^f3:: ;; 무료 소환 반복 핫키
 objExec := objShell.Exec(adb " devices")
 strStdOut:=strStdErr:=""
 while, !objExec.StdOut.AtEndOfStream
