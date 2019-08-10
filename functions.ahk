@@ -34,6 +34,34 @@ height := H - wFrame * 2 - wCaption
 return
 }
 
+UriEncode(Uri, Enc = "UTF-8") ;텍스트를 url인코딩
+{
+	StrPutVar(Uri, Var, Enc)
+	f := A_FormatInteger
+	SetFormat, IntegerFast, H
+	Loop
+	{
+		Code := NumGet(Var, A_Index - 1, "UChar")
+		If (!Code)
+		Break
+		If (Code >= 0x30 && Code <= 0x39
+		|| Code >= 0x41 && Code <= 0x5A
+		|| Code >= 0x61 && Code <= 0x7A)
+		Res .= Chr(Code)
+		Else
+		Res .= "%" . SubStr(Code + 0x100, -1)
+	}
+	SetFormat, IntegerFast, %f%
+	Return, Res
+}
+
+StrPutVar(Str, ByRef Var, Enc = "")
+{
+	Len := StrPut(Str, Enc) * (Enc = "UTF-16" || Enc = "CP1200" ? 2 : 1)
+	VarSetCapacity(Var, Len, 0)
+	Return, StrPut(Str, &Var, Enc)
+}
+
 ;;웨잇이미지플러스  이미지 대기하면서 찾다가 없으면 세나 리스타트
 WaitImagePlus(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) 
 {

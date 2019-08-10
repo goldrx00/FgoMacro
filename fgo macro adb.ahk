@@ -3,11 +3,12 @@
 #Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
 #SingleInstance Force ; 스크립트를 동시에 한개만 실행
 
-SetWorkingDir, %A_ScriptDir%	;스크립트의 작업 디렉토리를 변경. vscode로 작업시 넣어줘야 폴더 인식
+;SetWorkingDir, %A_ScriptDir%	;스크립트의 작업 디렉토리를 변경. vscode autohotkey manager로 작업시 넣어줘야 폴더 인식
 
-#Include %A_ScriptDir%\Gdip.ahk
-#include %A_ScriptDir%\functions.ahk
-#include %A_ScriptDir%\adb_functions.ahk
+;인식 안될 경우에 %A_ScriptDir% 붙이기
+#Include Gdip.ahk
+#include functions.ahk 
+#include adb_functions.ahk  
 
 OnExit, Clean_up
 
@@ -372,8 +373,9 @@ return
 					스킬사용("s_np획득량")
 					스킬사용("s_np업")
 					스킬사용("s_스타")
-					;스킬사용("s_버스터")
-					;스킬사용("s_스집", 130)
+					스킬사용("s_버스터", 110)
+					스킬사용("s_스집", 110)
+					스킬사용("s_거츠")
 
 					/*
 					loop, 9
@@ -725,11 +727,17 @@ return
 
 
 
-/*
+
 ^f4::
-스킬사용("s_공업")
+chatID := "857175800"
+botToken := "802319057:AAF2_2iNBUEJ0lJlR5TnWrE82OxlFu5pJwY"
+message := "English 한글 테스트"
+message := UriEncode(message)
+RunWait, utility\curl.exe -k -d "chat_id=%chatID%&text=%message%" https://api.telegram.org/bot%botToken%/sendMessage,, Hide
+addlog("Telegram bot 메시지 전송")
 return
 
+/*
 ^f2::
 getAdbScreen()
 if(IsImgWithoutCap(clickX, clickY, "ap회복.bmp", 60, 0))
