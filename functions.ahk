@@ -22,6 +22,28 @@ SleepLog(SleepTime) ;;슬립로그
 	sleep, %SleepTime%
 }
 
+PushLine(msg, imageName = 0)
+{	
+    msg := UriEncode(msg)
+
+    RunWait, utility\curl.exe -k -H "Authorization: Bearer %notifyToken%" -d "message=%msg%" https://notify-api.line.me/api/notify,, Hide
+    if(imageName)
+        RunWait, utility\curl.exe -k -X POST -H "Authorization: Bearer %notifyToken%" -F "message=%imageName%" -F "imageFile=@%imageName%" https://notify-api.line.me/api/notify,, Hide
+    ;objExec := objShell.Exec("curl.exe -k -X POST -H ""Authorization: Bearer IGt9IltcUce3nLgv7D4791C79n3dRag2W7BCwkS6utW"" -F ""message=" msg """ https://notify-api.line.me/api/notify")
+    addlog("LINE Notify 메시지 전송")
+}
+
+PushTelegram(msg, imageName = 0)
+{    
+    msg := UriEncode(msg)
+	    
+    ;RunWait, utility\curl.exe -k -d "chat_id=%chatID%&text=%msg%" https://api.telegram.org/bot%botToken%/sendMessage,, Hide    
+    objExec := objShell.Exec("curl.exe -k -d ""chat_id=" chatID "&text=" msg """ https://api.telegram.org/bot" botToken "/sendMessage" ) ;attach한 cmd 사용
+    if(imageName)
+        RunWait, utility/curl.exe -k -F "chat_id=%chatID%" -F "photo=@%imageName%" https://api.telegram.org/bot%botToken%/sendPhoto,, Hide
+    addlog("Telegram Bot 메시지 전송")   
+}
+
 RealWinSize(ByRef posX, ByRef posY, ByRef width , ByRef height, ProcessID)
 {
 WinGetPos, X, Y, W, H, %ProcessID%
