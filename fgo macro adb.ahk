@@ -733,7 +733,7 @@ return
 	;PushLine("English 한글")
 	;PushLine("English 한글","utility/17_02_16_29_capture.png")
 	;PushTelegram("English 한글")
-	PushTelegram("English 한글","utility/17_02_16_29_capture.png")
+	PushTelegram("English 한글","adbCapture/17_02_16_00_capture.png")
 return
 
 /*
