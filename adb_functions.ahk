@@ -44,8 +44,11 @@ CaptureAdb(filename)
 	sCmd := adb " -s " AdbSN " shell screencap"
 	if hbm := ADBScreenCapStdOutToHBitmap( sCmd )
 	{	
-		SaveHBITMAPToFile(hbm, "adbCapture\" filename)
+		;SaveHBITMAPToFile(hbm, "adbCapture\" filename)
+		ret := Gdip_CreateBitmapFromHBITMAP(hbm)
+		Gdip_SaveBitmapToFile(ret,"adbCapture\" filename)
 		DllCall("DeleteObject", Ptr, hbm)
+		Gdip_DisposeImage(ret)
 	}
 	else
 	{
@@ -260,6 +263,7 @@ IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX 
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;adb에서 파일쓰기 없이 바로 gdip hbitmap만들기;;;;;;;;;;;;;;;;
+;;참조: https://autohotkey.tistory.com/40
 
 ;MCode Func
 AdjustScreencapData := MCode("2,x86:VVdWU4tsJBSLRCQYjXQF/zn1d1ONfv6NTQGJ6usRZpCJyIPCAYhZ/4PBATnydyI51w+2GnbqgPsNdeWAegENdd8PtloCgPsKdBa7DQAAAOvPKehbXl9dw5CNtCYAAAAAiciDwgPrvjHA6+iQkJCQkA==")

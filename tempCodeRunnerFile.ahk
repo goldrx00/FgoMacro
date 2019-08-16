@@ -1,1 +1,2 @@
-UriEncode
+	PushLine()
+	Push

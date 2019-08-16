@@ -8,7 +8,8 @@
 ;인식 안될 경우에 %A_ScriptDir% 붙이기
 #Include Gdip.ahk
 #include functions.ahk 
-#include adb_functions.ahk  
+#include adb_functions.ahk
+#include messengerPush.ahk
 
 OnExit, Clean_up
 
@@ -729,12 +730,10 @@ return
 
 
 ^f4::
-chatID := "857175800"
-botToken := "802319057:AAF2_2iNBUEJ0lJlR5TnWrE82OxlFu5pJwY"
-message := "English 한글 테스트"
-message := UriEncode(message)
-RunWait, utility\curl.exe -k -d "chat_id=%chatID%&text=%message%" https://api.telegram.org/bot%botToken%/sendMessage,, Hide
-addlog("Telegram bot 메시지 전송")
+	;PushLine("English 한글")
+	;PushLine("English 한글","utility/17_02_16_29_capture.png")
+	;PushTelegram("English 한글")
+	PushTelegram("English 한글","utility/17_02_16_29_capture.png")
 return
 
 /*
