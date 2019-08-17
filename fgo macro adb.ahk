@@ -26,7 +26,6 @@ global botToken
 ;global TIME_REFRESH := 250 ;매크로 대기시간 (화면전환 등)
 global nLog := 1 ;;기록
 global OnRunning := 0
-global g_hBitmap ;adb 이미지 서치용 hBitmap
 global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포인터를 저장하는 배열
 global ConfigFile := "Config.ini"
 
@@ -99,8 +98,6 @@ Gui, 3: Add, Text, ,텔레그램 Chat ID :
 Gui, 3: Add, Edit, vChatID,
 Gui, 3: Add, Text, ,텔레그램 BOT api Token :
 Gui, 3: Add, Edit, w350 vbotToken,
-
-;#include %A_ScriptDir%\guitest2.ahk
 
 IfNotExist, %ConfigFile%
 {
@@ -291,10 +288,10 @@ return
 	
 	GuiControlGet, chatID , 3:
 	GuiControlGet, botToken , 3:
-	SetTimer, TelegramGetUpdates, 10000 ; 10초마다 텔레그램 메시지 읽어오기
+	if(chatID)
+		SetTimer, TelegramGetUpdates, 10000 ; 10초마다 텔레그램 메시지 읽어오기
 	
 	GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
-	;AdbSN := EmulSN
 	/*
 	objExec := objShell.Exec(adb " connect " AdbSN)
 	while(!objExec.status) ; objExec.status가 1이면 프로세스 완료된 상태
@@ -734,9 +731,7 @@ return
 ^f6::
 	fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
 	CaptureAdb(fileName)
-	;CaptureAdb2("adbCapture\" filename)
 return
-
 
 
 ^f3:: ;; 무료 소환 반복 핫키

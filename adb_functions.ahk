@@ -1,20 +1,21 @@
-﻿global g_hBitmap := 0
+﻿global g_pBitmap := 0 ;전역 pBitmap
 global ADB_TIME_REFRESH := 200
 
 getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
 {
-	if(g_hBitmap)
+	if(g_pBitmap)
 	{
-		;DllCall("DeleteObject", Ptr, g_hBitmap) ;;이전 hBitmap 주소의 메모리를 비운다. 메모리 누수를 막기 위함.
-		DeleteObject(g_hBitmap)
+		Gdip_DisposeImage(g_pBitmap) ;이전 pBitmap 주소의 메모리를 비운다. 메모리 누수를 막기 위함
 	}
 	sCmd := adb " -s " AdbSN " shell screencap"
-	if(!g_hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
+	if(!hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
 	{
 		addlog(" @ ADB 스크린 캡쳐 실패")
 		return false
 	}
-	return
+	g_pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+	DeleteObject(hBitmap)
+	return true
 }
 
 SaveAdbCropImage(filename, x1, y1, x2, y2)
@@ -43,8 +44,7 @@ CaptureAdb(filename)
 {
 	sCmd := adb " -s " AdbSN " shell screencap"
 	if hbm := ADBScreenCapStdOutToHBitmap( sCmd )
-	{	
-		;SaveHBITMAPToFile(hbm, "adbCapture\" filename)
+	{		
 		ret := Gdip_CreateBitmapFromHBITMAP(hbm)
 		Gdip_SaveBitmapToFile(ret,"adbCapture\" filename)
 		DllCall("DeleteObject", Ptr, hbm)
@@ -127,16 +127,9 @@ ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName) ;;클릭투이미지 클릭
 	}
 }
 
-
-Gdip_ImageSearchWithHbm(hBitmap, Byref X,Byref Y,bmpNeedle,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;hbitmap으로 부터 서치
+Gdip_ImageSearchWithPbm(bmpHaystack, Byref X,Byref Y,bmpNeedle,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;pBitmap으로 부터 서치
 {
-	;gdipToken := Gdip_Startup()
-	bmpHaystack := Gdip_CreateBitmapFromHBITMAP(hBitmap) 
-	;bmpNeedle := Gdip_CreateBitmapFromFile(Image)
 	RET := Gdip_ImageSearch(bmpHaystack,bmpNeedle,LIST,sX,sY,eX,eY,Variation,Trans,1,1)
-	Gdip_DisposeImage(bmpHaystack)
-	;Gdip_DisposeImage(bmpNeedle)
-	;Gdip_Shutdown(gdipToken)
 	StringSplit, LISTArray, LIST, `,
 	X := LISTArray1
 	Y := LISTArray2
@@ -159,23 +152,25 @@ IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0
 	}
 	
 	sCmd := adb " -s " AdbSN " shell screencap"
-	if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
+	if(!hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
 	{
 		addlog("  @ ADB 스크린 캡쳐 실패")
 		return false
 	}
-	If(Gdip_ImageSearchWithHbm(hBm, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
+	pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+	DllCall("DeleteObject", Ptr, hBitmap)
+	If(Gdip_ImageSearchWithPbm(pBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
     {
 		log := "  @ 이미지 찾음 : " ImageName
-		AddLog(log)
-		DllCall("DeleteObject", Ptr, hBm)
+		AddLog(log)		
+		Gdip_DisposeImage(pBitmap)
         return true
     }
 	else
 	{
 		clickX := 0
 		clickY := 0
-		DllCall("DeleteObject", Ptr, hBm)
+		Gdip_DisposeImage(pBitmap)
 		return false
 	}
 }
@@ -220,9 +215,8 @@ IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0
 		log := "  @ 이미지 없음: " ImageName
 		AddLog(log)
 		return false
-	}
-	;If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, bmp_%ImageName2%, errorRange, trans, sX, sY, eX, eY))
-	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
+	}	
+	If(Gdip_ImageSearchWithPbm(g_pBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
     {
 		log := "  @ 이미지 찾음 : " ImageName
 		AddLog(log)	
@@ -248,7 +242,7 @@ IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX 
 		AddLog(log)
 		return false
 	}
-	If(Gdip_ImageSearchWithHbm(g_hBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
+	If(Gdip_ImageSearchWithPbm(g_pBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
     {
 		;log := "  @ 이미지 찾음 : " ImageName
 		;AddLog(log)	
