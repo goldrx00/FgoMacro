@@ -3,24 +3,27 @@
 #Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
 #SingleInstance Force ; 스크립트를 동시에 한개만 실행
 
-;SetWorkingDir, %A_ScriptDir%	;스크립트의 작업 디렉토리를 변경. vscode autohotkey manager로 작업시 넣어줘야 폴더 인식
+SetWorkingDir, %A_ScriptDir%	;스크립트의 작업 디렉토리를 변경. vscode autohotkey manager로 작업시 넣어줘야 폴더 인식
 
 ;인식 안될 경우에 %A_ScriptDir% 붙이기
 #Include Gdip.ahk
 #include functions.ahk 
 #include adb_functions.ahk
-#include Token.ahk
 
 OnExit, Clean_up
 
 global adb := "utility\adb.exe"
 global perl := "utility\perl.exe"
 global AdbSN ;:= "emulator-5556" ;;그외 에뮬레이터
-
 ;global AdbSN := "127.0.0.1:62001" ;;녹스
 ;127.0.0.1:21503 ;미뮤
 ;127.0.0.1:7555 ;mumu
-global TIME_REFRESH := 250 ;매크로 대기시간 (화면전환 등)
+
+;텔레그램 챗아이디 및 봇토큰
+global chatID
+global botToken
+
+;global TIME_REFRESH := 250 ;매크로 대기시간 (화면전환 등)
 global nLog := 1 ;;기록
 global OnRunning := 0
 global g_hBitmap ;adb 이미지 서치용 hBitmap
@@ -61,7 +64,7 @@ Gui, Add, Text, x162 y15 w100 h20 +Center vSimpleLog, <대기 중>
 ;Gui, Add, GroupBox, x12 y39 w250 h330 , 옵션
 
 Gui, Add, Text, x12 y50 , ADB Serial Number: 
-Gui, Add, Edit, x140 y45 vEmulSN,
+Gui, Add, Edit, x140 y45 vAdbSN,
 
 Gui, Add, Text, x12 y90 , 1라 점사:
 Gui, Add, Text, x170 y90 , 보구 사용
@@ -83,12 +86,19 @@ Gui, Add, checkbox, x12 y210 v금사과사용, 금사과 사용
 
 Gui, Add, Button, x12 y240 w70 h30  gOneClick, 실행
 Gui, Add, Button, x92 y240 w70 h30  gReset, 재시작
-Gui, Add, Button, x200 y240 w50 h30 gMenuInfo, 설명
+Gui, Add, Button, x200 y240 w50 h30 gMenuOption, 옵션
+Gui, Add, Button, x270 y240 w50 h30 gMenuInfo, 설명
+
 
 Gui, Add, ListBox, x12 y290 w330 h180 vLogList,
 Gui, 2: +Owner1
 
-Gui, 2: Add, Text, ,해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
+Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
+
+Gui, 3: Add, Text, ,텔레그램 Chat ID :
+Gui, 3: Add, Edit, vChatID,
+Gui, 3: Add, Text, ,텔레그램 BOT api Token :
+Gui, 3: Add, Edit, w350 vbotToken,
 
 ;#include %A_ScriptDir%\guitest2.ahk
 
@@ -102,8 +112,9 @@ IfExist, %ConfigFile%
 
 Gosub, Attach
 
-GuiControlGet, EmulSN, 1: ;adb 에뮬 시리얼
-AdbSN := EmulSN
+GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
+GuiControlGet, chatID, 3: ;텔레그램
+GuiControlGet, botToken, 3:
 
 Gui, Show,  x%initX% y%initY% , %MacroID% ; h350 w194
 
@@ -141,8 +152,12 @@ LoadOption:
 		initY := 100
 	}
 	;재입장
-	IniRead, IniEmulSN, %ConfigFile%, Option, EmulSN
-	GuiControl,, EmulSN, %IniEmulSN%
+	IniRead, IniAdbSN, %ConfigFile%, Option, AdbSN
+	GuiControl,, AdbSN, %IniAdbSN%
+	IniRead, InibotToken, %ConfigFile%, Option, botToken
+	GuiControl,3:, botToken, %InibotToken%
+	IniRead, InichatID, %ConfigFile%, Option, chatID
+	GuiControl,3:, chatID, %InichatID%
 	
 	loop, 3
 	{
@@ -169,8 +184,12 @@ SaveOption: ;세이브옵션
 	IniWrite, %posX%, %ConfigFile%, Position, X
 	IniWrite, %posY%, %ConfigFile%, Position, Y
 	;ADB 시리얼
-	GuiControlGet, EmulSN, 1:
-	IniWrite, %EmulSN%, %ConfigFile%,  Option, EmulSN
+	GuiControlGet, AdbSN, 1:
+	IniWrite, %AdbSN%, %ConfigFile%,  Option, AdbSN
+	GuiControlGet, chatID, 3:
+	IniWrite, %chatID%, %ConfigFile%,  Option, chatID
+	GuiControlGet, botToken, 3:
+	IniWrite, %botToken%, %ConfigFile%,  Option, botToken
 	
 	loop, 3
 	{
@@ -207,6 +226,23 @@ MenuInfo:
 	}
 Return
 
+showOption := 0
+MenuOption:
+	if(!showOption)
+	{
+		RealWinSize(posX, posY, width, height, MacroID)
+		ChildX := posX + width + 10
+		ChildY := posY
+		Gui, 3: Show, x%ChildX% y%ChildY% , 옵션
+		showOption := 1
+	}
+	else
+	{
+		Gui, 3: Show, hide
+		showOption := 0
+	}
+Return
+
 GuiClose:
 Clean_up: ;매크로 끌때
 	Gosub, SaveOption
@@ -228,15 +264,6 @@ OneClick: ;;원클릭
 		AddLog(log)
 		Return
 	}
-	/*
-	Process, Exist, dnplayer.exe
-	if(!ErrorLevel)
-	{
-		Addlog("# 에뮬레이터 감지 못함")
-		OnRunning := 0
-		return
-	}
-	*/
 	메인함수()
 	OnRunning := 0
 	GuiControl,, Progress, 0
@@ -262,8 +289,12 @@ return
 	GuiControl,, SimpleLog, <매크로 작동중>
 	AddLog("# 페그오 매크로 시작 ")
 	
-	GuiControlGet, EmulSN, 1: ;adb 에뮬 시리얼
-	AdbSN := EmulSN
+	GuiControlGet, chatID , 3:
+	GuiControlGet, botToken , 3:
+	SetTimer, TelegramGetUpdates, 10000 ; 10초마다 텔레그램 메시지 읽어오기
+	
+	GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
+	;AdbSN := EmulSN
 	/*
 	objExec := objShell.Exec(adb " connect " AdbSN)
 	while(!objExec.status) ; objExec.status가 1이면 프로세스 완료된 상태
@@ -685,8 +716,23 @@ return
 	}
 }
 
+TelegramGetUpdates:
+	if(!msg := getTelegramMsg())
+		return
+	
+	Addlog("# 텔레그램 커맨드 인식")
+	if(msg = "스샷")
+	{
+		fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
+		CaptureAdb(fileName)		
+		PushTelegramImg("adbCapture/" fileName)
+	}
+
+return
+
+
 ^f6::
-	fileName := A_DD "_" A_HOUR "_" A_MIN "_" A_SEC "_capture.png"
+	fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
 	CaptureAdb(fileName)
 	;CaptureAdb2("adbCapture\" filename)
 return
@@ -694,31 +740,31 @@ return
 
 
 ^f3:: ;; 무료 소환 반복 핫키
-objExec := objShell.Exec(adb " devices")
-strStdOut:=strStdErr:=""
-while, !objExec.StdOut.AtEndOfStream
-strStdOut := objExec.StdOut.ReadAll()
-IfNotInString, strStdOut, %AdbSN%
-{
-	addlog("# " AdbSN " 에 재연결")
-	objExec := objShell.Exec(adb " connect " AdbSN)
-	while(!objExec.status)
-		sleep, 10
-}
-loop
-{
-	getAdbScreen()
-	if(IsImgWithoutCap(clickX, clickY, "친구10회소환.bmp", 60, 0)
-	|| IsImgWithoutCap(clickX, clickY, "무료10회소환.bmp", 60, 0))
+	objExec := objShell.Exec(adb " devices")
+	strStdOut:=strStdErr:=""
+	while, !objExec.StdOut.AtEndOfStream
+	strStdOut := objExec.StdOut.ReadAll()
+	IfNotInString, strStdOut, %AdbSN%
 	{
-		ClickToImgAdb(clickX, clickY, "무료소환확인.bmp")
-		ClickAdb(clickX, clickY)
+		addlog("# " AdbSN " 에 재연결")
+		objExec := objShell.Exec(adb " connect " AdbSN)
+		while(!objExec.status)
+			sleep, 10
+	}
+	loop
+	{
+		getAdbScreen()
+		if(IsImgWithoutCap(clickX, clickY, "친구10회소환.bmp", 60, 0)
+		|| IsImgWithoutCap(clickX, clickY, "무료10회소환.bmp", 60, 0))
+		{
+			ClickToImgAdb(clickX, clickY, "무료소환확인.bmp")
+			ClickAdb(clickX, clickY)
+			sleep, 1000
+		}
+		
+		ClickAdb(520, 430)
 		sleep, 1000
 	}
-	
-	ClickAdb(520, 430)
-	sleep, 1000
-}
 return
 
 
@@ -728,12 +774,13 @@ return
 
 
 
-
+/*
 ^f4::
 	;PushLine("English 한글")
-	PushLine("English 한글","adbCapture/17_02_16_00_capture.png")
+	;PushLine("English 한글","adbCapture/17_02_16_00_capture.png")
 	;PushTelegram("English 한글")
-	PushTelegram("English 한글","adbCapture/17_02_16_00_capture.png")
+	PushTelegramImg("adbCapture/17_02_16_00_capture.png")
+	;getTelegramMsg()
 return
 
 /*
