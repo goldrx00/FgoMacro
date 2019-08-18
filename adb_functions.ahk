@@ -1,11 +1,11 @@
-﻿global g_pBitmap := 0 ;전역 pBitmap
+﻿global g_pScreenBmp := 0 ;전역 pBitmap
 global ADB_TIME_REFRESH := 200
 
 getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
 {
-	if(g_pBitmap)
+	if(g_pScreenBmp)
 	{
-		Gdip_DisposeImage(g_pBitmap) ;이전 pBitmap 주소의 메모리를 비운다. 메모리 누수를 막기 위함
+		Gdip_DisposeImage(g_pScreenBmp) ;이전 pBitmap 주소의 메모리를 비운다. 메모리 누수를 막기 위함
 	}
 	sCmd := adb " -s " AdbSN " shell screencap"
 	if(!hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
@@ -13,7 +13,7 @@ getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
 		addlog(" @ ADB 스크린 캡쳐 실패")
 		return false
 	}
-	g_pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+	g_pScreenBmp := Gdip_CreateBitmapFromHBITMAP(hBitmap)
 	DeleteObject(hBitmap)
 	return true
 }
@@ -216,7 +216,7 @@ IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0
 		AddLog(log)
 		return false
 	}	
-	If(Gdip_ImageSearchWithPbm(g_pBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
+	If(Gdip_ImageSearchWithPbm(g_pScreenBmp, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
     {
 		log := "  @ 이미지 찾음 : " ImageName
 		AddLog(log)	
@@ -242,7 +242,7 @@ IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX 
 		AddLog(log)
 		return false
 	}
-	If(Gdip_ImageSearchWithPbm(g_pBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
+	If(Gdip_ImageSearchWithPbm(g_pScreenBmp, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
     {
 		;log := "  @ 이미지 찾음 : " ImageName
 		;AddLog(log)	

@@ -25,7 +25,6 @@ global botToken
 
 ;global TIME_REFRESH := 250 ;매크로 대기시간 (화면전환 등)
 global nLog := 1 ;;기록
-global OnRunning := 0
 global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포인터를 저장하는 배열
 global ConfigFile := "Config.ini"
 
@@ -58,38 +57,35 @@ global FriendListPos := [{sX: 30, 	sY: 113,		eX: 755, 	eY: 227}
 
 global MacroID := "페그오 매크로"
 ;Menu, Tray, Icon, Image\Icon1.ico
-Gui, Add, Progress, x12 y9 w140 h20 cGreen Range0-100  vProgress, 0
-Gui, Add, Text, x162 y15 w100 h20 +Center vSimpleLog, <대기 중>
 ;Gui, Add, GroupBox, x12 y39 w250 h330 , 옵션
 
-Gui, Add, Text, x12 y50 , ADB Serial Number: 
-Gui, Add, Edit, x140 y45 vAdbSN,
+Gui, Add, Text, x12 y15 , ADB Serial Number: 
+Gui, Add, Edit, x140 y10 vAdbSN,
 
-Gui, Add, Text, x12 y90 , 1라 점사:
-Gui, Add, Text, x170 y90 , 보구 사용
-Gui, Add, DropDownList, x12 y105 Choose1 AltSubmit v점사1, 전|중|후
-Gui, Add, checkbox, x170 y105 v보구1라1, 1
-Gui, Add, checkbox, x200 y105 v보구1라2, 2
-Gui, Add, checkbox, x230 y105 v보구1라3, 3
-Gui, Add, Text, x12 y130 , 2라 점사:
-Gui, Add, DropDownList, x12 y145 Choose1 AltSubmit v점사2, 전|중|후
-Gui, Add, checkbox, x170 y145 v보구2라1, 1
-Gui, Add, checkbox, x200 y145 v보구2라2, 2
-Gui, Add, checkbox, x230 y145 v보구2라3, 3
-Gui, Add, Text, x12 y170 , 3라 점사:
-Gui, Add, DropDownList, x12 y185 Choose1 AltSubmit v점사3, 전|중|후
-Gui, Add, checkbox, x170 y185 v보구3라1, 1
-Gui, Add, checkbox, x200 y185 v보구3라2, 2
-Gui, Add, checkbox, x230 y185 v보구3라3, 3
-Gui, Add, checkbox, x12 y210 v금사과사용, 금사과 사용
+Gui, Add, Text, x12 y50 , 1라 점사:
+Gui, Add, Text, x170 y50 , 보구 사용
+Gui, Add, DropDownList, x12 y65 Choose1 AltSubmit v점사1, 전|중|후
+Gui, Add, checkbox, x170 y65 v보구1라1, 1
+Gui, Add, checkbox, x200 y65 v보구1라2, 2
+Gui, Add, checkbox, x230 y65 v보구1라3, 3
+Gui, Add, Text, x12 y90 , 2라 점사:
+Gui, Add, DropDownList, x12 y105 Choose1 AltSubmit v점사2, 전|중|후
+Gui, Add, checkbox, x170 y105 v보구2라1, 1
+Gui, Add, checkbox, x200 y105 v보구2라2, 2
+Gui, Add, checkbox, x230 y105 v보구2라3, 3
+Gui, Add, Text, x12 y130 , 3라 점사:
+Gui, Add, DropDownList, x12 y145 Choose1 AltSubmit v점사3, 전|중|후
+Gui, Add, checkbox, x170 y145 v보구3라1, 1
+Gui, Add, checkbox, x200 y145 v보구3라2, 2
+Gui, Add, checkbox, x230 y145 v보구3라3, 3
+Gui, Add, checkbox, x12 y170 v금사과사용, 금사과 사용
 
-Gui, Add, Button, x12 y240 w70 h30  gOneClick, 실행
-Gui, Add, Button, x92 y240 w70 h30  gReset, 재시작
-Gui, Add, Button, x200 y240 w50 h30 gMenuOption, 옵션
-Gui, Add, Button, x270 y240 w50 h30 gMenuInfo, 설명
+Gui, Add, Button, x12 y200 w70 h30  gOneClick, 실행
+Gui, Add, Button, x92 y200 w70 h30  gReset, 재시작
+Gui, Add, Button, x200 y200 w50 h30 gMenuOption, 옵션
+Gui, Add, Button, x270 y200 w50 h30 gMenuInfo, 설명
 
-
-Gui, Add, ListBox, x12 y290 w330 h180 vLogList,
+Gui, Add, ListBox, x12 y250 w330 h200 vLogList,
 Gui, 2: +Owner1
 
 Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
@@ -98,6 +94,8 @@ Gui, 3: Add, Text, ,텔레그램 Chat ID :
 Gui, 3: Add, Edit, vChatID,
 Gui, 3: Add, Text, ,텔레그램 BOT api Token :
 Gui, 3: Add, Edit, w350 vbotToken,
+
+GuiControl, Focus, LogList 
 
 IfNotExist, %ConfigFile%
 {
@@ -251,20 +249,11 @@ Clean_up: ;매크로 끌때
 	ExitApp
 return
 
-OneClick: ;;원클릭
-	GuiControl,, Progress, 100
-	log := "# 한방 클릭"
-	AddLog(log)
-	if(OnRunning = 1)
+OneClick: ;;원클릭	
+	if(!메인함수())
 	{
-		log := "# 중복 동작 : 매크로가 동작 중입니다."
-		AddLog(log)
-		Return
-	}
-	메인함수()
-	OnRunning := 0
-	GuiControl,, Progress, 0
-	GuiControl,, SimpleLog, <동작 종료>
+		addlog("에러")
+	}	
 Return
 
 Reset:
@@ -283,7 +272,6 @@ return
 
 메인함수()
 {
-	GuiControl,, SimpleLog, <매크로 작동중>
 	AddLog("# 페그오 매크로 시작 ")
 	
 	GuiControlGet, chatID , 3:
@@ -405,22 +393,6 @@ return
 					스킬사용("s_버스터", 110)
 					스킬사용("s_스집", 110)
 					스킬사용("s_거츠")
-
-					/*
-					loop, 9
-					{
-						if(IsImgWithoutCap(clickX, clickY, "s_방업1.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY)
-						|| IsImgWithoutCap(clickX, clickY, "s_방업2.bmp", 150, 0, SkillButtonPos[a_index].sX, SkillButtonPos[a_index].sY, SkillButtonPos[a_index].eX, SkillButtonPos[a_index].eY))
-						{
-							addlog("# " a_index " 번 칸 방업 스킬 사용")
-							ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
-							sleep, 1000
-							ClickAdb(690, 110) ; 선택창 떴을 때 끄기
-							sleep, 2000
-							break
-						}
-					}		
-					*/
 
 					ClickAdb(710, 410) ;어택 클릭					
 					sleep, 2000
