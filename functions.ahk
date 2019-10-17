@@ -36,6 +36,10 @@ PushLine(msg, imageName = 0)
     addlog("LINE Notify 메시지 전송")
 }
 
+;텔레그램 챗아이디 및 봇토큰
+global chatID
+global botToken
+
 PushTelegram(msg)
 {    
     msg := UriEncode(msg)

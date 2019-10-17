@@ -14,7 +14,7 @@ getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
 		return false
 	}
 	g_pScreenBmp := Gdip_CreateBitmapFromHBITMAP(hBitmap)
-	DeleteObject(hBitmap)
+	DeleteObject(hBitmap)	
 	return true
 }
 
