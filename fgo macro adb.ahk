@@ -27,7 +27,6 @@ global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포
 global ConfigFile := "Config.ini"
 global rCount ;
 global 메인종료 := 0 ; 1이되면 메인함수 종료
-global 중간시작 := 0 ; 퀘스트 도중에 매크로 시작
 
 global SkillButtonPos := [{sX: 23, 	sY: 341,		eX: 63, 	eY: 380}
 ,{sX: 82, 	sY: 341,		eX: 122, 	eY: 380}
@@ -89,7 +88,7 @@ Gui, Add, Button, x270 y200 w50 h30 gMenuInfo, 설명
 Gui, Add, ListBox, x12 y250 w330 h200 vLogList,
 Gui, 2: +Owner1
 
-Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F2 : 퀘스트(전투) 도중 매크로 시작`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
+Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
 
 Gui, 3: Add, Text, ,텔레그램 Chat ID :
 Gui, 3: Add, Edit, vChatID,
@@ -251,7 +250,6 @@ Clean_up: ;매크로 끌때
 return
 
 OneClick: ;;원클릭
-	중간시작 := 0	
 	if(!메인함수())
 	{
 		addlog("에러")
@@ -305,11 +303,8 @@ return
 				sleep, 10
 		}
 
-		if(중간시작 = 1)
-		{
-			중간시작 := 0
-		}
-		else if(IsImgPlusAdb(clickX, clickY, "돌아가기.bmp", 60, 0))
+		getAdbScreen()
+		if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))
 		{
 			clickX := 400
 			clickY := 200
@@ -338,6 +333,10 @@ return
 				ii++
 				sleep, 1000
 			}
+		}
+		else if(IsImgWithoutCap(clickX, clickY, "attack.bmp", 60, 0))
+		{
+			addlog("# 반복 " rCount "회차 시작")
 		}
 		else
 		{
@@ -757,13 +756,9 @@ return
 return
 
 
-^F2::
-	중간시작 := 1	; 퀘스트 도중 매크로 실행
-	if(!메인함수())
-	{
-		addlog("에러")
-	}
-return
+; ^F2::
+
+; return
 
 ^f3:: ;; 무료 소환 반복 핫키
 	objExec := objShell.Exec(adb " devices")

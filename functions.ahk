@@ -154,7 +154,7 @@ UriEncode(Uri, Enc = "UTF-8") ;텍스트를 url인코딩
 	Return, Res
 }
 
-StrPutVar(Str, ByRef Var, Enc = "")
+StrPutVar(Str, ByRef Var, Enc = "") ; UriEncode 함수에 필요한 함수
 {
 	Len := StrPut(Str, Enc) * (Enc = "UTF-16" || Enc = "CP1200" ? 2 : 1)
 	VarSetCapacity(Var, Len, 0)
