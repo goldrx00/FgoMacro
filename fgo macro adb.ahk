@@ -2,6 +2,8 @@
 
 #Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
 #SingleInstance Force ; 스크립트를 동시에 한개만 실행
+#NoEnv ;변수명을 해석할 때, 환경 변수를 무시한다 (속도 상승)
+SetBatchLines, -1 ; 스크립트 최고속도로
 
 SetWorkingDir, %A_ScriptDir%	;스크립트의 작업 디렉토리를 변경. vscode autohotkey manager로 작업시 넣어줘야 폴더 인식
 
@@ -11,11 +13,12 @@ CoordMode,ToolTip,Screen ;ToolTip
 #Include Gdip.ahk
 #include functions.ahk 
 #include adb_functions.ahk
+#Include CreateFormData.ahk
 
 OnExit, Clean_up
 
 global adb := "utility\adb.exe"
-global perl := "utility\perl.exe"
+;global perl := "utility\perl.exe"
 global AdbSN ;:= "emulator-5556" ;;그외 에뮬레이터
 ;global AdbSN := "127.0.0.1:62001" ;;녹스
 ;127.0.0.1:21503 ;미뮤
@@ -88,7 +91,7 @@ Gui, Add, Button, x270 y200 w50 h30 gMenuInfo, 설명
 Gui, Add, ListBox, x12 y250 w330 h200 vLogList,
 Gui, 2: +Owner1
 
-Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`nCtrl+F8 : 이미지 재로딩
+Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`n
 
 Gui, 3: Add, Text, ,텔레그램 Chat ID :
 Gui, 3: Add, Edit, vChatID,
@@ -756,9 +759,7 @@ return
 return
 
 
-; ^F2::
 
-; return
 
 ^f3:: ;; 무료 소환 반복 핫키
 	objExec := objShell.Exec(adb " devices")
@@ -788,10 +789,18 @@ return
 	}
 return
 
+/*
+ ^F2::
+;fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
+;		CaptureAdb(fileName)
+		addlog("zz")
+		PushTelegramImg2("adbCapture/party.png")
+ return
 
-^f8:: ;이미지 재로딩
-	Gosub, LoadImage
-return
+
+; ^f8:: ;이미지 재로딩
+; 	Gosub, LoadImage
+; return
 
 
 

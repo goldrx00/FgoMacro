@@ -40,7 +40,7 @@ PushLine(msg, imageName = 0)
 global chatID
 global botToken
 
-PushTelegram(msg)
+PushTelegram2(msg)
 {    
     msg := UriEncode(msg)
 
@@ -49,10 +49,38 @@ PushTelegram(msg)
     ;addlog("Telegram Bot 메시지 전송")   
 }
 
-PushTelegramImg(imageName)
+PushTelegramImg2(imageName)
 {
 	 RunWait, utility/curl.exe -k -F "chat_id=%chatID%" -F "photo=@%imageName%" https://api.telegram.org/bot%botToken%/sendPhoto,, Hide
 }
+
+PushTelegram(msg)
+{
+	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1") 
+	winHttp.Open("POST", "https://api.telegram.org/bot" botToken "/sendMessage")
+	winHttp.SetRequestHeader("Content-Type","application/x-www-form-urlencoded")
+	;winHttp.SetRequestHeader("Content-Type", "application/json") ;json 형태로 보낼때
+	winHttp.Send("chat_id=" chatID "&text=" msg)
+	;winHttp.WaitForResponse() ; 보낼때까지 기다린다
+	;res:=winHttp.ResponseText
+}
+
+PushTelegramImg(imageName) ;;작동안함 form-data 사용 어려움 그냥 curl로
+{
+	objParam := { "chat_id": chatID
+	, "photo": [imageName]  }			
+
+	CreateFormData(postData, hdr_ContentType, objParam)
+
+	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	winHttp.Open("POST", "https://api.telegram.org/bot" botToken "/sendPhoto")
+	winHttp.SetRequestHeader("Content-Type", hdr_ContentType)	
+	winHttp.Send(postData)
+	;winHttp.WaitForResponse() ; response 기다린다
+	;res:=winHttp.ResponseText	
+}
+
+
 
 global lastDate = 0
 getTelegramMsg()
