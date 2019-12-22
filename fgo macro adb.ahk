@@ -60,43 +60,62 @@ global FriendListPos := [{sX: 30, 	sY: 113,		eX: 755, 	eY: 227}
 
 global MacroID := "페그오 매크로"
 ;Menu, Tray, Icon, Image\Icon1.ico
-;Gui, Add, GroupBox, x12 y39 w250 h330 , 옵션
 
-Gui, Add, Text, x12 y15 , ADB Serial Number: 
-Gui, Add, Edit, x140 y10 vAdbSN,
+Gui, Add, Text, y15, ADB Serial Number:
+Gui, Add, Edit, x+10 vAdbSN,
 
-Gui, Add, Text, x12 y50 , 1라 점사:
-Gui, Add, Text, x170 y50 , 보구 사용
-Gui, Add, DropDownList, x12 y65 Choose1 AltSubmit v점사1, 전|중|후
-Gui, Add, checkbox, x170 y65 v보구1라1, 1
-Gui, Add, checkbox, x200 y65 v보구1라2, 2
-Gui, Add, checkbox, x230 y65 v보구1라3, 3
-Gui, Add, Text, x12 y90 , 2라 점사:
-Gui, Add, DropDownList, x12 y105 Choose1 AltSubmit v점사2, 전|중|후
-Gui, Add, checkbox, x170 y105 v보구2라1, 1
-Gui, Add, checkbox, x200 y105 v보구2라2, 2
-Gui, Add, checkbox, x230 y105 v보구2라3, 3
-Gui, Add, Text, x12 y130 , 3라 점사:
-Gui, Add, DropDownList, x12 y145 Choose1 AltSubmit v점사3, 전|중|후
-Gui, Add, checkbox, x170 y145 v보구3라1, 1
-Gui, Add, checkbox, x200 y145 v보구3라2, 2
-Gui, Add, checkbox, x230 y145 v보구3라3, 3
-Gui, Add, checkbox, x12 y170 v금사과사용, 금사과 사용
+Gui, Add, Tab2, x10 w350 h200, 퀘스트|텔레그램|설명
+Gui, Tab, 1
 
-Gui, Add, Button, x12 y200 w70 h30  gOneClick, 실행
-Gui, Add, Button, x92 y200 w70 h30  gReset, 재시작
-Gui, Add, Button, x200 y200 w50 h30 gMenuOption, 옵션
-Gui, Add, Button, x270 y200 w50 h30 gMenuInfo, 설명
+Gui, Add, Text, xp+2 yp+30 , 1라 점사: ;;점사 기준점
+Gui, Add, DropDownList,  Choose1 AltSubmit v점사1, 전|중|후
+Gui, Add, Text, , 2라 점사:
+Gui, Add, DropDownList, Choose1 AltSubmit v점사2, 전|중|후
+Gui, Add, Text, , 3라 점사:
+Gui, Add, DropDownList, Choose1 AltSubmit v점사3, 전|중|후
 
-Gui, Add, ListBox, x12 y250 w330 h200 vLogList,
-Gui, 2: +Owner1
 
-Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`n배틀 메뉴에서 스킬 사용 확인 OFF`n`nCtrl+F6 : 스샷찍기`n`nCtrl+F3 : 무료소환반복`n`n
+Gui, Add, Text, x+10 y71 , 보구 사용  ;;보구 사용 기준점
+Gui, Add, checkbox, xp yp+20 v보구1라1, 1
+Gui, Add, checkbox, xp+30 v보구1라2, 2
+Gui, Add, checkbox, xp+30  v보구1라3, 3
+Gui, Add, checkbox, xp-60 yp+45 v보구2라1, 1
+Gui, Add, checkbox, xp+30 v보구2라2, 2
+Gui, Add, checkbox, xp+30  v보구2라3, 3
+Gui, Add, checkbox, xp-60 yp+45 v보구3라1, 1
+Gui, Add, checkbox, xp+30 v보구3라2, 2
+Gui, Add, checkbox, xp+30 v보구3라3, 3
 
-Gui, 3: Add, Text, ,텔레그램 Chat ID :
-Gui, 3: Add, Edit, vChatID,
-Gui, 3: Add, Text, ,텔레그램 BOT api Token :
-Gui, 3: Add, Edit, w350 vbotToken,
+Gui, Add, Text, x+10 y71 r7 w100, 공멀 기술 사용  ;;공멀 기술 기준점
+Gui, Add, checkbox, xp+20 yp+20 v공멀1, 1라
+Gui, Add, checkbox, xp yp+20 v공멀2, 2라
+Gui, Add, checkbox, xp yp+20  v공멀3, 3라
+
+Gui, Add, checkbox, x12 y220 v금사과사용, 금사과 사용
+
+Gui, Tab, 2
+Gui, Add, Text, ,텔레그램 Chat ID :
+Gui, Add, Edit, vChatID,
+Gui, Add, Text, ,텔레그램 BOT api Token :
+Gui, Add, Edit, w320 vbotToken,
+
+Gui, Tab, 3
+Gui, Add, Text, ,앱플레이어 해상도: 800 x 450
+Gui, Add, Text, ,배틀 메뉴에서 스킬 사용 확인 OFF
+Gui, Add, Text, ,공멀스킬은 항상 세번째 자리에만 사용
+Gui, Add, Text, ,Ctrl+F6 : 스샷찍기
+Gui, Add, Text, ,Ctrl+F3 : 무료소환반복
+
+Gui, Tab
+
+Gui, Add, Button, x10 y250 w70 h30  gOneClick, 실행
+Gui, Add, Button, x+10 w70 h30  gReset, 재시작
+;Gui, Add, Button, x+10 w50 h30 gMenuInfo, 설명
+
+Gui, Add, ListBox, x10 y+10 w350 h200 vLogList,
+
+; Gui, 2: +Owner1
+; Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`
 
 GuiControl, Focus, LogList 
 
@@ -111,8 +130,8 @@ IfExist, %ConfigFile%
 Gosub, Attach
 
 GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
-GuiControlGet, chatID, 3: ;텔레그램
-GuiControlGet, botToken, 3:
+GuiControlGet, chatID, 1: ;텔레그램
+GuiControlGet, botToken, 1:
 
 Gui, Show,  x%initX% y%initY% , %MacroID% ; h350 w194
 
@@ -153,9 +172,9 @@ LoadOption:
 	IniRead, IniAdbSN, %ConfigFile%, Option, AdbSN
 	GuiControl,, AdbSN, %IniAdbSN%
 	IniRead, InibotToken, %ConfigFile%, Option, botToken
-	GuiControl,3:, botToken, %InibotToken%
+	GuiControl,, botToken, %InibotToken%
 	IniRead, InichatID, %ConfigFile%, Option, chatID
-	GuiControl,3:, chatID, %InichatID%
+	GuiControl,, chatID, %InichatID%
 	
 	loop, 3
 	{
@@ -173,6 +192,12 @@ LoadOption:
 			GuiControl,, 보구%ii%라%a_index%, %temp%
 		}	
 	}
+	loop, 3
+	{
+		IniRead, 공멀%a_index%, %ConfigFile%, Option, 공멀%a_index%
+		temp := 공멀%a_index%
+		GuiControl,, 공멀%a_index%, %temp%
+	}
 	log := "# 설정 불러오기 완료"
 	AddLog(log)
 return
@@ -184,9 +209,9 @@ SaveOption: ;세이브옵션
 	;ADB 시리얼
 	GuiControlGet, AdbSN, 1:
 	IniWrite, %AdbSN%, %ConfigFile%,  Option, AdbSN
-	GuiControlGet, chatID, 3:
+	GuiControlGet, chatID,
 	IniWrite, %chatID%, %ConfigFile%,  Option, chatID
-	GuiControlGet, botToken, 3:
+	GuiControlGet, botToken, 
 	IniWrite, %botToken%, %ConfigFile%,  Option, botToken
 	
 	loop, 3
@@ -205,6 +230,12 @@ SaveOption: ;세이브옵션
 			IniWrite, %temp%, %ConfigFile%,  Option, 보구%ii%라%a_index%
 		}
 	}
+	loop, 3
+	{
+		GuiControlGet, 공멀%a_index%, 
+		temp := 공멀%a_index%
+		IniWrite, %temp%, %ConfigFile%,  Option, 공멀%a_index%
+	}
 return
 
 showInfo := 0
@@ -221,23 +252,6 @@ MenuInfo:
 	{
 		Gui, 2: Show, hide
 		showInfo := 0
-	}
-Return
-
-showOption := 0
-MenuOption:
-	if(!showOption)
-	{
-		RealWinSize(posX, posY, width, height, MacroID)
-		ChildX := posX + width + 10
-		ChildY := posY
-		Gui, 3: Show, x%ChildX% y%ChildY% , 옵션
-		showOption := 1
-	}
-	else
-	{
-		Gui, 3: Show, hide
-		showOption := 0
 	}
 Return
 
@@ -279,12 +293,12 @@ return
 	AddLog("# 페그오 매크로 시작 ")
 	메인종료 := 0
 	
-	GuiControlGet, chatID , 3:
-	GuiControlGet, botToken , 3:
+	GuiControlGet, chatID ,
+	GuiControlGet, botToken , 
 	if(chatID)
 		SetTimer, TelegramGetUpdates, 10000 ; 10초마다 텔레그램 메시지 읽어오기
 	
-	GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
+	GuiControlGet, AdbSN,  ;adb 에뮬 시리얼
 	/*
 	objExec := objShell.Exec(adb " connect " AdbSN)
 	while(!objExec.status) ; objExec.status가 1이면 프로세스 완료된 상태
@@ -300,7 +314,7 @@ return
 		strStdOut := objExec.StdOut.ReadAll()
 		IfNotInString, strStdOut, %AdbSN%
 		{
-			addlog("# " AdbSN " 에 재연결")
+			addlog("# " AdbSN " 에 연결")
 			objExec := objShell.Exec(adb " connect " AdbSN)
 			while(!objExec.status)
 				sleep, 10
@@ -373,32 +387,46 @@ return
 				}
 				
 				;; 점사 대상 선택
-				if(라운드 = 1 && 라운드시작 = 1)
+				loop, 3
 				{
-					addlog("# 1라 시작")
-					라운드시작 := false
-					GuiControlGet, 점사1, 1:
-					if(점사1 != 1)
-						ClickAdb(EnemyPos[점사1].X, EnemyPos[점사1].Y)
-					sleep, 300
+					if(라운드 = a_index && 라운드시작 = 1)
+					{
+						addlog("# " a_index "라 시작")
+						라운드시작 := false
+						GuiControlGet, 점사%a_index%, 1:
+						if(점사%a_index% != 1)							
+							ClickAdb(EnemyPos[점사%a_index%].X, EnemyPos[점사%a_index%].Y)
+						sleep, 500
+						ClickAdb(663,93)
+						sleep, 1000
+					}
 				}
-				else if(라운드 = 2 && 라운드시작 = 1)
+
+				;;;;공멀 스킬사용
+				loop, 3
 				{
-					addlog("# 2라 시작")
-					라운드시작 := false
-					GuiControlGet, 점사2, 1:
-					if(점사2 != 1)							
-						ClickAdb(EnemyPos[점사2].X, EnemyPos[점사2].Y)
-					sleep, 300
-				}
-				else if(라운드 = 3 && 라운드시작 = 1)
-				{
-					addlog("# 3라 시작")
-					라운드시작 := false
-					GuiControlGet, 점사3, 1:
-					if(점사3 != 1)
-						ClickAdb(EnemyPos[점사3].X, EnemyPos[점사3].Y)
-					sleep, 300
+					if(라운드 = a_index)
+					{
+						GuiControlGet, 공멀%a_index%,
+						if(공멀%a_index%)
+						{
+							if(IsImgWithoutCap(clickX, clickY, "s_공명.bmp", 60, 0))
+							{
+								ClickAdb(40, 360)
+								sleep, 500
+								ClickAdb(600, 260)
+								sleep, 2000
+							}
+							else if(IsImgWithoutCap(clickX, clickY, "s_멀린.bmp", 60, 0))
+							{
+								ClickAdb(160, 360)
+								sleep, 500
+								ClickAdb(600, 260)
+								sleep, 2000
+							}
+						}
+
+					}
 				}
 
 				;;;;;;;;;;;;;;;;;;;;;;;;;; 스킬 사용 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -412,7 +440,7 @@ return
 				스킬사용("s_거츠")
 
 				ClickAdb(710, 410) ;어택 클릭					
-				sleep, 2000
+				sleep, 1500
 
 				;;;;;;;;;;;;;;;;;;;커맨드 카드 사용;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				Loop
@@ -423,7 +451,7 @@ return
 						break
 					}
 					ClickAdb(710, 410) ;어택클릭
-					sleep, 2000
+					sleep, 1500
 				}
 				
 				
@@ -480,18 +508,7 @@ return
 						sleep, 300
 					}
 				}
-				/*
-				loop, 5 ;남은 이펙티브 사용 (이펙티브 퀵)
-				{
-					if(card%a_index% = 1)
-						continue
-					if(IsImgWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 ))
-					{
-						ClickAdb(CmdCardPos[a_index].sX + 80, 320)
-						card%a_index% := 1
-					}
-				}
-				*/
+				
 				loop, 5 ;레지스트 아닌 버스터 사용
 				{
 					if(card%a_index% = 1)
@@ -505,6 +522,18 @@ return
 						sleep, 300
 					}
 				}
+
+				loop, 5 ;남은 이펙티브 사용 (이펙티브 퀵)
+				{
+					if(card%a_index% = 1)
+						continue
+					if(IsImgWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 ))
+					{
+						ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+						card%a_index% := 1
+					}
+				}
+
 				loop, 5 ;레지스트 아닌 아츠 사용
 				{
 					if(card%a_index% = 1)
@@ -545,7 +574,7 @@ return
 			if(IsImgWithoutCap(clickX, clickY, "전투x.bmp", 60, 0))
 			{
 				ClickAdb(clickX, clickY)
-				sleep, 2000
+				sleep, 1000
 			}
 
 			;;전멸했을 시
@@ -701,7 +730,7 @@ return
 				ClickAdb(SkillButtonPos[buttonNum].sX+20, SkillButtonPos[buttonNum].sY+20)
 				sleep, 500
 				ClickAdb(690, 110) ; 선택창 떴을 때 끄기
-				sleep, 2500
+				sleep, 2000
 				;breakLoop := 1
 				;break
 				return
