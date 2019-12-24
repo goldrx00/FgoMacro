@@ -25,15 +25,39 @@ SleepLog(SleepTime) ;;슬립로그
 	sleep, %SleepTime%
 }
 
-PushLine(msg, imageName = 0)
+PushLine2(msg, imageName = 0)
 {	
     msg := UriEncode(msg)
 
-    RunWait, utility\curl.exe -k -H "Authorization: Bearer %notifyToken%" -d "message=%msg%" https://notify-api.line.me/api/notify,, Hide
+    RunWait, utility\curl.exe -k -H "Authorization: Bearer %notifyToken%" -d "message=%msg%" https://notify-api.line.me/api/notify,, Hide	
     if(imageName)
         RunWait, utility\curl.exe -k -X POST -H "Authorization: Bearer %notifyToken%" -F "message=%imageName%" -F "imageFile=@%imageName%" https://notify-api.line.me/api/notify,, Hide
     ;objExec := objShell.Exec("curl.exe -k -X POST -H ""Authorization: Bearer " notifyToken """ -F ""message=" msg """ https://notify-api.line.me/api/notify")
     addlog("LINE Notify 메시지 전송")
+}
+
+;#include Token.ahk
+PushLine(msg, imageName = 0)
+{
+	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1")	
+    winHttp.Open("POST", "https://notify-api.line.me/api/notify")
+	winHttp.SetRequestHeader("Authorization","Bearer " notifyToken)	
+	  
+    if(imageName)
+	{
+		objParam := { "message": msg, "photo": [imageName]  }		
+		CreateFormData(postData, hdr_ContentType, objParam)
+		winHttp.SetRequestHeader("Content-Type", hdr_ContentType)
+		winHttp.Send(postData)
+	}
+	else
+	{
+		winHttp.SetRequestHeader("Content-Type","application/x-www-form-urlencoded")
+		winHttp.Send("message=" msg)
+	}
+	winHttp.WaitForResponse()
+	res := winHttp.ResponseText	
+    addlog("LINE Notify:" res)
 }
 
 ;텔레그램 챗아이디 및 봇토큰
@@ -54,6 +78,7 @@ PushTelegramImg2(imageName)
 	 RunWait, utility/curl.exe -k -F "chat_id=%chatID%" -F "photo=@%imageName%" https://api.telegram.org/bot%botToken%/sendPhoto,, Hide
 }
 
+
 PushTelegram(msg)
 {
 	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1") 
@@ -61,32 +86,34 @@ PushTelegram(msg)
 	winHttp.SetRequestHeader("Content-Type","application/x-www-form-urlencoded")
 	;winHttp.SetRequestHeader("Content-Type", "application/json") ;json 형태로 보낼때
 	winHttp.Send("chat_id=" chatID "&text=" msg)
-	;winHttp.WaitForResponse() ; 보낼때까지 기다린다
-	;res:=winHttp.ResponseText
+	winHttp.WaitForResponse() ; 보낼때까지 기다린다
+	res:=winHttp.ResponseText
+	addlog("Telegram Bot: " res)
 }
 
-PushTelegramImg(imageName) ;;작동안함 form-data 사용 어려움 그냥 curl로
+PushTelegramImg(imageName) ;;
 {
-	objParam := { "chat_id": chatID
-	, "photo": [imageName]  }			
-
+	objParam := { "chat_id": chatID	, "photo": [imageName]  }
 	CreateFormData(postData, hdr_ContentType, objParam)
 
 	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 	winHttp.Open("POST", "https://api.telegram.org/bot" botToken "/sendPhoto")
 	winHttp.SetRequestHeader("Content-Type", hdr_ContentType)	
 	winHttp.Send(postData)
-	;winHttp.WaitForResponse() ; response 기다린다
-	;res:=winHttp.ResponseText	
+	winHttp.WaitForResponse() ; response 기다린다
+	res:=winHttp.ResponseText
+	addlog("Telegram Bot: " res)	
 }
-
-
 
 global lastDate = 0
 getTelegramMsg()
 {
 	url := "https://api.telegram.org/bot" botToken "/getUpdates"
-	getUpdates := ReadURL(url)
+	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	winHttp.Open("GET", url)		
+	winHttp.Send()
+	winHttp.WaitForResponse() ; response 기다린다
+	getUpdates:= winHttp.ResponseText	
 
 	if(getUpdates = 0)
 	{

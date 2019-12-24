@@ -64,10 +64,10 @@ global MacroID := "페그오 매크로"
 Gui, Add, Text, y15, ADB Serial Number:
 Gui, Add, Edit, x+10 vAdbSN,
 
-Gui, Add, Tab2, x10 w350 h200, 퀘스트|텔레그램|설명
-Gui, Tab, 1
+Gui, Add, Tab2, x10 w350 h200, 퀘스트|기타|텔레그램|설명
+Gui, Tab, 퀘스트
 
-Gui, Add, Text, xp+2 yp+30 , 1라 점사: ;;점사 기준점
+Gui, Add, Text, xp+5 yp+30 , 1라 점사: ;;점사 기준점
 Gui, Add, DropDownList,  Choose1 AltSubmit v점사1, 전|중|후
 Gui, Add, Text, , 2라 점사:
 Gui, Add, DropDownList, Choose1 AltSubmit v점사2, 전|중|후
@@ -86,25 +86,29 @@ Gui, Add, checkbox, xp-60 yp+45 v보구3라1, 1
 Gui, Add, checkbox, xp+30 v보구3라2, 2
 Gui, Add, checkbox, xp+30 v보구3라3, 3
 
-Gui, Add, Text, x+10 y71 r7 w100, 공멀 기술 사용  ;;공멀 기술 기준점
+Gui, Add, Text, x+8 y71 r7 w100, 공멀 스킬 사용 ;;공멀 기술 기준점
 Gui, Add, checkbox, xp+20 yp+20 v공멀1, 1라
 Gui, Add, checkbox, xp yp+20 v공멀2, 2라
 Gui, Add, checkbox, xp yp+20  v공멀3, 3라
 
 Gui, Add, checkbox, x12 y220 v금사과사용, 금사과 사용
 
-Gui, Tab, 2
+Gui, Tab, 텔레그램
 Gui, Add, Text, ,텔레그램 Chat ID :
 Gui, Add, Edit, vChatID,
 Gui, Add, Text, ,텔레그램 BOT api Token :
 Gui, Add, Edit, w320 vbotToken,
 
-Gui, Tab, 3
+Gui, Tab, 설명
 Gui, Add, Text, ,앱플레이어 해상도: 800 x 450
 Gui, Add, Text, ,배틀 메뉴에서 스킬 사용 확인 OFF
 Gui, Add, Text, ,공멀스킬은 항상 세번째 자리에만 사용
 Gui, Add, Text, ,Ctrl+F6 : 스샷찍기
-Gui, Add, Text, ,Ctrl+F3 : 무료소환반복
+
+Gui, Tab, 기타
+Gui, Add, Button, h30 g스크린샷, 스크린샷
+Gui, Add, Button, h30 g무료소환, 무료소환
+Gui, Add, Button, h30 g룰렛돌리기, 룰렛돌리기
 
 Gui, Tab
 
@@ -145,18 +149,31 @@ return
 LoadImage:
 	imageNum := 0
 	AddLog("# 이미지 로딩 중...")
-	;gdipToken := Gdip_Startup()
+	;gdipTokenA := Gdip_Startup()
 	Loop, image\*.bmp, , 1  ; Recurse into subfolders.
 	{
 		imgFileName = %A_LoopFileName%
 		StringReplace, imgFileName, imgFileName, .bmp , , All
-
+				
 		if(!bmpPtrArr[(imgFileName)] := Gdip_CreateBitmapFromFile(A_LoopFileFullPath))
 			Addlog("  " A_LoopFileName " 로딩 실패")		
 		;else
 			;Addlog("  " A_LoopFileName )
 		imageNum++
 	}
+	
+	; 이미지 비트맵을 복사해서 새로운 비트맵 만들기 (이미지 파일 수정하기 위함)
+	For Key , in bmpPtrArr 
+	{	
+		Gdip_GetImageDimensions(bmpPtrArr[(Key)], Width, Height)
+		newBitmap := Gdip_CreateBitmap(Width, Height)
+		G := Gdip_GraphicsFromImage(newBitmap)
+		Gdip_DrawImage(G, bmpPtrArr[(Key)], 0, 0, Width, Height)
+		Gdip_DeleteGraphics(G)
+		Gdip_DisposeImage(bmpPtrArr[(Key)])
+		bmpPtrArr[(Key)] := newBitmap
+	}
+
 	AddLog("# 이미지 " imageNum "장 로딩 완료")
 return
 
@@ -259,10 +276,10 @@ GuiClose:
 Clean_up: ;매크로 끌때
 	Gosub, SaveOption
 	;DllCall("DeleteObject", Ptr,g_hBitmap) ;파일쓰기 없이 adb서치용 hBitmap 비움.
-	DllCall("CloseHandle", "uint", hCon)
-	DllCall("FreeConsole")
-	Process, Close, %cPid%
-	Gdip_Shutdown(gdipToken)
+	DllCall("CloseHandle", "uint", hCon) ;;cmd 생성
+	DllCall("FreeConsole") ;cmd 생성
+	Process, Close, %cPid% ;cmd 생성
+	Gdip_Shutdown(gdipToken) ;gdip 끄기
 	ExitApp
 return
 
@@ -405,27 +422,27 @@ return
 				;;;;공멀 스킬사용
 				loop, 3
 				{
-					if(라운드 = a_index)
-					{
-						GuiControlGet, 공멀%a_index%,
-						if(공멀%a_index%)
+					GuiControlGet, 공멀%a_index%,
+					if(라운드 = a_index && 공멀%a_index%)
+					{					
+						if(IsImgWithoutCap(clickX, clickY, "공명.bmp", 60, "black", 100, 433, 150, 448)
+						&& IsImgWithoutCap(clickX, clickY, "s_크리1.bmp", 60, 0, SkillButtonPos[1].sX, SkillButtonPos[1].sY, SkillButtonPos[1].eX, SkillButtonPos[1].eY))
 						{
-							if(IsImgWithoutCap(clickX, clickY, "s_공명.bmp", 60, 0))
-							{
-								ClickAdb(40, 360)
-								sleep, 500
-								ClickAdb(600, 260)
-								sleep, 2000
-							}
-							else if(IsImgWithoutCap(clickX, clickY, "s_멀린.bmp", 60, 0))
-							{
-								ClickAdb(160, 360)
-								sleep, 500
-								ClickAdb(600, 260)
-								sleep, 2000
-							}
+							ClickAdb(40, 360)
+							sleep, 500
+							ClickAdb(600, 260)
+							sleep, 2000
+							getAdbScreen()
 						}
-
+						if(IsImgWithoutCap(clickX, clickY, "멀린.bmp", 60, "black", 100, 433, 150, 448)
+						&& IsImgWithoutCap(clickX, clickY, "s_버스터1.bmp", 60, 0, SkillButtonPos[3].sX, SkillButtonPos[3].sY, SkillButtonPos[3].eX, SkillButtonPos[3].eY))
+						{
+							ClickAdb(160, 360)
+							sleep, 500
+							ClickAdb(600, 260)
+							sleep, 2000
+							getAdbScreen()
+						}
 					}
 				}
 
@@ -576,9 +593,15 @@ return
 				ClickAdb(clickX, clickY)
 				sleep, 1000
 			}
+			if(IsImgWithoutCap(clickX, clickY, "스킬사용불가.bmp", 60, 0))
+			{
+				ClickAdb(clickX, clickY)
+				sleep, 1000
+			}
 
 			;;전멸했을 시
-			if(IsImgWithoutCap(clickX, clickY, "영주사용.bmp", 60, 0))
+			if(IsImgWithoutCap(clickX, clickY, "영주사용.bmp", 60, 0)
+			|| IsImgWithoutCap(clickX, clickY, "철수하기.bmp", 60, 0))
 			{
 				fileName := "파티전멸.png"
 				CaptureAdb(fileName)
@@ -748,7 +771,7 @@ TelegramGetUpdates:
 	Addlog("# 텔레그램 커맨드")
 	if(msg = "스샷")
 	{
-		fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
+		fileName := A_yyyy a_mm A_DD "_" A_HOUR  A_MIN  A_SEC ".png"
 		CaptureAdb(fileName)		
 		PushTelegramImg("adbCapture/" fileName)
 	}
@@ -782,15 +805,22 @@ return
 	ToolTip, %str%, %tipX%,%tipY%
 }
 
+룰렛돌리기:
+	loop
+	{
+		ClickAdb(270, 270)
+		sleep, 200
+	}
+
+return
+
 ^f6::
-	fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
+스크린샷:	
+	fileName := A_yyyy a_mm A_DD "_" A_HOUR  A_MIN  A_SEC ".png"
 	CaptureAdb(fileName)
 return
 
-
-
-
-^f3:: ;; 무료 소환 반복 핫키
+무료소환: ;; 무료 소환 반복 핫키
 	objExec := objShell.Exec(adb " devices")
 	strStdOut:=strStdErr:=""
 	while, !objExec.StdOut.AtEndOfStream
@@ -817,6 +847,11 @@ return
 		sleep, 1000
 	}
 return
+
+; ^f3::
+; ;addlog(getTelegramMsg())
+; PushLine("asdfas하하하", "adbCapture/haha.png")
+; return
 
 /*
  ^F2::
