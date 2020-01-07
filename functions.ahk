@@ -6,6 +6,7 @@ global EmulTitle:= "[MOMO]앱플레이어"
 ;global wFrame := 1 ;테두리 두께 border
 ;global wCaption := 34 ;타이틀바 높이 
 
+global nLog := 1 ;;기록
 AddLog(String) ;;애드로그
 {
 	Gui,  Font, S7 CDefault, Verdana

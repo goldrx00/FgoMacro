@@ -18,14 +18,11 @@ CoordMode,ToolTip,Screen ;ToolTip
 OnExit, Clean_up
 
 global adb := "utility\adb.exe"
-;global perl := "utility\perl.exe"
 global AdbSN ;:= "emulator-5556" ;;그외 에뮬레이터
-;global AdbSN := "127.0.0.1:62001" ;;녹스
+;"127.0.0.1:62001" ;;녹스
 ;127.0.0.1:21503 ;미뮤
 ;127.0.0.1:7555 ;mumu
 
-;global TIME_REFRESH := 250 ;매크로 대기시간 (화면전환 등)
-global nLog := 1 ;;기록
 global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포인터를 저장하는 배열
 global ConfigFile := "Config.ini"
 global rCount ;
@@ -61,19 +58,18 @@ global FriendListPos := [{sX: 30, 	sY: 113,		eX: 755, 	eY: 227}
 global MacroID := "페그오 매크로"
 ;Menu, Tray, Icon, Image\Icon1.ico
 
-Gui, Add, Text, y15, ADB Serial Number:
-Gui, Add, Edit, x+10 vAdbSN,
-
-Gui, Add, Tab2, x10 w350 h200, 퀘스트|기타|텔레그램|설명
+Gui, Add, Tab2, x10 w350 h240, 퀘스트|기타|텔레그램|설명
 Gui, Tab, 퀘스트
 
-Gui, Add, Text, xp+5 yp+30 , 1라 점사: ;;점사 기준점
+Gui, Add, Text, xp+5 yp+30, Android Serial Number:
+Gui, Add, Edit, x+10 vAdbSN,
+
+Gui, Add, Text, x15 y71 , 1라 점사: ;;점사 기준점
 Gui, Add, DropDownList,  Choose1 AltSubmit v점사1, 전|중|후
 Gui, Add, Text, , 2라 점사:
 Gui, Add, DropDownList, Choose1 AltSubmit v점사2, 전|중|후
 Gui, Add, Text, , 3라 점사:
 Gui, Add, DropDownList, Choose1 AltSubmit v점사3, 전|중|후
-
 
 Gui, Add, Text, x+10 y71 , 보구 사용  ;;보구 사용 기준점
 Gui, Add, checkbox, xp yp+20 v보구1라1, 1
@@ -290,7 +286,7 @@ return
 OneClick: ;;원클릭
 	if(!메인함수())
 	{
-		addlog("에러")
+		addlog("# 에러 발생")
 	}	
 Return
 
@@ -471,7 +467,7 @@ return
 				&& IsImgWithoutCap(clickX, clickY, "적금테.bmp", 90, 0, EnemyPos[a_index].X+10, EnemyPos[a_index].Y-5, EnemyPos[a_index].X+25, EnemyPos[a_index].Y+5))
 				{
 					;적이 금테이고 풀차지일 때만 무적 사용
-					addlog(a_index "번 적 보구 준비")
+					;addlog(a_index " 번 적 보구 준비")
 					스킬사용("s_무적")
 				}
 			}
@@ -762,9 +758,9 @@ return
 			ClickAdb(clickX, clickY)
 			sleep, 3000
 		}
-		break
-	}
-	return true
+		else if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))	
+			return true
+	}	
 }
 
 스킬사용(skillName, errorRange = 150) ;스킬이미지이름에서 숫자뺀거, 이미지 갯수
