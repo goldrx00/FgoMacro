@@ -26,7 +26,7 @@ SleepLog(SleepTime) ;;슬립로그
 	sleep, %SleepTime%
 }
 
-PushLine2(msg, imageName = 0)
+SendLine2(msg, imageName = 0)
 {	
     msg := UriEncode(msg)
 
@@ -37,16 +37,16 @@ PushLine2(msg, imageName = 0)
     addlog("LINE Notify 메시지 전송")
 }
 
-;#include Token.ahk
-PushLine(msg, imageName = 0)
+#include Token.ahk
+SendLine(msg, imageName = 0)
 {
-	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1")	
+	 winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1")	
     winHttp.Open("POST", "https://notify-api.line.me/api/notify")
 	winHttp.SetRequestHeader("Authorization","Bearer " notifyToken)	
 	  
     if(imageName)
 	{
-		objParam := { "message": msg, "photo": [imageName]  }		
+		objParam := { "message": msg, "imageFile": [imageName]  }		
 		CreateFormData(postData, hdr_ContentType, objParam)
 		winHttp.SetRequestHeader("Content-Type", hdr_ContentType)
 		winHttp.Send(postData)
@@ -65,7 +65,7 @@ PushLine(msg, imageName = 0)
 global chatID
 global botToken
 
-PushTelegram2(msg)
+SendTelegram2(msg)
 {    
     msg := UriEncode(msg)
 
@@ -74,13 +74,13 @@ PushTelegram2(msg)
     ;addlog("Telegram Bot 메시지 전송")   
 }
 
-PushTelegramImg2(imageName)
+SendTelegramImg2(imageName)
 {
 	 RunWait, utility/curl.exe -k -F "chat_id=%chatID%" -F "photo=@%imageName%" https://api.telegram.org/bot%botToken%/sendPhoto,, Hide
 }
 
 
-PushTelegram(msg)
+SendTelegram(msg)
 {
 	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1") 
 	winHttp.Open("POST", "https://api.telegram.org/bot" botToken "/sendMessage")
@@ -92,7 +92,7 @@ PushTelegram(msg)
 	addlog("Telegram Bot: " res)
 }
 
-PushTelegramImg(imageName) ;;
+SendTelegramImg(imageName) ;;
 {
 	objParam := { "chat_id": chatID	, "photo": [imageName]  }
 	CreateFormData(postData, hdr_ContentType, objParam)
@@ -110,11 +110,7 @@ global lastDate = 0
 getTelegramMsg()
 {
 	url := "https://api.telegram.org/bot" botToken "/getUpdates"
-	winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-	winHttp.Open("GET", url)		
-	winHttp.Send()
-	winHttp.WaitForResponse() ; response 기다린다
-	getUpdates:= winHttp.ResponseText	
+	getUpdates:= ReadURL(url)	
 
 	if(getUpdates = 0)
 	{
@@ -145,7 +141,7 @@ getTelegramMsg()
 	return newMsg
 }
 
-;URLDownloadToVar , ReadURL 같은 기능으로 추정
+;URLDownloadToVar , ReadURL 같은 기능으로 추정 //내부 기능이므로 지연이 걸릴수도?
 URLDownloadToVar(url) 
 {
 	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -154,7 +150,7 @@ URLDownloadToVar(url)
 	return hObject.ResponseText
 }
 
-ReadURL(URL, encoding = "utf-8") 
+ReadURL(URL, encoding = "utf-8") ;;외부 dll이라 지연 안걸릴수도?
 {
     static a := "AutoHotkey/" A_AhkVersion
     

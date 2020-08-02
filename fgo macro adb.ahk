@@ -82,10 +82,20 @@ Gui, Add, checkbox, xp-60 yp+45 v보구3라1, 1
 Gui, Add, checkbox, xp+30 v보구3라2, 2
 Gui, Add, checkbox, xp+30 v보구3라3, 3
 
-Gui, Add, Text, x+8 y71 r7 w100, 공멀 스킬 사용 ;;공멀 기술 기준점
-Gui, Add, checkbox, xp+20 yp+20 v공멀1, 1라
-Gui, Add, checkbox, xp yp+20 v공멀2, 2라
-Gui, Add, checkbox, xp yp+20  v공멀3, 3라
+Gui, Add, Text, x+8 y71  w100, 공슼 차지 사용 ;;공멀 기술 기준점
+Gui, Add, checkbox, xp+10 yp+20 v공명1, 1
+Gui, Add, checkbox, xp+30  v공명2, 2
+Gui, Add, checkbox, xp+30   v공명3, 3
+
+Gui, Add, Text, xp-70 yp+20  w100, 멀린 버프 사용 ;;공멀 기술 기준점
+Gui, Add, checkbox, xp+10 yp+20 v멀린1, 1
+Gui, Add, checkbox, xp+30  v멀린2, 2
+Gui, Add, checkbox, xp+30   v멀린3, 3
+
+Gui, Add, Text, xp-70 yp+20  w100, 스카디 버프 사용 ;;공멀 기술 기준점
+Gui, Add, checkbox, xp+10 yp+20 v스카디1, 1
+Gui, Add, checkbox, xp+30  v스카디2, 2
+Gui, Add, checkbox, xp+30   v스카디3, 3
 
 Gui, Add, checkbox, x12 y220 v금사과사용, 금사과 사용
 
@@ -98,7 +108,7 @@ Gui, Add, Edit, w320 vbotToken,
 Gui, Tab, 설명
 Gui, Add, Text, ,앱플레이어 해상도: 800 x 450
 Gui, Add, Text, ,배틀 메뉴에서 스킬 사용 확인 OFF
-Gui, Add, Text, ,공멀스킬은 항상 세번째 자리에만 사용
+Gui, Add, Text, ,공멀슼 스킬은 항상 첫번째 자리에만 사용
 Gui, Add, Text, ,Ctrl+F6 : 스샷찍기
 
 Gui, Tab, 기타
@@ -211,9 +221,21 @@ LoadOption:
 	}
 	loop, 3
 	{
-		IniRead, 공멀%a_index%, %ConfigFile%, Option, 공멀%a_index%
-		temp := 공멀%a_index%
-		GuiControl,, 공멀%a_index%, %temp%
+		IniRead, 공명%a_index%, %ConfigFile%, Option, 공명%a_index%
+		temp := 공명%a_index%
+		GuiControl,, 공명%a_index%, %temp%
+	}
+	loop, 3
+	{
+		IniRead, 멀린%a_index%, %ConfigFile%, Option, 멀린%a_index%
+		temp := 멀린%a_index%
+		GuiControl,, 멀린%a_index%, %temp%
+	}
+	loop, 3
+	{
+		IniRead, 스카디%a_index%, %ConfigFile%, Option, 스카디%a_index%
+		temp := 스카디%a_index%
+		GuiControl,, 스카디%a_index%, %temp%
 	}
 	log := "# 설정 불러오기 완료"
 	AddLog(log)
@@ -249,9 +271,21 @@ SaveOption: ;세이브옵션
 	}
 	loop, 3
 	{
-		GuiControlGet, 공멀%a_index%, 
-		temp := 공멀%a_index%
-		IniWrite, %temp%, %ConfigFile%,  Option, 공멀%a_index%
+		GuiControlGet, 공명%a_index%, 
+		temp := 공명%a_index%
+		IniWrite, %temp%, %ConfigFile%,  Option, 공명%a_index%
+	}
+	loop, 3
+	{
+		GuiControlGet, 멀린%a_index%, 
+		temp := 멀린%a_index%
+		IniWrite, %temp%, %ConfigFile%,  Option, 멀린%a_index%
+	}
+	loop, 3
+	{
+		GuiControlGet, 스카디%a_index%, 
+		temp := 스카디%a_index%
+		IniWrite, %temp%, %ConfigFile%,  Option, 스카디%a_index%
 	}
 return
 
@@ -338,11 +372,17 @@ return
 		}
 		
 		if(!퀘스트준비())
+		{
 			return false
+		}
 		if(!퀘스트배틀())
+		{
 			return false
+		}
 		if(!배틀피니쉬())
+		{
 			return false
+		}
 	}
 }
 
@@ -436,24 +476,50 @@ return
 			;;;;공멀 스킬사용
 			loop, 3
 			{
-				GuiControlGet, 공멀%a_index%,
-				if(라운드 = a_index && 공멀%a_index%)
+				GuiControlGet, 공명%a_index%,
+				if(라운드 = a_index && 공명%a_index%)
 				{					
-					if(IsImgWithoutCap(clickX, clickY, "s_크리1.bmp", 60, 0, SkillButtonPos[1].sX, SkillButtonPos[1].sY, SkillButtonPos[1].eX, SkillButtonPos[1].eY)
-					&& IsImgWithoutCap(clickX, clickY, "공명.bmp", 60, "black", 100, 433, 150, 448))
+					if(IsImgWithoutCap(clickX, clickY, "s_크리1.bmp", 60, 0, SkillButtonPos[7].sX, SkillButtonPos[7].sY, SkillButtonPos[7].eX, SkillButtonPos[7].eY)
+					&& IsImgWithoutCap(clickX, clickY, "공명.bmp", 60, "black", 500, 433, 550, 448))
 					{
-						ClickAdb(40, 360)
+						ClickAdb(440, 360)
 						sleep, 500
-						ClickAdb(600, 260)
+						ClickAdb(220, 260)
 						sleep, 3000
 						getAdbScreen()
 					}
-					if(IsImgWithoutCap(clickX, clickY, "s_버스터1.bmp", 60, 0, SkillButtonPos[3].sX, SkillButtonPos[3].sY, SkillButtonPos[3].eX, SkillButtonPos[3].eY))
-					&& IsImgWithoutCap(clickX, clickY, "멀린.bmp", 60, "black", 100, 433, 150, 448)
+					if(IsImgWithoutCap(clickX, clickY, "s_np업1.bmp", 60, 0, SkillButtonPos[9].sX, SkillButtonPos[9].sY, SkillButtonPos[9].eX, SkillButtonPos[9].eY))
+					&& IsImgWithoutCap(clickX, clickY, "스카디.bmp", 60, "black", 500, 433, 550, 448)
 					{
-						ClickAdb(160, 360)
+						ClickAdb(560, 360)
 						sleep, 500
-						ClickAdb(600, 260)
+						ClickAdb(220, 260)
+						sleep, 3000
+						getAdbScreen()
+					}
+				}
+				GuiControlGet, 멀린%a_index%,
+				if(라운드 = a_index && 멀린%a_index%)
+				{			
+					if(IsImgWithoutCap(clickX, clickY, "s_버스터1.bmp", 60, 0, SkillButtonPos[9].sX, SkillButtonPos[9].sY, SkillButtonPos[9].eX, SkillButtonPos[9].eY))
+					&& IsImgWithoutCap(clickX, clickY, "멀린.bmp", 60, "black", 500, 433, 550, 448)
+					{
+						ClickAdb(560, 360)
+						sleep, 500
+						ClickAdb(220, 260)
+						sleep, 3000
+						getAdbScreen()
+					}
+				}				
+				GuiControlGet, 스카디%a_index%,
+				if(라운드 = a_index && 스카디%a_index%)
+				{			
+					if(IsImgWithoutCap(clickX, clickY, "s_퀵1.bmp", 60, 0, SkillButtonPos[7].sX, SkillButtonPos[7].sY, SkillButtonPos[7].eX, SkillButtonPos[7].eY))
+					&& IsImgWithoutCap(clickX, clickY, "스카디.bmp", 60, "black", 500, 433, 550, 448)
+					{
+						ClickAdb(440, 360)
+						sleep, 500
+						ClickAdb(220, 260)
 						sleep, 3000
 						getAdbScreen()
 					}
@@ -473,12 +539,14 @@ return
 			}
 			스킬사용("s_방업")
 			스킬사용("s_공업")
+			스킬사용("s_방깎")
 			스킬사용("s_np획득량")
 			스킬사용("s_np업")
 			스킬사용("s_스타")
 			스킬사용("s_버스터", 110)
 			스킬사용("s_스집", 110)
 			스킬사용("s_거츠")
+			스킬사용("s_회피")
 
 			ClickAdb(710, 410) ;어택 클릭					
 			sleep, 2000
@@ -636,7 +704,7 @@ return
 		{
 			fileName := "파티전멸.png"
 			CaptureAdb(fileName)
-			PushTelegramImg("adbCapture/" fileName)
+			SendTelegramImg("adbCapture/" fileName)
 			addlog("# 파티 전멸, 텔레그램 전송")
 			return false
 		}
@@ -690,7 +758,7 @@ return
 			ClickAdb(clickX, clickY)
 			sleep, 3000
 		}
-		if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0))
+		if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0, 500, 250, 800, 450))
 		{
 			ClickAdb(clickX, clickY)
 			sleep, 3000
@@ -807,10 +875,10 @@ TelegramGetUpdates:
 		case "스샷":
 			fileName := A_yyyy a_mm A_DD "_" A_HOUR  A_MIN  A_SEC ".png"
 			CaptureAdb(fileName)		
-			PushTelegramImg("adbCapture/" fileName)	
+			SendTelegramImg("adbCapture/" fileName)	
 				
 		case "정보":
-			PushTelegram("반복 횟수: " rCount)
+			SendTelegram("반복 횟수: " rCount)
 
 		case "철수하기":	
 			ClickAdb(200, 200)
@@ -821,7 +889,7 @@ TelegramGetUpdates:
 			sleep, 5000
 			fileName := "영주사용.png"
 			CaptureAdb(fileName)		
-			PushTelegramImg("adbCapture/" fileName)
+			SendTelegramImg("adbCapture/" fileName)
 	}
 return
 
@@ -880,7 +948,7 @@ return
 
 ; ^f3::
 ; ;addlog(getTelegramMsg())
-; PushLine("asdfas하하하", "adbCapture/haha.png")
+; SendLine("asdfas하하하", "adbCapture/파티전멸.png")
 ; return
 
 ; ^f4::
@@ -904,7 +972,7 @@ return
 ;fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
 ;		CaptureAdb(fileName)
 		addlog("zz")
-		PushTelegramImg2("adbCapture/party.png")
+		SendTelegramImg2("adbCapture/party.png")
  return
 
 
