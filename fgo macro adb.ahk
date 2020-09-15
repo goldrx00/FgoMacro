@@ -540,10 +540,13 @@ return
 			스킬사용("s_방업")
 			스킬사용("s_공업")
 			스킬사용("s_방깎")
+			스킬사용("s_공깎")
 			스킬사용("s_np획득량")
 			스킬사용("s_np업")
 			스킬사용("s_스타")
 			스킬사용("s_버스터", 110)
+			스킬사용("s_아츠")
+			스킬사용("s_퀵")
 			스킬사용("s_스집", 110)
 			스킬사용("s_거츠")
 			스킬사용("s_회피")
@@ -753,12 +756,17 @@ return
 			sleep, 3000
 			;break
 		}
-		if(IsImgWithoutCap(clickX, clickY, "신청안함.bmp", 60, 0))
+		if(IsImgWithoutCap(clickX, clickY, "신청안함.bmp", 60, 0)) ;친구신청 뜰때
 		{
 			ClickAdb(clickX, clickY)
 			sleep, 3000
 		}
 		if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0, 500, 250, 800, 450))
+		{
+			ClickAdb(clickX, clickY)
+			sleep, 3000
+		}
+		if(IsImgWithoutCap(clickX, clickY, "연속출격닫기.bmp", 60, 0))
 		{
 			ClickAdb(clickX, clickY)
 			sleep, 3000
@@ -930,13 +938,20 @@ return
 		while(!objExec.status)
 			sleep, 10
 	}
+
+	getAdbScreen()
+	if(IsImgWithoutCap(clickX, clickY, "친구10회소환.bmp", 60, 0)
+	|| IsImgWithoutCap(clickX, clickY, "무료10회소환.bmp", 60, 0))
+	{
+		ClickToImgAdb(clickX, clickY, "무료소환확인.bmp")
+		ClickAdb(clickX, clickY)
+		sleep, 1000
+	}
 	loop
 	{
 		getAdbScreen()
-		if(IsImgWithoutCap(clickX, clickY, "친구10회소환.bmp", 60, 0)
-		|| IsImgWithoutCap(clickX, clickY, "무료10회소환.bmp", 60, 0))
-		{
-			ClickToImgAdb(clickX, clickY, "무료소환확인.bmp")
+		if(IsImgWithoutCap(clickX, clickY, "무료소환확인.bmp", 60, 0))		
+		{			
 			ClickAdb(clickX, clickY)
 			sleep, 1000
 		}
