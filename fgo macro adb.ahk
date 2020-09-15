@@ -713,8 +713,7 @@ return
 		}
 
 		;;전투가 끝났을 시
-		if(IsImgWithoutCap(clickX, clickY, "result.bmp", 60, "black", 462, 20, 492, 55))
-		;|| IsImgWithoutCap(clickX, clickY, "인연레벨업.bmp", 60, "white", 540, 217, 570, 245))
+		if(IsImgWithoutCap(clickX, clickY, "result.bmp", 60, "black", 462, 20, 492, 55))		
 		{
 			ClickAdb(clickX, clickY)
 			sleep, 3000
