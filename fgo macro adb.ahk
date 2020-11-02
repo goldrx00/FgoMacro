@@ -480,7 +480,7 @@ return
 				if(라운드 = a_index && 공명%a_index%)
 				{					
 					if(IsImgWithoutCap(clickX, clickY, "s_크리1.bmp", 60, 0, SkillButtonPos[7].sX, SkillButtonPos[7].sY, SkillButtonPos[7].eX, SkillButtonPos[7].eY)
-					&& IsImgWithoutCap(clickX, clickY, "공명.bmp", 60, "black", 500, 433, 550, 448))
+					&& IsImgWithoutCap(clickX, clickY, "공명.bmp", 120, "black", 500, 433, 550, 448))
 					{
 						ClickAdb(440, 360)
 						sleep, 500
@@ -489,7 +489,7 @@ return
 						getAdbScreen()
 					}
 					if(IsImgWithoutCap(clickX, clickY, "s_np업1.bmp", 60, 0, SkillButtonPos[9].sX, SkillButtonPos[9].sY, SkillButtonPos[9].eX, SkillButtonPos[9].eY))
-					&& IsImgWithoutCap(clickX, clickY, "스카디.bmp", 60, "black", 500, 433, 550, 448)
+					&& IsImgWithoutCap(clickX, clickY, "스카디.bmp", 120, "black", 500, 433, 550, 448)
 					{
 						ClickAdb(560, 360)
 						sleep, 500
@@ -502,7 +502,7 @@ return
 				if(라운드 = a_index && 멀린%a_index%)
 				{			
 					if(IsImgWithoutCap(clickX, clickY, "s_버스터1.bmp", 60, 0, SkillButtonPos[9].sX, SkillButtonPos[9].sY, SkillButtonPos[9].eX, SkillButtonPos[9].eY))
-					&& IsImgWithoutCap(clickX, clickY, "멀린.bmp", 60, "black", 500, 433, 550, 448)
+					&& IsImgWithoutCap(clickX, clickY, "멀린.bmp", 120, "black", 500, 433, 550, 448)
 					{
 						ClickAdb(560, 360)
 						sleep, 500
@@ -515,7 +515,7 @@ return
 				if(라운드 = a_index && 스카디%a_index%)
 				{			
 					if(IsImgWithoutCap(clickX, clickY, "s_퀵1.bmp", 60, 0, SkillButtonPos[7].sX, SkillButtonPos[7].sY, SkillButtonPos[7].eX, SkillButtonPos[7].eY))
-					&& IsImgWithoutCap(clickX, clickY, "스카디.bmp", 60, "black", 500, 433, 550, 448)
+					&& IsImgWithoutCap(clickX, clickY, "스카디.bmp", 120, "black", 500, 433, 550, 448)
 					{
 						ClickAdb(440, 360)
 						sleep, 500
@@ -716,7 +716,7 @@ return
 		if(IsImgWithoutCap(clickX, clickY, "result.bmp", 60, "black", 462, 20, 492, 55))		
 		{
 			ClickAdb(clickX, clickY)
-			sleep, 3000
+			sleep, 1000
 			return true				
 		}
 
@@ -735,12 +735,12 @@ return
 		;|| IsImgWithoutCap(clickX, clickY, "인연레벨업.bmp", 60, "white", 540, 217, 570, 245))
 		{
 			ClickAdb(clickX, clickY)
-			sleep, 3000
+			sleep, 1000
 		}
 		if(IsImgWithoutCap(clickX, clickY, "다음.bmp", 60, 0))
 		{
 			ClickAdb(clickX, clickY)
-			sleep, 3000
+			sleep, 1000
 			break
 		}
 		if(mod(a_index , 5) = 0)
@@ -752,28 +752,28 @@ return
 		if(IsImgWithoutCap(clickX, clickY, "다음.bmp", 60, 0)) ;이벤트 포인트 받기용 다음
 		{
 			ClickAdb(clickX, clickY)
-			sleep, 3000
+			sleep, 1000
 			;break
 		}
-		if(IsImgWithoutCap(clickX, clickY, "신청안함.bmp", 60, 0)) ;친구신청 뜰때
+		if(IsImgWithoutCap(clickX, clickY, "친구신청종료.bmp", 60, 0)) ;친구신청 뜰때
 		{
 			ClickAdb(clickX, clickY)
-			sleep, 3000
+			sleep, 1000
 		}
 		if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0, 500, 250, 800, 450))
 		{
 			ClickAdb(clickX, clickY)
-			sleep, 3000
+			sleep, 1000
 		}
 		if(IsImgWithoutCap(clickX, clickY, "연속출격닫기.bmp", 60, 0))
 		{
 			ClickAdb(clickX, clickY)
-			sleep, 3000
+			sleep, 1000
 		}
 		if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
 		{
 			;ClickAdb(clickX, clickY)
-			sleep, 3000
+			sleep, 1000
 			break
 		}
 	}

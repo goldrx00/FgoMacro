@@ -7,7 +7,8 @@ getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
     {
         Gdip_DisposeImage(g_pScreenBmp) ;이전 pBitmap 주소의 메모리를 비운다. 메모리 누수를 막기 위함
     }
-    sCmd := adb " -s " AdbSN " shell screencap"
+    ;sCmd := adb " -s " AdbSN " shell screencap" 
+    sCmd := adb " -s " AdbSN " exec-out screencap" ;sehll은 화면이 깨지지만 exec-out은 안깨진다
     if(!hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
     {
         addlog(" @ ADB 스크린 캡쳐 실패")
@@ -23,7 +24,8 @@ SaveAdbCropImage(filename, x1, y1, x2, y2)
     w := x2 - x1
     h := y2 - y1
     ;gdipToken := Gdip_Startup()
-    sCmd := adb " -s " AdbSN " shell screencap"
+    ;sCmd := adb " -s " AdbSN " shell screencap"
+    sCmd := adb " -s " AdbSN " exec-out screencap"
     if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
     {	
         addlog(" @ ADB 스크린 캡쳐 실패")
@@ -42,7 +44,8 @@ SaveAdbCropImage(filename, x1, y1, x2, y2)
 
 CaptureAdb(filename)
 {
-    sCmd := adb " -s " AdbSN " shell screencap"
+    ;sCmd := adb " -s " AdbSN " shell screencap"
+    sCmd := adb " -s " AdbSN " exec-out screencap"
     if hbm := ADBScreenCapStdOutToHBitmap( sCmd )
     {		
         ret := Gdip_CreateBitmapFromHBITMAP(hbm)
@@ -103,26 +106,27 @@ ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName) ;;클릭투이미지 클릭
         ;while(!objExec.status)
         ;	sleep, 10		
         sleep, 1000 ;%ADB_TIME_REFRESH%		
-        Loop, 50
+        Loop, 10
         {
             if(IsImgPlusAdb(clickX, clickY, ImageName, 60, 0))
                 return true
-            if(AfterRestart = 1)
-            {
-                log := "# 재시작이 일어났습니다"
-                AddLog(log)
-                return false
-            }
+            ; if(AfterRestart = 1)
+            ; {
+            ;     log := "# 재시작이 일어났습니다"
+            ;     AddLog(log)
+            ;     return false
+            ; }
             sleep, 1000 ;%ADB_TIME_REFRESH%
         }
         if(A_Index > 10)
-            AfterRestart := 1
-        if(AfterRestart = 1)
-        {
-            log := "# 재시작이 일어났습니다"
-            AddLog(log)
             return false
-        }
+            ;AfterRestart := 1
+        ; if(AfterRestart = 1)
+        ; {
+        ;     log := "# 재시작이 일어났습니다"
+        ;     AddLog(log)
+        ;     return false
+        ; }
         sleep, 20000
     }
 }
@@ -151,7 +155,7 @@ IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0
         return false
     }
     
-    sCmd := adb " -s " AdbSN " shell screencap"
+    sCmd := adb " -s " AdbSN " exec-out screencap"
     if(!hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
     {
         addlog("  @ ADB 스크린 캡쳐 실패")
@@ -258,6 +262,7 @@ IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;adb에서 파일쓰기 없이 바로 gdip hbitmap만들기;;;;;;;;;;;;;;;;
 ;;참조: https://autohotkey.tistory.com/40
+;https://autohotkey.com/board/topic/96903-simplified-versions-of-seans-stdouttovar/
 
 ;MCode Func
 AdjustScreencapData := MCode("2,x86:VVdWU4tsJBSLRCQYjXQF/zn1d1ONfv6NTQGJ6usRZpCJyIPCAYhZ/4PBATnydyI51w+2GnbqgPsNdeWAegENdd8PtloCgPsKdBa7DQAAAOvPKehbXl9dw5CNtCYAAAAAiciDwgPrvjHA6+iQkJCQkA==")
@@ -269,7 +274,7 @@ ADBScreenCapStdOutToHBitmap( sCmd )
     global AdjustScreencapData, ScreencapToDIB
     DllCall( "CreatePipe", UIntP,hPipeRead, UIntP,hPipeWrite, UInt,0, UInt,0 )
     DllCall( "SetHandleInformation", UInt,hPipeWrite, UInt,1, UInt,1 )
-        VarSetCapacity( STARTUPINFO, 68,  0 )      ; STARTUPINFO          ;  http://goo.gl/fZf24
+    VarSetCapacity( STARTUPINFO, 68,  0 )      ; STARTUPINFO          ;  http://goo.gl/fZf24
     NumPut( 68,         STARTUPINFO,  0 )      ; cbSize
     NumPut( 0x100,      STARTUPINFO, 44 )      ; dwFlags    =>  STARTF_USESTDHANDLES = 0x100 
     NumPut( hPipeWrite, STARTUPINFO, 60 )      ; hStdOutput
@@ -319,7 +324,7 @@ ADBScreenCapStdOutToHBitmap( sCmd )
         for k,v in block
             if v.size
             DllCall("RtlMoveMemory", "UPTR",tar, "UPTR",v.addr, "UInt",v.size), tar += v.size
-        allSize := DllCall(AdjustScreencapData, "UPTR",&bin, "UInt",allSize, "cdecl")
+        ;allSize := DllCall(AdjustScreencapData, "UPTR",&bin, "UInt",allSize, "cdecl") ;exec-out으로 받으면 조정필요없음
         width  := NumGet(&bin, 0, "uint"), height := NumGet(&bin, 4, "uint")
         hBM := CreateDIBSection(width, height,"",32, ppvBits)  
         DllCall(ScreencapToDIB, "UPtr",&bin, "UInt",width, "UInt",height, "UPtr",ppvBits, "cdecl")
@@ -328,7 +333,7 @@ ADBScreenCapStdOutToHBitmap( sCmd )
 }
 
 ;--------------------------------------------------------------------
-
+;MCode C언어 등으로 컴파일된 코드를 실행
 MCode(mcode) 
 {
     static e := {1:4, 2:1}, c := (A_PtrSize=8) ? "x64" : "x86"
@@ -367,7 +372,7 @@ IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0
         AddLog(log)		
     }
     
-    sCmd := adb " -s " AdbSN " shell screencap"
+    sCmd := adb " -s " AdbSN " exec-out screencap"
     if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
     {
         addlog(" @ ADB 스크린 캡쳐 실패")
