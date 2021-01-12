@@ -1,5 +1,7 @@
 ﻿;fgo macro adb.ahk ;테스트 ;테스트
 
+
+
 #Persistent ;핫키를 포함하지 않는 스크립트도 꺼지지 않게 한다
 #SingleInstance Force ; 스크립트를 동시에 한개만 실행
 #NoEnv ;변수명을 해석할 때, 환경 변수를 무시한다 (속도 상승)
