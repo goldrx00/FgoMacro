@@ -762,7 +762,7 @@ return
 			ClickAdb(clickX, clickY)
 			sleep, 1000
 		}
-		if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0, 500, 250, 800, 450))
+		if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0, 80, 240, 240, 390))
 		{
 			ClickAdb(clickX, clickY)
 			sleep, 1000
