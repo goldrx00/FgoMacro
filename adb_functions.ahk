@@ -1,7 +1,7 @@
 ﻿global g_pScreenBmp := 0 ;전역 pBitmap
 global ADB_TIME_REFRESH := 200
 
-getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
+getAdbScreen2() ;;adb에서 화면 가져와서 hBitmap에 저장
 {
     if(g_pScreenBmp)
     {
@@ -63,7 +63,7 @@ CaptureAdb(filename)
     return
 }
 
-ClickAdb(x, y) ; adb클릭
+ClickAdb2(x, y) ; adb클릭
 {
     ;sleep, %ADB_TIME_REFRESH% ;;필요없는 듯
     if(x = 0 && y = 0)
@@ -144,7 +144,7 @@ Gdip_ImageSearchWithPbm(bmpHaystack, Byref X,Byref Y,bmpNeedle,Variation=0,Trans
         return false
 }
 
-IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
+IsImgPlusAdb2(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
 {	
     StringReplace, ImageName2, ImageName, Image\ , , All
     StringReplace, ImageName2, ImageName2, .bmp , , All		

@@ -7,16 +7,17 @@ global EmulTitle:= "[MOMO]앱플레이어"
 ;global wCaption := 34 ;타이틀바 높이 
 
 global nLog := 1 ;;기록
+global guiNum := "1:"
 AddLog(String) ;;애드로그
 {
-	Gui,  Font, S7 CDefault, Verdana
-	GuiControl,  Font, LogList
+	Gui, %guiNum% Font, S7 CDefault, Verdana
+	GuiControl, %guiNum% Font, LogList
 	nowTime := "" A_HOUR ":" A_MIN " "
 	LogList .= nowTime String "|"
-	GuiControl, , LogList, %LogList%
-	GuiControl,  Choose, LogList, %nLog%
+	GuiControl, %guiNum% , LogList, %LogList%
+	GuiControl, %guiNum% Choose, LogList, %nLog%
 	nLog++
-	Gui,  Font, S8 CDefault, Verdana
+	Gui, %guiNum% Font, S8 CDefault, Verdana
 }
 
 SleepLog(SleepTime) ;;슬립로그
@@ -37,7 +38,7 @@ SendLine2(msg, imageName = 0)
     addlog("LINE Notify 메시지 전송")
 }
 
-#include Token.ahk
+;#include Token.ahk
 SendLine(msg, imageName = 0)
 {
 	 winHttp := ComObjCreate("WinHttp.WinHttpRequest.5.1")	
@@ -65,7 +66,7 @@ SendLine(msg, imageName = 0)
 global chatID
 global botToken
 
-SendTelegram2(msg)
+SendTelegram2(msg) ;;curl을 쓰면 지연이 안걸린다
 {    
     msg := UriEncode(msg)
 
@@ -546,7 +547,7 @@ Gdip_ResizeBitmap(pBitmap,fixed_width=0,fixed_height=0,enable_ratio="false",rati
 		if !fixed_width and  fixed_height
 			ratio:=fixed_height/height
 	}
-	;msgbox %ratio%
+	;addlog(ratio)
 	w:=floor(width*ratio)
 	h:=floor(height*ratio)
 	pBitmap2 := Gdip_CreateBitmap(w, h)

@@ -5,5 +5,6 @@ adbCapture
 fgo macro adb.exe
 tempCodeRunnerFile.ahk
 Token.ahk
+토큰.txt
 *.ini
 Config.ini

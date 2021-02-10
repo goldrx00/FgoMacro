@@ -14,6 +14,7 @@ CoordMode,ToolTip,Screen ;ToolTip
 #include functions.ahk 
 #include adb_functions.ahk
 #Include CreateFormData.ahk
+#Include 크기조절테스트.ahk
 
 OnExit, Clean_up
 
@@ -56,9 +57,24 @@ global FriendListPos := [{sX: 30, 	sY: 113,		eX: 755, 	eY: 227}
 ,{sX: 30, 	sY: 238,		eX: 755, 	eY: 351}]
 
 global MacroID := "페그오 매크로"
-;Menu, Tray, Icon, Image\Icon1.ico
 
-Gui, Add, Tab2, x10 w350 h240, 퀘스트|기타|텔레그램|설명
+Menu, Tray, Icon, icon.ico
+
+
+;Menu, mymenu, Add , ;LoadImage
+Menu, Submenu, Add, 이미지 로드, LoadImage
+Menu, Submenu, Add, 스크린샷, 스크린샷
+;Menu, mymenu, Add, LoadImage, MenuHandler
+;Menu, mymenu, Add,&File, :FileMenu
+Menu, menuBar,Add , menu, :Submenu
+
+Gui, Menu, menuBar
+
+
+
+
+
+Gui, Add, Tab2, x10 w350 h240, 퀘스트|기타|텔레그램|설명|리사이즈
 Gui, Tab, 퀘스트
 
 Gui, Add, Text, xp+5 yp+30, Android Serial Number:
@@ -117,6 +133,18 @@ Gui, Add, Button, h30 g스크린샷, 스크린샷
 Gui, Add, Button, h30 g무료소환, 무료소환
 Gui, Add, Button, h30 g룰렛돌리기, 룰렛돌리기
 
+Gui, Tab, 리사이즈
+Gui, Add, checkbox, vIsResize, 리사이즈사용
+Gui, Add, Text,  , cropX
+Gui, Add, Edit, vCropX,
+; Gui, Add, Text,  , cropY
+; Gui, Add, Edit, vCropY,
+; Gui, Add, Text,  , cropW
+; Gui, Add, Edit, vCropW,
+Gui, Add, Text,  , cropH
+Gui, Add, Edit, vCropH,
+Gui, Add, Button, gScreensView, 화면보기
+
 Gui, Tab
 
 Gui, Add, Button, x10 y250 w70 h30  gOneClick, 실행
@@ -126,7 +154,10 @@ Gui, Add, Button, x+10 w70 h30  gReset, 재시작
 Gui, Add, ListBox, x10 y+10 w350 h200 vLogList,
 
 ; Gui, 2: +Owner1
-; Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`
+ ;Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`
+ Gui, 2: Add, Picture, x0 y0 w800 h450 gClickImage vPic, 
+
+ ;Gui, 2: Add, Picture, 0xE w500 h300 hwndhPic          ; SS_Bitmap    = 0xE
 
 GuiControl, Focus, LogList 
 
@@ -143,6 +174,12 @@ Gosub, Attach
 GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
 GuiControlGet, chatID, 1: ;텔레그램
 GuiControlGet, botToken, 1:
+GuiControlGet, CropX, 1:
+; GuiControlGet, CropY, 1:
+; GuiControlGet, CropW, 1:
+GuiControlGet, CropH, 1:
+gRatio := CropH/450
+CropW :=  800*gRatio
 
 Gui, Show,  x%initX% y%initY% , %MacroID% ; h350 w194
 
@@ -151,6 +188,15 @@ Gosub, LoadImage
 
 log := "# 동작 대기"
 AddLog(log)
+return
+
+ClickImage:
+	CoordMode, Mouse, Client
+	MouseGetPos, vx, vy
+	;msgbox,Clicked %vx% %vy%
+	ClickAdb(vx, vy)
+	sleep, 2000
+	getAdbScreen()	
 return
 
 LoadImage:
@@ -202,6 +248,12 @@ LoadOption:
 	GuiControl,, botToken, %InibotToken%
 	IniRead, InichatID, %ConfigFile%, Option, chatID
 	GuiControl,, chatID, %InichatID%
+	IniRead, IsResize, %ConfigFile%, Option, IsResize
+	GuiControl,, IsResize, %IsResize%
+	IniRead, CropX, %ConfigFile%, Option, CropX
+	GuiControl,, CropX, %CropX%
+	IniRead, CropH, %ConfigFile%, Option, CropH
+	GuiControl,, CropH, %CropH%
 	
 	loop, 3
 	{
@@ -252,6 +304,12 @@ SaveOption: ;세이브옵션
 	IniWrite, %chatID%, %ConfigFile%,  Option, chatID
 	GuiControlGet, botToken, 
 	IniWrite, %botToken%, %ConfigFile%,  Option, botToken
+	GuiControlGet, IsResize, 
+	IniWrite, %IsResize%, %ConfigFile%,  Option, IsResize
+	GuiControlGet, CropX, 
+	IniWrite, %CropX%, %ConfigFile%,  Option, CropX
+	GuiControlGet, CropH, 
+	IniWrite, %CropH%, %ConfigFile%,  Option, CropH
 	
 	loop, 3
 	{
@@ -290,13 +348,13 @@ SaveOption: ;세이브옵션
 return
 
 showInfo := 0
-MenuInfo:
+ScreensView:
 	if(!showInfo)
 	{
 		RealWinSize(posX, posY, width, height, MacroID)
 		ChildX := posX + width + 10
 		ChildY := posY
-		Gui, 2: Show, x%ChildX% y%ChildY% , 설명
+		Gui, 2: Show, x%ChildX% y%ChildY% w800 , 화면보기 ;w800 h450
 		showInfo := 1
 	}
 	else
@@ -762,10 +820,11 @@ return
 			ClickAdb(clickX, clickY)
 			sleep, 1000
 		}
-		if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 60, 0, 80, 240, 240, 390))
+		if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 40, 0, 80, 240, 240, 390))
 		{
-			ClickAdb(clickX, clickY)
 			sleep, 1000
+			ClickAdb(clickX, clickY)
+			sleep, 1500
 		}
 		if(IsImgWithoutCap(clickX, clickY, "연속출격닫기.bmp", 60, 0))
 		{
@@ -962,10 +1021,13 @@ return
 	}
 return
 
-; ^f3::
-; ;addlog(getTelegramMsg())
-; SendLine("asdfas하하하", "adbCapture/파티전멸.png")
-; return
+^f3::
+;addlog(getTelegramMsg())
+;SendLine("asdfas하하하", "adbCapture/파티전멸.png")
+
+크기조절비트맵()
+;CaptureAdb22()
+return
 
 ; ^f4::
 ; addlog("하하")
@@ -983,20 +1045,20 @@ return
 ; }
 ; return
 
-/*
- ^F2::
-;fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
-;		CaptureAdb(fileName)
-		addlog("zz")
-		SendTelegramImg2("adbCapture/party.png")
- return
+
+;  ^F2::
+; ;fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
+; ;		CaptureAdb(fileName)
+; 		addlog("zz")
+; 		SendTelegramImg2("adbCapture/party.png")
+;  return
 
 
 ; ^f4::
 ; 	array := [[1,2,3],[4,5,6]]
 ; 	addlog(array[2,1])
 ; return
-;*/
+
 
 ;/*
 
