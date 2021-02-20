@@ -1,21 +1,14 @@
 ﻿global g_pScreenBmp := 0 ;전역 pBitmap
 global ADB_TIME_REFRESH := 200
 
-getAdbScreen2() ;;adb에서 화면 가져와서 hBitmap에 저장
+getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
 {
     if(g_pScreenBmp)
     {
         Gdip_DisposeImage(g_pScreenBmp) ;이전 pBitmap 주소의 메모리를 비운다. 메모리 누수를 막기 위함
     }
-    ;sCmd := adb " -s " AdbSN " shell screencap" 
-    sCmd := adb " -s " AdbSN " exec-out screencap" ;sehll은 화면이 깨지지만 exec-out은 안깨진다
-    if(!hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
-    {
-        addlog(" @ ADB 스크린 캡쳐 실패")
-        return false
-    }
-    g_pScreenBmp := Gdip_CreateBitmapFromHBITMAP(hBitmap)
-    DeleteObject(hBitmap)	
+
+    g_pScreenBmp := ADBScreencapToPBitmap()
     return true
 }
 
@@ -144,7 +137,7 @@ Gdip_ImageSearchWithPbm(bmpHaystack, Byref X,Byref Y,bmpNeedle,Variation=0,Trans
         return false
 }
 
-IsImgPlusAdb2(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
+IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
 {	
     StringReplace, ImageName2, ImageName, Image\ , , All
     StringReplace, ImageName2, ImageName2, .bmp , , All		
@@ -154,15 +147,9 @@ IsImgPlusAdb2(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 
         AddLog(log)
         return false
     }
-    
-    sCmd := adb " -s " AdbSN " exec-out screencap"
-    if(!hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
-    {
-        addlog("  @ ADB 스크린 캡쳐 실패")
-        return false
-    }
-    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
-    DllCall("DeleteObject", Ptr, hBitmap)
+
+    pBitmap := ADBScreencapToPBitmap()   
+   
     If(Gdip_ImageSearchWithPbm(pBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
     {
         log := "  @ 이미지 찾음 : " ImageName
@@ -258,6 +245,34 @@ IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX 
         clickY := 0
         return false
     }
+}
+
+ADBScreencapToPBitmap()
+{
+    sCmd := adb " -s " AdbSN " exec-out screencap" ;sehll은 화면이 깨지지만 exec-out은 안깨진다
+    if(!hBitmap := ADBScreenCapStdOutToHBitmap(sCmd ))
+    {
+        addlog("  @ ADB 스크린 캡쳐 실패")
+        return false
+    }
+    ret := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+
+    ;hbitmap을 화면에 표시
+    IfWinExist, 화면보기
+        Guicontrol,2: , Pic, HBITMAP:%hBitmap%
+    ;리사이즈일때만 작동
+    GuiControlGet, IsResize,
+    if (IsResize)
+    {
+        ;addlog(gRatio " " cropX " " cropY  " " cropW " " cropH)
+        pBitmap := Gdip_CropResizeBitmap(ret, gRatio ,cropX,cropY,cropW,cropH)
+        Gdip_DisposeImage(ret)
+    }
+    else
+        pBitmap := ret
+
+    DeleteObject(hBitmap)
+    return pBitmap
 }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;adb에서 파일쓰기 없이 바로 gdip hbitmap만들기;;;;;;;;;;;;;;;;
