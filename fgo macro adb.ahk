@@ -74,7 +74,7 @@ Gui, Menu, menuBar
 
 
 
-Gui, Add, Tab2, x10 w350 h240, 퀘스트|기타|텔레그램|설명|추가설정
+Gui, Add, Tab2, x10 w350 h240, 퀘스트|기타|텔레그램|추가설정|설명
 Gui, Tab, 퀘스트
 
 Gui, Add, Text, xp+5 yp+30, Android Serial Number:
@@ -135,16 +135,20 @@ Gui, Add, Button, h30 g룰렛돌리기, 룰렛돌리기
 
 Gui, Tab, 추가설정
 Gui, Add, checkbox, vHibernate, 절전모드
-Gui, Add, checkbox, y+20 vIsResize, 리사이즈사용
-Gui, Add, Text,  , cropX
-Gui, Add, Edit, vCropX,
+Gui, Add, Text,  , 유휴시간(분):
+Gui, Add, Edit, x+10 v유휴시간,
+Gui, Add, Text, x22 y+8, 절전시간(분):
+Gui, Add, Edit, x+10 v절전시간,
+Gui, Add, checkbox, x22 y+20 vIsResize, 리사이즈사용
+Gui, Add, Text,  , cropX:
+Gui, Add, Edit, x+10 vCropX,
 ; Gui, Add, Text,  , cropY
 ; Gui, Add, Edit, vCropY,
 ; Gui, Add, Text,  , cropW
 ; Gui, Add, Edit, vCropW,
-Gui, Add, Text,  , cropH
-Gui, Add, Edit, vCropH,
-Gui, Add, Button, gScreensView, 화면보기
+Gui, Add, Text, x22 y+8, cropH:
+Gui, Add, Edit, x+10 vCropH,
+Gui, Add, Button, x22 y+8 gScreensView, 화면보기
 
 Gui, Tab
 
@@ -251,6 +255,10 @@ LoadOption:
     GuiControl,, chatID, %InichatID%
     IniRead, Hibernate, %ConfigFile%, Option, Hibernate
     GuiControl,, Hibernate, %Hibernate%
+    IniRead, 유휴시간, %ConfigFile%, Option, 유휴시간
+    GuiControl,, 유휴시간, %유휴시간%
+    IniRead, 절전시간, %ConfigFile%, Option, 절전시간
+    GuiControl,, 절전시간, %절전시간%
     IniRead, IsResize, %ConfigFile%, Option, IsResize
     GuiControl,, IsResize, %IsResize%
     IniRead, CropX, %ConfigFile%, Option, CropX
@@ -307,6 +315,10 @@ SaveOption: ;세이브옵션
     IniWrite, %chatID%, %ConfigFile%,  Option, chatID
     GuiControlGet, botToken, 
     IniWrite, %botToken%, %ConfigFile%,  Option, botToken
+    GuiControlGet, 유휴시간, 
+    IniWrite, %유휴시간%, %ConfigFile%,  Option, 유휴시간
+    GuiControlGet, 절전시간, 
+    IniWrite, %절전시간%, %ConfigFile%,  Option, 절전시간
     GuiControlGet, Hibernate, 
     IniWrite, %Hibernate%, %ConfigFile%,  Option, Hibernate
     GuiControlGet, IsResize, 
@@ -384,6 +396,7 @@ OneClick: ;;원클릭
     if(!메인함수())
     {
         addlog("# 에러 발생")
+        SetTimer, 튕김확인, Off
     }	
 Return
 
@@ -425,6 +438,8 @@ adbConnect()
     GuiControlGet, botToken , 
     if(chatID)
         SetTimer, TelegramGetUpdates, 10000 ; 10초마다 텔레그램 메시지 읽어오기
+
+    SetTimer, 튕김확인, 300000 ;튕김확인
     
     GuiControlGet, AdbSN,  ;adb 에뮬 시리얼
     /*
@@ -509,7 +524,8 @@ adbConnect()
     Loop
     {
         ;;attack.bmp가 발견되면 배틀 시작한 것
-        if(IsImgPlusAdb(clickX, clickY, "attack.bmp", 60, 0))
+        getAdbScreen()
+        if(IsImgWithoutCap(clickX, clickY, "attack.bmp", 60, 0))
         {
             sleep, 500
             getAdbScreen()				
@@ -833,7 +849,7 @@ adbConnect()
             ClickAdb(clickX, clickY)
             sleep, 1000
         }
-        if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 40, 0, 80, 240, 240, 390))
+        if(IsImgWithoutCap(clickX, clickY, "퀘스트보상.bmp", 30, 0, 80, 240, 240, 390))
         {
             sleep, 1000
             ClickAdb(clickX, clickY)
@@ -847,11 +863,10 @@ adbConnect()
         if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
         {
             ;ClickAdb(clickX, clickY)
-            sleep, 1000
+            sleep, 2000
             break
         }
     }
-    ;ClickToImgAdb(clickX, clickY, "닫기.bmp")
     ;sleep, 3000
     loop, 5
     {
@@ -883,6 +898,7 @@ ap대기()
         return false
     }
     ;;ap없으면 ap찰때까지 반복
+    loopNum := 0
     loop
     {
         ClickAdb(650, 120) ;;첫번째 퀘스트 다시 누르기
@@ -891,6 +907,7 @@ ap대기()
         if(IsImgWithoutCap(clickX, clickY, "ap회복.bmp", 60, 0))
         ;|| IsImgWithoutCap(clickX, clickY, "bp회복.bmp", 60, 0))
         {
+            loopNum := 0
             GuiControlGet, 금사과사용, 1:
 
             if(금사과사용 = 1)
@@ -913,22 +930,28 @@ ap대기()
                 sleep, 2000
 
                 GuiControlGet, Hibernate,
+                GuiControlGet, 유휴시간, 
                 addlog("# TimeIdle: " A_TimeIdle)
-                if(Hibernate = 1 && A_TimeIdle > 60000*3)
+                if(Hibernate = true && A_TimeIdle > 60000*유휴시간)
                 {
-                    MsgBox, 1, , 5초 후 절전모드가 실행됩니다., 5
+                    MsgBox, 1, , 10초 후 절전모드가 실행됩니다., 10
                     IfMsgBox, Cancel
                     {
                         sleeplog(300000)
                     }
                     else
                     {
-                        num := 100
-                        addlog("# " num "분 절전")
+                        fileName := "절전알림.png"
+                        CaptureAdb(fileName)		
+                        SendTelegramImg("adbCapture/" fileName)
+                        GuiControlGet, 절전시간,
+                        SendTelegram("절전 시작: " A_HOUR ":" A_MIN " ,  " 절전시간 "분")                        
+                        addlog("# " 절전시간 "분 절전")
                         sleep, 1000
-                        Run rundll32.exe user32.dll`,LockWorkStation ;화면잠금
-                        Hibernate( A_Now, num, "Minutes" )
+                        ;Run rundll32.exe user32.dll`,LockWorkStation ;화면잠금
+                        Hibernate( A_Now, 절전시간, "Minutes" )
                         sleeplog(20000)
+                        SendTelegram("절전 꺼짐: " A_HOUR ":" A_MIN )
                         ;;만약 서버 접속 에러 발생시 여기다 해당 코드 넣기
                     }
                 
@@ -949,6 +972,14 @@ ap대기()
         }
         else if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))	
             return true
+
+        if(loopNum > 20)
+        {
+           절전모드()
+        }
+
+
+        loopNum++
     }	
 }
 
@@ -985,6 +1016,46 @@ ap대기()
         ;	break		
     }
 }
+
+절전모드()
+{
+    GuiControlGet, Hibernate,
+    GuiControlGet, 유휴시간, 
+    addlog("# TimeIdle: " A_TimeIdle)
+    if(Hibernate = true && A_TimeIdle > 60000*유휴시간)
+    {
+        MsgBox, 1, , 10초 후 절전모드가 실행됩니다., 10
+        IfMsgBox, Cancel
+        {
+            sleeplog(20000)            
+        }
+        else
+        {   
+            fileName := "절전알림.png"
+            CaptureAdb(fileName)		
+            SendTelegramImg("adbCapture/" fileName)
+            SendTelegram("절전모드 실행")
+            addlog("# 절전모드 실행")
+            sleep, 1000
+            ;Run rundll32.exe user32.dll`,LockWorkStation ;화면잠금
+            DllCall( "PowrProf\SetSuspendState", UInt,0, UInt,0, UInt,0 )  ;절전모드
+            sleeplog(20000)            
+        }
+        addlog("# Pause")
+        pause
+    }
+}
+
+튕김확인:
+    if(IsImgPlusAdb(clickX, clickY, "튕김확인.bmp", 30, 0))
+    {		
+        SendTelegram("블택튕김 감지")        
+        addlog("# 블택튕김 감지")
+        절전모드()
+    }
+       
+return
+
 
 TelegramGetUpdates:
     if(!msg := getTelegramMsg())
@@ -1065,13 +1136,14 @@ return
     }
 return
 
-; ^f3::
-; ;addlog(getTelegramMsg())
-; ;SendLine("asdfas하하하", "adbCapture/파티전멸.png")
-; ap대기() 
+^f10::
 
-; return
+    ap대기() 
 
+return
+^f11::
+Gosub, 튕김확인
+return
 ; ^f4::
 ; addlog("하하")
 ; getAdbScreen()
