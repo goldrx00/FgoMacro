@@ -68,11 +68,11 @@ Menu, Submenu, Add, 스크린샷, 스크린샷
 ;Menu, mymenu, Add,&File, :FileMenu
 Menu, menuBar,Add , menu, :Submenu
 
+Menu, 폴더열기, Add, 스샷 폴더, 스샷폴더
+Menu, 폴더열기, Add, 이미지 폴더, 이미지폴더
+Menu, menuBar, Add, 폴더열기, :폴더열기
+
 Gui, Menu, menuBar
-
-
-
-
 
 Gui, Add, Tab2, x10 w350 h240, 퀘스트|기타|텔레그램|추가설정|설명
 Gui, Tab, 퀘스트
@@ -139,15 +139,15 @@ Gui, Add, Text,  , 유휴시간(분):
 Gui, Add, Edit, x+10 v유휴시간,
 Gui, Add, Text, x22 y+8, 절전시간(분):
 Gui, Add, Edit, x+10 v절전시간,
-Gui, Add, checkbox, x22 y+20 vIsResize, 리사이즈사용
-Gui, Add, Text,  , cropX:
-Gui, Add, Edit, x+10 vCropX,
-; Gui, Add, Text,  , cropY
-; Gui, Add, Edit, vCropY,
-; Gui, Add, Text,  , cropW
-; Gui, Add, Edit, vCropW,
-Gui, Add, Text, x22 y+8, cropH:
-Gui, Add, Edit, x+10 vCropH,
+; Gui, Add, checkbox, x22 y+20 vIsResize, 리사이즈사용
+; Gui, Add, Text,  , cropX:
+; Gui, Add, Edit, x+10 vCropX,
+; ; Gui, Add, Text,  , cropY
+; ; Gui, Add, Edit, vCropY,
+; ; Gui, Add, Text,  , cropW
+; ; Gui, Add, Edit, vCropW,
+; Gui, Add, Text, x22 y+8, cropH:
+; Gui, Add, Edit, x+10 vCropH,
 Gui, Add, Button, x22 y+8 gScreensView, 화면보기
 
 Gui, Tab
@@ -259,12 +259,12 @@ LoadOption:
     GuiControl,, 유휴시간, %유휴시간%
     IniRead, 절전시간, %ConfigFile%, Option, 절전시간
     GuiControl,, 절전시간, %절전시간%
-    IniRead, IsResize, %ConfigFile%, Option, IsResize
-    GuiControl,, IsResize, %IsResize%
-    IniRead, CropX, %ConfigFile%, Option, CropX
-    GuiControl,, CropX, %CropX%
-    IniRead, CropH, %ConfigFile%, Option, CropH
-    GuiControl,, CropH, %CropH%
+    ; IniRead, IsResize, %ConfigFile%, Option, IsResize
+    ; GuiControl,, IsResize, %IsResize%
+    ; IniRead, CropX, %ConfigFile%, Option, CropX
+    ; GuiControl,, CropX, %CropX%
+    ; IniRead, CropH, %ConfigFile%, Option, CropH
+    ; GuiControl,, CropH, %CropH%
     
     loop, 3
     {
@@ -322,11 +322,11 @@ SaveOption: ;세이브옵션
     GuiControlGet, Hibernate, 
     IniWrite, %Hibernate%, %ConfigFile%,  Option, Hibernate
     GuiControlGet, IsResize, 
-    IniWrite, %IsResize%, %ConfigFile%,  Option, IsResize
-    GuiControlGet, CropX, 
-    IniWrite, %CropX%, %ConfigFile%,  Option, CropX
-    GuiControlGet, CropH, 
-    IniWrite, %CropH%, %ConfigFile%,  Option, CropH
+    ; IniWrite, %IsResize%, %ConfigFile%,  Option, IsResize
+    ; GuiControlGet, CropX, 
+    ; IniWrite, %CropX%, %ConfigFile%,  Option, CropX
+    ; GuiControlGet, CropH, 
+    ; IniWrite, %CropH%, %ConfigFile%,  Option, CropH
     
     loop, 3
     {
@@ -396,6 +396,7 @@ OneClick: ;;원클릭
     if(!메인함수())
     {
         addlog("# 에러 발생")
+        SetTimer, TelegramGetUpdates, Off
         SetTimer, 튕김확인, Off
     }	
 Return
@@ -412,6 +413,14 @@ Attach: ;;adb방식 컨트롤 하는 cmd 생성
     DllCall("AttachConsole","uint",cPid)
     hCon:=DllCall("CreateFile","str","CONOUT$","uint",0xC0000000,"uint",7,"uint",0,"uint",3,"uint",0,"uint",0)
     global objShell := ComObjCreate("WScript.Shell")
+return
+
+스샷폴더:
+    run adbCapture\
+return
+
+이미지폴더:
+    run Image\
 return
 
 adbConnect()
@@ -635,7 +644,7 @@ adbConnect()
             스킬사용("s_아츠")
             스킬사용("s_퀵")
             스킬사용("s_스집", 110)
-            스킬사용("s_내성깎")
+            스킬사용("s_내성깎", 120)
             스킬사용("s_챠지깎")
             스킬사용("s_거츠")
             스킬사용("s_회피")
@@ -953,6 +962,17 @@ ap대기()
                         sleeplog(20000)
                         SendTelegram("절전 꺼짐: " A_HOUR ":" A_MIN )
                         ;;만약 서버 접속 에러 발생시 여기다 해당 코드 넣기
+
+                        ;; 절전시간동안 잠겨있던 ap 실제로 맞추기
+                        getAdbScreen()
+                        if(IsImgWithoutCap(clickX, clickY, "메뉴.bmp", 60, 0))
+                        {
+                            ClickToImgAdb(clickX, clickY, "마이룸버튼.bmp")
+                            ClickToImgAdb(clickX, clickY, "마이룸.bmp")
+                            ClickAdb(70, 25) ;닫기 버튼
+                            sleep, 3000
+                        }
+
                     }
                 
                 }
@@ -973,7 +993,7 @@ ap대기()
         else if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))	
             return true
 
-        if(loopNum > 20)
+        if(loopNum > 20) ;;화면프리징 또는 기타 에러시
         {
            절전모드()
         }
@@ -1047,7 +1067,7 @@ ap대기()
 }
 
 튕김확인:
-    if(IsImgPlusAdb(clickX, clickY, "튕김확인.bmp", 30, 0))
+    if(IsImgPlusAdb(clickX, clickY, "튕김확인.bmp", 60, 0))
     {		
         SendTelegram("블택튕김 감지")        
         addlog("# 블택튕김 감지")
@@ -1138,7 +1158,15 @@ return
 
 ^f10::
 
-    ap대기() 
+    ;ap대기() 
+    ;  getAdbScreen()
+    ; if(IsImgWithoutCap(clickX, clickY, "메뉴.bmp", 60, 0))
+    ; {
+    ;     ClickToImgAdb(clickX, clickY, "마이룸버튼.bmp")
+    ;     ClickToImgAdb(clickX, clickY, "마이룸.bmp")
+    ;     ClickAdb(70, 25) ;닫기 버튼
+    ;     sleep, 3000
+    ; }
 
 return
 ^f11::

@@ -29,7 +29,7 @@ global cropH := 450
     return pBitmap
 }
 
-ClickAdb(x, y ) ; adb클릭
+ClickAdb2(x, y ) ; adb클릭
 {
     ;sleep, %ADB_TIME_REFRESH% ;;필요없는 듯
     if(x = 0 && y = 0)

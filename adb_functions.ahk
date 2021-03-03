@@ -56,7 +56,7 @@ CaptureAdb(filename)
     return
 }
 
-ClickAdb2(x, y) ; adb클릭
+ClickAdb(x, y) ; adb클릭
 {
     ;sleep, %ADB_TIME_REFRESH% ;;필요없는 듯
     if(x = 0 && y = 0)
@@ -255,21 +255,21 @@ ADBScreencapToPBitmap()
         addlog("  @ ADB 스크린 캡쳐 실패")
         return false
     }
-    ret := Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    pBitmap := Gdip_CreateBitmapFromHBITMAP(hBitmap)
 
     ;hbitmap을 화면에 표시
     IfWinExist, 화면보기
         Guicontrol,2: , Pic, HBITMAP:%hBitmap%
     ;리사이즈일때만 작동
-    GuiControlGet, IsResize,
-    if (IsResize)
-    {
-        ;addlog(gRatio " " cropX " " cropY  " " cropW " " cropH)
-        pBitmap := Gdip_CropResizeBitmap(ret, gRatio ,cropX,cropY,cropW,cropH)
-        Gdip_DisposeImage(ret)
-    }
-    else
-        pBitmap := ret
+    ; GuiControlGet, IsResize,
+    ; if (IsResize)
+    ; {
+    ;     ;addlog(gRatio " " cropX " " cropY  " " cropW " " cropH)
+    ;     pBitmap := Gdip_CropResizeBitmap(ret, gRatio ,cropX,cropY,cropW,cropH)
+    ;     Gdip_DisposeImage(ret)
+    ; }
+    ; else
+    ;     pBitmap := ret
 
     DeleteObject(hBitmap)
     return pBitmap
