@@ -1184,7 +1184,7 @@ return
 
 return
 ^f11::
-스킬사용("s_공업")
+SendTelegram("test")
 return
 ; ^f4::
 ; addlog("하하")

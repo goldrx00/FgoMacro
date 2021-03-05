@@ -2,10 +2,10 @@
 {	
     msg := UriEncode(msg)
 
-    RunWait, utility\curl.exe -k -H "Authorization: Bearer %notifyToken%" -d "message=%msg%" https://notify-api.line.me/api/notify,, Hide	
+    RunWait, curl -k -H "Authorization: Bearer %notifyToken%" -d "message=%msg%" https://notify-api.line.me/api/notify,, Hide	
     if(imageName)
-        RunWait, utility\curl.exe -k -X POST -H "Authorization: Bearer %notifyToken%" -F "message=%imageName%" -F "imageFile=@%imageName%" https://notify-api.line.me/api/notify,, Hide
-    ;objExec := objShell.Exec("curl.exe -k -X POST -H ""Authorization: Bearer " notifyToken """ -F ""message=" msg """ https://notify-api.line.me/api/notify")
+        RunWait, curl -k -X POST -H "Authorization: Bearer %notifyToken%" -F "message=%imageName%" -F "imageFile=@%imageName%" https://notify-api.line.me/api/notify,, Hide
+    ;objExec := objShell.Exec("curl -k -X POST -H ""Authorization: Bearer " notifyToken """ -F ""message=" msg """ https://notify-api.line.me/api/notify")
     addlog("LINE Notify 메시지 전송")
 }
 
@@ -41,16 +41,17 @@ SendTelegram(msg) ;;curl을 쓰면 지연이 안걸린다
 {    
     msg := UriEncode(msg)
 
-    ;RunWait, utility\curl.exe -k -d "chat_id=%chatID%&text=%msg%" https://api.telegram.org/bot%botToken%/sendMessage,, Hide    
-    command = curl.exe -k -d "chat_id=%chatID%&text=%msg%" https://api.telegram.org/bot%botToken%/sendMessage
-    objExec := objShell.Exec(command)
-    ;objExec := objShell.Exec("curl.exe -k -d ""chat_id=" chatID "&text=" msg """ https://api.telegram.org/bot" botToken "/sendMessage" ) ;attach한 cmd 사용
+    RunWait, curl -k -d "chat_id=%chatID%&text=%msg%" https://api.telegram.org/bot%botToken%/sendMessage,, Hide        
+    ;command = curl -k -d "chat_id=%chatID%&text=%msg%" https://api.telegram.org/bot%botToken%/sendMessage
+    
+    ;objExec := objShell.Exec(command)
+    ;objExec := objShell.Exec("curl -k -d ""chat_id=" chatID "&text=" msg """ https://api.telegram.org/bot" botToken "/sendMessage" ) ;attach한 cmd 사용
     ;addlog("Telegram Bot 메시지 전송")   
 }
 
 SendTelegramImg(imageName)
 {
-     RunWait, utility/curl.exe -k -F "chat_id=%chatID%" -F "photo=@%imageName%" https://api.telegram.org/bot%botToken%/sendPhoto,, Hide
+     RunWait, curl -k -F "chat_id=%chatID%" -F "photo=@%imageName%" https://api.telegram.org/bot%botToken%/sendPhoto,, Hide
 }
 
 
@@ -120,7 +121,7 @@ getTelegramMsgCurl()
 {
     ; WshShell 객체: http://msdn.microsoft.com/en-us/library/aew9yb99
     shell := ComObjCreate("WScript.Shell")
-    exec := shell.Exec("curl.exe -k https://api.telegram.org/bot" botToken "/getUpdates")
+    exec := shell.Exec("curl -k https://api.telegram.org/bot" botToken "/getUpdates")
     getUpdates := exec.StdOut.ReadAll()
 
     if(getUpdates = 0)
