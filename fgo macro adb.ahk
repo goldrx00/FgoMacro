@@ -213,8 +213,11 @@ LoadImage:
     ;gdipTokenA := Gdip_Startup()
     Loop, image\*.bmp, , 1  ; Recurse into subfolders.
     {
-        imgFileName = %A_LoopFileName%
-        StringReplace, imgFileName, imgFileName, .bmp , , All
+        ;imgFileName = %A_LoopFileName%
+        imgFileName = %A_LoopFileFullPath%
+        StringReplace, imgFileName, imgFileName, Image\ , , All
+        ;StringReplace, imgFileName, imgFileName, .bmp , , All
+        ;addlog(imgFileName)
                 
         if(!bmpPtrArr[(imgFileName)] := Gdip_CreateBitmapFromFile(A_LoopFileFullPath))
             Addlog("  " A_LoopFileName " 로딩 실패")		
@@ -226,6 +229,7 @@ LoadImage:
     ; 이미지 비트맵을 복사해서 새로운 비트맵 만들기 (이미지 파일 수정하기 위함)
     For Key , in bmpPtrArr 
     {	
+        ;addlog(Key)
         Gdip_GetImageDimensions(bmpPtrArr[(Key)], Width, Height)
         newBitmap := Gdip_CreateBitmap(Width, Height)
         G := Gdip_GraphicsFromImage(newBitmap)
@@ -970,7 +974,7 @@ ap대기()
                             ClickToImgAdb(clickX, clickY, "마이룸버튼.bmp")
                             ClickToImgAdb(clickX, clickY, "마이룸.bmp")
                             ClickAdb(70, 25) ;닫기 버튼
-                            sleep, 3000
+                            sleep, 4000
                         }
 
                     }
@@ -1007,19 +1011,29 @@ ap대기()
 {
     loop ;;스킬이미지가 몇개 인지 확인하는 루프
     {
-        if(!bmpPtrArr[(skillName) a_index])
+        skillImageName := skillName a_index ".bmp"
+        ;addlog(skillImageName)
+        if(!bmpPtrArr[(skillImageName)])
         {
             imageNum := a_index - 1
             break
-        }		
+        }
+        ;addlog(skillName)
+        ; if(!bmpPtrArr[(skillName) a_index])
+        ; {
+        ;     imageNum := a_index - 1
+        ;     break
+        ; }		
     }
 
+    ;addlog(imageNum)
     ;breakLoop := 0
     loop, 9
     {
         buttonNum := a_index
         loop, %imageNum%
-        {			
+        {
+            ;addlog(skillName a_index ".bmp")			
             if(IsImgWithoutCap(clickX, clickY, skillName a_index ".bmp", errorRange, 0, SkillButtonPos[buttonNum].sX, SkillButtonPos[buttonNum].sY, SkillButtonPos[buttonNum].eX, SkillButtonPos[buttonNum].eY))
             {
                 addlog("# " buttonNum " 번 칸 " skillName " 스킬 사용")
@@ -1170,7 +1184,7 @@ return
 
 return
 ^f11::
-Gosub, 튕김확인
+스킬사용("s_공업")
 return
 ; ^f4::
 ; addlog("하하")

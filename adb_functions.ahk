@@ -138,19 +138,19 @@ Gdip_ImageSearchWithPbm(bmpHaystack, Byref X,Byref Y,bmpNeedle,Variation=0,Trans
 }
 
 IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
-{	
-    StringReplace, ImageName2, ImageName, Image\ , , All
-    StringReplace, ImageName2, ImageName2, .bmp , , All		
-    if(!bmpPtrArr[(ImageName2)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+{
+    ;StringReplace, ImageName2, ImageName, Image\ , , All
+    ;StringReplace, ImageName2, ImageName2, .bmp , , All
+    if(!bmpPtrArr[(ImageName)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
         log := "  @ 이미지 없음: " ImageName
         AddLog(log)
         return false
     }
 
-    pBitmap := ADBScreencapToPBitmap()   
+    pBitmap := ADBScreencapToPBitmap() 
    
-    If(Gdip_ImageSearchWithPbm(pBitmap, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
+    If(Gdip_ImageSearchWithPbm(pBitmap, ClickX, ClickY, bmpPtrArr[(ImageName)], errorRange, trans, sX, sY, eX, eY))
     {
         log := "  @ 이미지 찾음 : " ImageName
         AddLog(log)		
@@ -169,9 +169,9 @@ IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0
 ;캡쳐없이 미리 있던 파일에서 이미지 서치
 IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
 {
-    StringReplace, ImageName2, ImageName, Image\ , , All
-    StringReplace, ImageName2, ImageName2, .bmp , , All		
-    If(!bmp_%ImageName2%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+    ; StringReplace, ImageName2, ImageName, Image\ , , All
+    ; StringReplace, ImageName2, ImageName2, .bmp , , All		
+    If(!bmp_%ImageName%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
         log := "  @ 이미지 없음: " ImageName
         AddLog(log)
@@ -179,7 +179,7 @@ IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX =
     }
     
     file := "adbCapture\sc.png"
-    If(Gdip_ImageSearchWithFile(file, ClickX, ClickY, bmp_%ImageName2%, errorRange, trans, sX, sY, eX, eY))
+    If(Gdip_ImageSearchWithFile(file, ClickX, ClickY, bmp_%ImageName%, errorRange, trans, sX, sY, eX, eY))
     {
         log := "  @ 이미지 찾음 : " ImageName
         AddLog(log)	
@@ -198,16 +198,16 @@ IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX =
 IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
 {
     
-    StringReplace, ImageName2, ImageName, Image\ , , All
-    StringReplace, ImageName2, ImageName2, .bmp , , All
-    
-    if(!bmpPtrArr[(ImageName2)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+    ;StringReplace, ImageName2, ImageName, Image\ , , All
+    ;StringReplace, ImageName2, ImageName2, .bmp , , All
+
+    if(!bmpPtrArr[(ImageName)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
         log := "  @ 이미지 없음: " ImageName
         AddLog(log)
         return false
     }	
-    If(Gdip_ImageSearchWithPbm(g_pScreenBmp, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
+    If(Gdip_ImageSearchWithPbm(g_pScreenBmp, ClickX, ClickY, bmpPtrArr[(ImageName)], errorRange, trans, sX, sY, eX, eY))
     {
         log := "  @ 이미지 찾음 : " ImageName
         AddLog(log)	
@@ -225,15 +225,15 @@ IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0
 
 IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;캡쳐, 로그 둘다 없이 서치
 {
-    StringReplace, ImageName2, ImageName, Image\ , , All
-    StringReplace, ImageName2, ImageName2, .bmp , , All		
-    If(!bmpPtrArr[(ImageName2)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+    ; StringReplace, ImageName2, ImageName, Image\ , , All
+    ; StringReplace, ImageName2, ImageName2, .bmp , , All		
+    If(!bmpPtrArr[(ImageName)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
         log := "  @ 이미지 없음: " ImageName
         AddLog(log)
         return false
     }
-    If(Gdip_ImageSearchWithPbm(g_pScreenBmp, ClickX, ClickY, bmpPtrArr[(ImageName2)], errorRange, trans, sX, sY, eX, eY))
+    If(Gdip_ImageSearchWithPbm(g_pScreenBmp, ClickX, ClickY, bmpPtrArr[(ImageName)], errorRange, trans, sX, sY, eX, eY))
     {
         ;log := "  @ 이미지 찾음 : " ImageName
         ;AddLog(log)	
