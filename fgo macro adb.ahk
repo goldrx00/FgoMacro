@@ -27,7 +27,7 @@ global AdbSN ;에뮬레이터 adb 주소
 global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포인터를 저장하는 배열
 global ConfigFile := "Config.ini"
 global rCount ;
-global 메인종료 := 0 ; 1이되면 메인함수 종료
+global 메인종료 := 1 ; 1이되면 메인함수 종료
 
 global SkillButtonPos := [{sX: 23, 	sY: 341,		eX: 63, 	eY: 380}
 ,{sX: 82, 	sY: 341,		eX: 122, 	eY: 380}
@@ -139,21 +139,14 @@ Gui, Add, Text,  , 유휴시간(분):
 Gui, Add, Edit, x+10 v유휴시간,
 Gui, Add, Text, x22 y+8, 절전시간(분):
 Gui, Add, Edit, x+10 v절전시간,
-; Gui, Add, checkbox, x22 y+20 vIsResize, 리사이즈사용
-; Gui, Add, Text,  , cropX:
-; Gui, Add, Edit, x+10 vCropX,
-; ; Gui, Add, Text,  , cropY
-; ; Gui, Add, Edit, vCropY,
-; ; Gui, Add, Text,  , cropW
-; ; Gui, Add, Edit, vCropW,
-; Gui, Add, Text, x22 y+8, cropH:
-; Gui, Add, Edit, x+10 vCropH,
+
 Gui, Add, Button, x22 y+8 gScreensView, 화면보기
 
 Gui, Tab
 
 Gui, Add, Button, x10 y250 w70 h30  gOneClick, 실행
 Gui, Add, Button, x+10 w70 h30  gReset, 재시작
+Gui, Add, Button, x+10 w70 h30  gPause, 일시정지
 ;Gui, Add, Button, x+10 w50 h30 gMenuInfo, 설명
 
 Gui, Add, ListBox, x10 y+10 w350 h200 vLogList,
@@ -179,12 +172,6 @@ Gosub, Attach
 GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
 GuiControlGet, chatID, 1: ;텔레그램
 GuiControlGet, botToken, 1:
-GuiControlGet, CropX, 1:
-; GuiControlGet, CropY, 1:
-; GuiControlGet, CropW, 1:
-GuiControlGet, CropH, 1:
-gRatio := CropH/450
-CropW :=  800*gRatio
 
 Gui, Show,  x%initX% y%initY% , %MacroID% ; h350 w194
 
@@ -263,12 +250,6 @@ LoadOption:
     GuiControl,, 유휴시간, %유휴시간%
     IniRead, 절전시간, %ConfigFile%, Option, 절전시간
     GuiControl,, 절전시간, %절전시간%
-    ; IniRead, IsResize, %ConfigFile%, Option, IsResize
-    ; GuiControl,, IsResize, %IsResize%
-    ; IniRead, CropX, %ConfigFile%, Option, CropX
-    ; GuiControl,, CropX, %CropX%
-    ; IniRead, CropH, %ConfigFile%, Option, CropH
-    ; GuiControl,, CropH, %CropH%
     
     loop, 3
     {
@@ -325,12 +306,7 @@ SaveOption: ;세이브옵션
     IniWrite, %절전시간%, %ConfigFile%,  Option, 절전시간
     GuiControlGet, Hibernate, 
     IniWrite, %Hibernate%, %ConfigFile%,  Option, Hibernate
-    GuiControlGet, IsResize, 
-    ; IniWrite, %IsResize%, %ConfigFile%,  Option, IsResize
-    ; GuiControlGet, CropX, 
-    ; IniWrite, %CropX%, %ConfigFile%,  Option, CropX
-    ; GuiControlGet, CropH, 
-    ; IniWrite, %CropH%, %ConfigFile%,  Option, CropH
+    GuiControlGet, IsResize,
     
     loop, 3
     {
@@ -399,8 +375,8 @@ return
 OneClick: ;;원클릭
     if(!메인함수())
     {
-        addlog("# 에러 발생")
-        SetTimer, TelegramGetUpdates, Off
+        addlog("# 매크로 중지")
+        ;SetTimer, TelegramGetUpdates, Off
         SetTimer, 튕김확인, Off
     }	
 Return
@@ -408,6 +384,10 @@ Return
 Reset:
 Reload
 Return
+
+Pause:
+Pause,,1
+return
 
 Attach: ;;adb방식 컨트롤 하는 cmd 생성
     ;DetectHiddenWindows, on ;숨겨진 윈도우 조작 가능
@@ -450,7 +430,7 @@ adbConnect()
     GuiControlGet, chatID ,
     GuiControlGet, botToken , 
     if(chatID)
-        SetTimer, TelegramGetUpdates, 10000 ; 10초마다 텔레그램 메시지 읽어오기
+        SetTimer, TelegramGetUpdates, 5000 ; 10초마다 텔레그램 메시지 읽어오기
 
     SetTimer, 튕김확인, 300000 ;튕김확인
     
@@ -474,7 +454,7 @@ adbConnect()
         {
             return false
         }
-        if(!배틀피니쉬())
+        if(!퀘스트리절트())
         {
             return false
         }
@@ -488,6 +468,12 @@ adbConnect()
 퀘스트준비()
 {
     getAdbScreen()
+    if(IsImgWithoutCap(clickX, clickY, "이전진행.bmp", 60, 0))
+    {
+        ap대기()
+        getAdbScreen()
+    }
+
     if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))
     {
         clickX := 400
@@ -828,7 +814,7 @@ adbConnect()
     } ;loop
 }
 
-배틀피니쉬()
+퀘스트리절트()
 {
     loop
     {
@@ -914,6 +900,9 @@ ap대기()
     loopNum := 0
     loop
     {
+         if(메인종료 = 1)
+            return false
+
         ClickAdb(650, 120) ;;첫번째 퀘스트 다시 누르기
         sleep, 3000
         getAdbScreen()
@@ -1116,6 +1105,21 @@ TelegramGetUpdates:
             fileName := "영주사용.png"
             CaptureAdb(fileName)		
             SendTelegramImg("adbCapture/" fileName)
+
+        case "중지":
+            SendTelegram("중지")
+            addlog("# 중지")           
+            메인종료 := 1
+
+         
+        case "실행":
+            if(메인종료 =1)
+            {
+                SendTelegram("실행")
+                addlog("# 실행")
+                Gosub, OneClick                
+            }
+           
     }
 return
 
@@ -1171,16 +1175,8 @@ return
 return
 
 ^f10::
-
-    ;ap대기() 
-    ;  getAdbScreen()
-    ; if(IsImgWithoutCap(clickX, clickY, "메뉴.bmp", 60, 0))
-    ; {
-    ;     ClickToImgAdb(clickX, clickY, "마이룸버튼.bmp")
-    ;     ClickToImgAdb(clickX, clickY, "마이룸.bmp")
-    ;     ClickAdb(70, 25) ;닫기 버튼
-    ;     sleep, 3000
-    ; }
+    
+ap대기()
 
 return
 ^f11::
