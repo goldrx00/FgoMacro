@@ -71,3 +71,32 @@ Gdip_CropResizeBitmap(pBitmap, ratio =1, x =0,y=0,w=800,h=450)
 	Gdip_DeleteGraphics(G)
     return pBitmap2
 }
+
+global pBitmap3 := 0
+;global G2 := Gdip_GraphicsFromImage(pBitmap3) 
+그림그리기(x,y,w,h)
+{
+    addlog("그림그리기" x y w h)
+    if(pBitmap3 = 0)
+        pBitmap3 := Gdip_CreateBitmap(800, 450)
+    ; if(hBitmap = 0)
+    ;     pBitmap := Gdip_CreateBitmap(800, 450)
+    ; else
+    ;     pBitmap :=Gdip_CreateBitmapFromHBITMAP(hBitmap)
+    G2 := Gdip_GraphicsFromImage(pBitmap3)    
+    pPen := Gdip_CreatePen(0xFFFF0000, 1)
+    ;Gdip_DrawLine(G, pPen, 10, 10, 280, 280)
+    Gdip_DrawRectangle(G2, pPen, x, y, w, h)
+    hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap3)
+    Guicontrol, 2: , pic2, HBITMAP:%hBitmap%
+
+
+
+    Gdip_DeletePen(pPen)
+    Gdip_DeleteGraphics(G)
+    DeleteObject(hBitmap)
+}
+
+
+; fn := Func("zsa").Bind(2,1)
+; Gui, Add, Button, x+10 w70 h30  v테스트, 테스트

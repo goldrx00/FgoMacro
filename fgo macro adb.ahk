@@ -10,13 +10,16 @@ SetWorkingDir, %A_ScriptDir%	;스크립트의 작업 디렉토리를 변경. vsc
 CoordMode,ToolTip,Screen ;ToolTip
 
 ;인식 안될 경우에 %A_ScriptDir% 붙이기
-#Include Gdip.ahk
-#include functions.ahk 
+#Include Library\Gdip.ahk
+#Include Library\Hibernate.ahk
+#include Library\JSON.ahk
+#Include Library\CreateFormData.ahk
+#include macro_functions.ahk 
 #include adb_functions.ahk
-#Include CreateFormData.ahk
 #Include telegram.ahk
 #Include 크기조절테스트.ahk
-#Include Hibernate.ahk
+#include GUI.ahk
+#include 서브함수.ahk
 
 OnExit, Clean_up
 
@@ -30,142 +33,42 @@ global rCount ;
 global 메인종료 := 1 ; 1이되면 메인함수 종료
 
 global SkillButtonPos := [{sX: 23, 	sY: 341,		eX: 63, 	eY: 380}
-,{sX: 82, 	sY: 341,		eX: 122, 	eY: 380}
-,{sX: 140, 	sY: 341,		eX: 180, 	eY: 380}
-,{sX: 221, 	sY: 341,		eX: 261, 	eY: 380}
-,{sX: 280, 	sY: 341,		eX: 320, 	eY: 380}
-,{sX: 338, 	sY: 341,		eX: 378, 	eY: 380}
-,{sX: 421, 	sY: 341,		eX: 461, 	eY: 380}
-,{sX: 480, 	sY: 341,		eX: 520, 	eY: 380}
-,{sX: 538, 	sY: 341,		eX: 578, 	eY: 380}]
+    ,{sX: 82, 	sY: 341,		eX: 122, 	eY: 380}
+    ,{sX: 140, 	sY: 341,		eX: 180, 	eY: 380}
+    ,{sX: 221, 	sY: 341,		eX: 261, 	eY: 380}
+    ,{sX: 280, 	sY: 341,		eX: 320, 	eY: 380}
+    ,{sX: 338, 	sY: 341,		eX: 378, 	eY: 380}
+    ,{sX: 421, 	sY: 341,		eX: 461, 	eY: 380}
+    ,{sX: 480, 	sY: 341,		eX: 520, 	eY: 380}
+    ,{sX: 538, 	sY: 341,		eX: 578, 	eY: 380}]
 
 global CmdCardPos := [{sX: 1, 	sY: 240,		eX: 160, 	eY: 400}
-,{sX: 160, 	sY: 240,		eX: 320, 	eY: 400}
-,{sX: 320, 	sY: 240,		eX: 480, 	eY: 400}
-,{sX: 480, 	sY: 240,		eX: 640, 	eY: 400}
-,{sX: 640, 	sY: 240,		eX: 800, 	eY: 400}]
+    ,{sX: 160, 	sY: 240,		eX: 320, 	eY: 400}
+    ,{sX: 320, 	sY: 240,		eX: 480, 	eY: 400}
+    ,{sX: 480, 	sY: 240,		eX: 640, 	eY: 400}
+    ,{sX: 640, 	sY: 240,		eX: 800, 	eY: 400}]
 
 global CharacterPos := [{sX: 10, 	sY: 234,		eX: 195, 	eY: 450}
-,{sX: 209, 	sY: 234,		eX: 395, 	eY: 450}
-,{sX: 409, 	sY: 234,		eX: 594, 	eY: 450}]
+    ,{sX: 209, 	sY: 234,		eX: 395, 	eY: 450}
+    ,{sX: 409, 	sY: 234,		eX: 594, 	eY: 450}]
 
 global EnemyPos := [{X: 330, 	Y: 25}
-,{X: 180, 	Y: 25}
-,{X: 30, 	Y: 25}]
+    ,{X: 180, 	Y: 25}
+    ,{X: 30, 	Y: 25}]
 
 global FriendListPos := [{sX: 30, 	sY: 113,		eX: 755, 	eY: 227}
-,{sX: 30, 	sY: 238,		eX: 755, 	eY: 351}]
+    ,{sX: 30, 	sY: 238,		eX: 755, 	eY: 351}]
 
 global MacroID := "페그오 매크로"
 
-Menu, Tray, Icon, icon.ico
-
-
-;Menu, mymenu, Add , ;LoadImage
-Menu, Submenu, Add, 이미지 로드, LoadImage
-Menu, Submenu, Add, 스크린샷, 스크린샷
-;Menu, mymenu, Add, LoadImage, MenuHandler
-;Menu, mymenu, Add,&File, :FileMenu
-Menu, menuBar,Add , menu, :Submenu
-
-Menu, 폴더열기, Add, 스샷 폴더, 스샷폴더
-Menu, 폴더열기, Add, 이미지 폴더, 이미지폴더
-Menu, menuBar, Add, 폴더열기, :폴더열기
-
-Gui, Menu, menuBar
-
-Gui, Add, Tab2, x10 w350 h240, 퀘스트|기타|텔레그램|추가설정|설명
-Gui, Tab, 퀘스트
-
-Gui, Add, Text, xp+5 yp+30, Android Serial Number:
-Gui, Add, Edit, x+10 vAdbSN,
-
-Gui, Add, Text, x15 y71 , 1라 점사: ;;점사 기준점
-Gui, Add, DropDownList,  Choose1 AltSubmit v점사1, 전|중|후
-Gui, Add, Text, , 2라 점사:
-Gui, Add, DropDownList, Choose1 AltSubmit v점사2, 전|중|후
-Gui, Add, Text, , 3라 점사:
-Gui, Add, DropDownList, Choose1 AltSubmit v점사3, 전|중|후
-
-Gui, Add, Text, x+10 y71 , 보구 사용  ;;보구 사용 기준점
-Gui, Add, checkbox, xp yp+20 v보구1라1, 1
-Gui, Add, checkbox, xp+30 v보구1라2, 2
-Gui, Add, checkbox, xp+30  v보구1라3, 3
-Gui, Add, checkbox, xp-60 yp+45 v보구2라1, 1
-Gui, Add, checkbox, xp+30 v보구2라2, 2
-Gui, Add, checkbox, xp+30  v보구2라3, 3
-Gui, Add, checkbox, xp-60 yp+45 v보구3라1, 1
-Gui, Add, checkbox, xp+30 v보구3라2, 2
-Gui, Add, checkbox, xp+30 v보구3라3, 3
-
-Gui, Add, Text, x+8 y71  w100, 공슼 차지 사용 ;;공멀 기술 기준점
-Gui, Add, checkbox, xp+10 yp+20 v공명1, 1
-Gui, Add, checkbox, xp+30  v공명2, 2
-Gui, Add, checkbox, xp+30   v공명3, 3
-
-Gui, Add, Text, xp-70 yp+20  w100, 멀린 버프 사용 ;;공멀 기술 기준점
-Gui, Add, checkbox, xp+10 yp+20 v멀린1, 1
-Gui, Add, checkbox, xp+30  v멀린2, 2
-Gui, Add, checkbox, xp+30   v멀린3, 3
-
-Gui, Add, Text, xp-70 yp+20  w100, 스카디 버프 사용 ;;공멀 기술 기준점
-Gui, Add, checkbox, xp+10 yp+20 v스카디1, 1
-Gui, Add, checkbox, xp+30  v스카디2, 2
-Gui, Add, checkbox, xp+30   v스카디3, 3
-
-Gui, Add, checkbox, x12 y220 v금사과사용, 금사과 사용
-
-Gui, Tab, 텔레그램
-Gui, Add, Text, ,텔레그램 Chat ID :
-Gui, Add, Edit, vChatID,
-Gui, Add, Text, ,텔레그램 BOT api Token :
-Gui, Add, Edit, w320 vbotToken,
-
-Gui, Tab, 설명
-Gui, Add, Text, ,앱플레이어 해상도: 800 x 450
-Gui, Add, Text, ,배틀 메뉴에서 스킬 사용 확인 OFF
-Gui, Add, Text, ,공멀슼 스킬은 항상 첫번째 자리에만 사용
-Gui, Add, Text, ,Ctrl+F6 : 스샷찍기
-
-Gui, Tab, 기타
-Gui, Add, Button, h30 gLoadImage, 이미지 파일 로드
-Gui, Add, Button, h30 g스크린샷, 스크린샷
-Gui, Add, Button, h30 g무료소환, 무료소환
-Gui, Add, Button, h30 g룰렛돌리기, 룰렛돌리기
-
-Gui, Tab, 추가설정
-Gui, Add, checkbox, vHibernate, 절전모드
-Gui, Add, Text,  , 유휴시간(분):
-Gui, Add, Edit, x+10 v유휴시간,
-Gui, Add, Text, x22 y+8, 절전시간(분):
-Gui, Add, Edit, x+10 v절전시간,
-
-Gui, Add, Button, x22 y+8 gScreensView, 화면보기
-
-Gui, Tab
-
-Gui, Add, Button, x10 y250 w70 h30  gOneClick, 실행
-Gui, Add, Button, x+10 w70 h30  gReset, 재시작
-Gui, Add, Button, x+10 w70 h30  gPause, 일시정지
-;Gui, Add, Button, x+10 w50 h30 gMenuInfo, 설명
-
-Gui, Add, ListBox, x10 y+10 w350 h200 vLogList,
-
-; Gui, 2: +Owner1
- ;Gui, 2: Add, Text, ,앱플레이어 해상도: 800 x 450`n`
- Gui, 2: Add, Picture, x0 y0 w800 h450 gClickImage vPic, 
-
- ;Gui, 2: Add, Picture, 0xE w500 h300 hwndhPic          ; SS_Bitmap    = 0xE
-
-GuiControl, Focus, LogList 
-
+global initX, initY
 IfNotExist, %ConfigFile%
 {
     initX := 100
     initY := 100,
 }
 IfExist, %ConfigFile%
-    Gosub, LoadOption
+    LoadOption()
 
 Gosub, Attach
 
@@ -173,252 +76,25 @@ GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
 GuiControlGet, chatID, 1: ;텔레그램
 GuiControlGet, botToken, 1:
 
-Gui, Show,  x%initX% y%initY% , %MacroID% ; h350 w194
+Gui, Show, x%initX% y%initY% , %MacroID% ; h350 w194 
 
 gdipToken := Gdip_Startup()
-Gosub, LoadImage
+LoadImage()
 
 log := "# 동작 대기"
 AddLog(log)
+
+#Include HotKeys.ahk
+#Include Labels.ahk
 return
 
-ClickImage:
-    CoordMode, Mouse, Client
-    MouseGetPos, vx, vy
-    ;msgbox,Clicked %vx% %vy%
-    ClickAdb(vx, vy)
-    sleep, 2000
-    getAdbScreen()	
-return
-
-LoadImage:
-    For Key , in bmpPtrArr
-        Gdip_DisposeImage(bmpPtrArr[(Key)]) ;기존에 로딩되어있던 이미지 메모리에서 지움
-
-    imageNum := 0
-    AddLog("# 이미지 로딩 중...")
-    ;gdipTokenA := Gdip_Startup()
-    Loop, image\*.bmp, , 1  ; Recurse into subfolders.
-    {
-        ;imgFileName = %A_LoopFileName%
-        imgFileName = %A_LoopFileFullPath%
-        StringReplace, imgFileName, imgFileName, Image\ , , All
-        ;StringReplace, imgFileName, imgFileName, .bmp , , All
-        ;addlog(imgFileName)
-                
-        if(!bmpPtrArr[(imgFileName)] := Gdip_CreateBitmapFromFile(A_LoopFileFullPath))
-            Addlog("  " A_LoopFileName " 로딩 실패")		
-        ;else
-            ;Addlog("  " A_LoopFileName )
-        imageNum++
-    }
-    
-    ; 이미지 비트맵을 복사해서 새로운 비트맵 만들기 (이미지 파일 수정하기 위함)
-    For Key , in bmpPtrArr 
-    {	
-        ;addlog(Key)
-        Gdip_GetImageDimensions(bmpPtrArr[(Key)], Width, Height)
-        newBitmap := Gdip_CreateBitmap(Width, Height)
-        G := Gdip_GraphicsFromImage(newBitmap)
-        Gdip_DrawImage(G, bmpPtrArr[(Key)], 0, 0, Width, Height)
-        Gdip_DeleteGraphics(G)
-        Gdip_DisposeImage(bmpPtrArr[(Key)])
-        bmpPtrArr[(Key)] := newBitmap
-    }
-
-    AddLog("# 이미지 " imageNum "장 로딩 완료")
-return
-
-LoadOption:
-    IniRead, initX, %ConfigFile%, Position, X
-    IniRead, initY, %ConfigFile%, Position, Y
-    if(initX < 0 || initY < 0)
-    {
-        initX := 100
-        initY := 100
-    }
-    ;재입장
-    IniRead, IniAdbSN, %ConfigFile%, Option, AdbSN
-    GuiControl,, AdbSN, %IniAdbSN%
-    IniRead, InibotToken, %ConfigFile%, Option, botToken
-    GuiControl,, botToken, %InibotToken%
-    IniRead, InichatID, %ConfigFile%, Option, chatID
-    GuiControl,, chatID, %InichatID%
-    IniRead, Hibernate, %ConfigFile%, Option, Hibernate
-    GuiControl,, Hibernate, %Hibernate%
-    IniRead, 유휴시간, %ConfigFile%, Option, 유휴시간
-    GuiControl,, 유휴시간, %유휴시간%
-    IniRead, 절전시간, %ConfigFile%, Option, 절전시간
-    GuiControl,, 절전시간, %절전시간%
-    
-    loop, 3
-    {
-        IniRead, 점사%a_index%, %ConfigFile%, Option, 점사%a_index%
-        temp := 점사%a_index%
-        GuiControl, Choose, 점사%a_index%, %temp%
-    }
-    loop,3
-    {
-        ii := a_index
-        loop, 3
-        {
-            IniRead, 보구%ii%라%a_index%, %ConfigFile%, Option, 보구%ii%라%a_index%
-            temp := 보구%ii%라%a_index%
-            GuiControl,, 보구%ii%라%a_index%, %temp%
-        }	
-    }
-    loop, 3
-    {
-        IniRead, 공명%a_index%, %ConfigFile%, Option, 공명%a_index%
-        temp := 공명%a_index%
-        GuiControl,, 공명%a_index%, %temp%
-    }
-    loop, 3
-    {
-        IniRead, 멀린%a_index%, %ConfigFile%, Option, 멀린%a_index%
-        temp := 멀린%a_index%
-        GuiControl,, 멀린%a_index%, %temp%
-    }
-    loop, 3
-    {
-        IniRead, 스카디%a_index%, %ConfigFile%, Option, 스카디%a_index%
-        temp := 스카디%a_index%
-        GuiControl,, 스카디%a_index%, %temp%
-    }
-    log := "# 설정 불러오기 완료"
-    AddLog(log)
-return
-
-SaveOption: ;세이브옵션
-    WinGetPos, posX, posY, width, height,  %MacroID%
-    IniWrite, %posX%, %ConfigFile%, Position, X
-    IniWrite, %posY%, %ConfigFile%, Position, Y
-    ;ADB 시리얼
-    GuiControlGet, AdbSN, 1:
-    IniWrite, %AdbSN%, %ConfigFile%,  Option, AdbSN
-    GuiControlGet, chatID,
-    IniWrite, %chatID%, %ConfigFile%,  Option, chatID
-    GuiControlGet, botToken, 
-    IniWrite, %botToken%, %ConfigFile%,  Option, botToken
-    GuiControlGet, 유휴시간, 
-    IniWrite, %유휴시간%, %ConfigFile%,  Option, 유휴시간
-    GuiControlGet, 절전시간, 
-    IniWrite, %절전시간%, %ConfigFile%,  Option, 절전시간
-    GuiControlGet, Hibernate, 
-    IniWrite, %Hibernate%, %ConfigFile%,  Option, Hibernate
-    GuiControlGet, IsResize,
-    
-    loop, 3
-    {
-        GuiControlGet, 점사%a_index%, 1:
-        temp := 점사%a_index%
-        IniWrite, %temp%, %ConfigFile%,  Option, 점사%a_index%
-    }
-    loop, 3
-    {
-        ii := a_index
-        loop, 3
-        {
-            GuiControlGet, 보구%ii%라%a_index%, 1:
-            temp := 보구%ii%라%a_index%
-            IniWrite, %temp%, %ConfigFile%,  Option, 보구%ii%라%a_index%
-        }
-    }
-    loop, 3
-    {
-        GuiControlGet, 공명%a_index%, 
-        temp := 공명%a_index%
-        IniWrite, %temp%, %ConfigFile%,  Option, 공명%a_index%
-    }
-    loop, 3
-    {
-        GuiControlGet, 멀린%a_index%, 
-        temp := 멀린%a_index%
-        IniWrite, %temp%, %ConfigFile%,  Option, 멀린%a_index%
-    }
-    loop, 3
-    {
-        GuiControlGet, 스카디%a_index%, 
-        temp := 스카디%a_index%
-        IniWrite, %temp%, %ConfigFile%,  Option, 스카디%a_index%
-    }
-return
-
-showInfo := 0
-ScreensView:
-    if(!showInfo)
-    {
-        RealWinSize(posX, posY, width, height, MacroID)
-        ChildX := posX + width + 10
-        ChildY := posY
-        Gui, 2: Show, x%ChildX% y%ChildY% w800 , 화면보기 ;w800 h450
-        showInfo := 1
-    }
-    else
-    {
-        Gui, 2: Show, hide
-        showInfo := 0
-    }
-Return
-
-GuiClose:
-Clean_up: ;매크로 끌때
-    Gosub, SaveOption
-    ;DllCall("DeleteObject", Ptr,g_hBitmap) ;파일쓰기 없이 adb서치용 hBitmap 비움.
-    DllCall("CloseHandle", "uint", hCon) ;;cmd 생성
-    DllCall("FreeConsole") ;cmd 생성
-    Process, Close, %cPid% ;cmd 생성
-    Gdip_Shutdown(gdipToken) ;gdip 끄기
-    ExitApp
-return
-
-OneClick: ;;원클릭
+실행버튼()
+{ 
     if(!메인함수())
     {
         addlog("# 매크로 중지")
         ;SetTimer, TelegramGetUpdates, Off
         SetTimer, 튕김확인, Off
-    }	
-Return
-
-Reset:
-Reload
-Return
-
-Pause:
-Pause,,1
-return
-
-Attach: ;;adb방식 컨트롤 하는 cmd 생성
-    ;DetectHiddenWindows, on ;숨겨진 윈도우 조작 가능
-    Run, %comspec% /k ,, UseErrorLevel, cPid ;;hide 추가하면 숨겨짐
-    WinWait, ahk_pid %cPid%,, 10
-    WinHide, ahk_pid %cPid% ;나중에 숨기기
-    DllCall("AttachConsole","uint",cPid)
-    hCon:=DllCall("CreateFile","str","CONOUT$","uint",0xC0000000,"uint",7,"uint",0,"uint",3,"uint",0,"uint",0)
-    global objShell := ComObjCreate("WScript.Shell")
-return
-
-스샷폴더:
-    run adbCapture\
-return
-
-이미지폴더:
-    run Image\
-return
-
-adbConnect()
-{
-    objExec := objShell.Exec(adb " devices")
-    strStdOut:=strStdErr:=""
-    while, !objExec.StdOut.AtEndOfStream
-    strStdOut := objExec.StdOut.ReadAll()
-    IfNotInString, strStdOut, %AdbSN%
-    {
-        addlog("# " AdbSN " 에 연결")
-        objExec := objShell.Exec(adb " connect " AdbSN)
-        while(!objExec.status)
-            sleep, 10
     }
 }
 
@@ -430,7 +106,7 @@ adbConnect()
     GuiControlGet, chatID ,
     GuiControlGet, botToken , 
     if(chatID)
-        SetTimer, TelegramGetUpdates, 5000 ; 10초마다 텔레그램 메시지 읽어오기
+        SetTimer, TelegramGetUpdates, 10000 ; 10초마다 텔레그램 메시지 읽어오기
 
     SetTimer, 튕김확인, 300000 ;튕김확인
     
@@ -439,11 +115,10 @@ adbConnect()
     objExec := objShell.Exec(adb " connect " AdbSN)
     while(!objExec.status) ; objExec.status가 1이면 프로세스 완료된 상태
         sleep, 10
-    */
+    */    
     loop
-    {
+    {        
         rCount := a_index ; 반복 회차
-
         adbConnect()
         
         if(!퀘스트준비())
@@ -892,8 +567,6 @@ ap대기()
     getAdbScreen()
     if(!IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
     {
-        ;ClickAdb(clickX, clickY)
-        ;sleep, 1000
         return false
     }
     ;;ap없으면 ap찰때까지 반복
@@ -1040,116 +713,18 @@ ap대기()
     }
 }
 
-절전모드()
+룰렛돌리기()
 {
-    GuiControlGet, Hibernate,
-    GuiControlGet, 유휴시간, 
-    addlog("# TimeIdle: " A_TimeIdle)
-    if(Hibernate = true && A_TimeIdle > 60000*유휴시간)
-    {
-        MsgBox, 1, , 10초 후 절전모드가 실행됩니다., 10
-        IfMsgBox, Cancel
-        {
-            sleeplog(20000)            
-        }
-        else
-        {   
-            fileName := "절전알림.png"
-            CaptureAdb(fileName)		
-            SendTelegramImg("adbCapture/" fileName)
-            SendTelegram("절전모드 실행")
-            addlog("# 절전모드 실행")
-            sleep, 1000
-            ;Run rundll32.exe user32.dll`,LockWorkStation ;화면잠금
-            DllCall( "PowrProf\SetSuspendState", UInt,0, UInt,0, UInt,0 )  ;절전모드
-            sleeplog(20000)            
-        }
-        addlog("# Pause")
-        pause
-    }
-}
-
-튕김확인:
-    if(IsImgPlusAdb(clickX, clickY, "튕김확인.bmp", 60, 0))
-    {		
-        SendTelegram("블택튕김 감지")        
-        addlog("# 블택튕김 감지")
-        절전모드()
-    }
-       
-return
-
-
-TelegramGetUpdates:
-    if(!msg := getTelegramMsg())
-        return
-    
-    Addlog("# 텔레그램 커맨드")
-    switch msg
-    {
-        case "스샷":
-            fileName := A_yyyy a_mm A_DD "_" A_HOUR  A_MIN  A_SEC ".png"
-            CaptureAdb(fileName)		
-            SendTelegramImg("adbCapture/" fileName)	
-                
-        case "정보":
-            SendTelegram("반복 횟수: " rCount)
-
-        case "철수하기":	
-            ClickAdb(200, 200)
-            메인종료 := 1
-
-        case "영주사용":
-            ClickAdb(400, 200)
-            sleep, 5000
-            fileName := "영주사용.png"
-            CaptureAdb(fileName)		
-            SendTelegramImg("adbCapture/" fileName)
-
-        case "중지":
-            SendTelegram("중지")
-            addlog("# 중지")           
-            메인종료 := 1
-
-         
-        case "실행":
-            if(메인종료 =1)
-            {
-                SendTelegram("실행")
-                addlog("# 실행")
-                Gosub, OneClick                
-            }
-           
-    }
-return
-
-좌표툴팁(x, y, str)
-{
-    RealWinSize(posX, posY, width, height, "페이트/그랜드오더")
-    tipX := posX 
-    tipY := posY + 36 ;뮤뮤 제목 높이
-    tipX+= x
-    tipY+= y
-    ToolTip, %str%, %tipX%,%tipY%
-}
-
-룰렛돌리기:
     loop
     {
         ClickAdb(270, 270)
         sleep, 200
     }
+}
 
-return
 
-^f6::
-스크린샷:
-    adbConnect()	
-    fileName := A_yyyy a_mm A_DD "_" A_HOUR  A_MIN  A_SEC ".png"
-    CaptureAdb(fileName)
-return
-
-무료소환: ;; 무료 소환 반복 핫키
+무료소환() ;; 무료 소환 반복 핫키
+{
     adbConnect()
 
     getAdbScreen()
@@ -1172,64 +747,6 @@ return
         ClickAdb(520, 430)
         sleep, 1000
     }
-return
+    return
+}
 
-^f10::
-    
-ap대기()
-
-return
-^f11::
-SendTelegram("test")
-return
-; ^f4::
-; addlog("하하")
-; getAdbScreen()
-; loop, 3
-; {	
-; 	if(IsImgWithoutCap(clickX, clickY, "적풀차지.bmp", 90, 0, EnemyPos[a_index].X, EnemyPos[a_index].Y, EnemyPos[a_index].X+90, EnemyPos[a_index].Y+40))
-; 	{
-; 		addlog(a_index "번 적 풀차지")
-; 	}
-; 	if(IsImgWithoutCap(clickX, clickY, "적금테.bmp", 90, 0, EnemyPos[a_index].X+10, EnemyPos[a_index].Y-5, EnemyPos[a_index].X+25, EnemyPos[a_index].Y+5))
-; 	{
-; 		addlog(a_index "번 적 금테")
-; 	}
-; }
-; return
-
-
-;  ^F2::
-; ;fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
-; ;		CaptureAdb(fileName)
-; 		addlog("zz")
-; 		SendTelegramImg2("adbCapture/party.png")
-;  return
-
-
-; ^f4::
-; 	array := [[1,2,3],[4,5,6]]
-; 	addlog(array[2,1])
-; return
-
-
-;/*
-
-;그런데 이렇게만 하면 명령만 보내고 작업이 끝났는지 알수가 없습니다. 따라서 아래의 코드를 추가합니다
-
-/*
-strStdOut:=strStdErr:=""
-while, !objExec.StdOut.AtEndOfStream
-    strStdOut := objExec.StdOut.ReadAll()
-while, !objExec.StdErr.AtEndOfStream
-    strStdErr := objExec.StdErr.ReadAll()
-
-
-
-;결과를 모니터링 하려면 아래 코드도 써줍니다
-
-MSGBOX,4096,, OUT:`n[`n%strStdOut%]`n`nERROR:`n[`n%strStdErr%]
-
-
-
-;참고로 adb pull 명령의 실행 결과는 error 값으로 리턴되기때문에 strStdErr에 저장됩니다

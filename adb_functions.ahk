@@ -16,8 +16,7 @@ SaveAdbCropImage(filename, x1, y1, x2, y2)
 {
     w := x2 - x1
     h := y2 - y1
-    ;gdipToken := Gdip_Startup()
-    ;sCmd := adb " -s " AdbSN " shell screencap"
+
     sCmd := adb " -s " AdbSN " exec-out screencap"
     if(!hBm := ADBScreenCapStdOutToHBitmap(sCmd ))
     {	
@@ -32,7 +31,6 @@ SaveAdbCropImage(filename, x1, y1, x2, y2)
     DllCall("DeleteObject", Ptr, hBm)
     Gdip_DisposeImage(ret)
     Gdip_DisposeImage(ret2)	
-    ;Gdip_Shutdown(gdipToken)
 }
 
 CaptureAdb(filename)
@@ -79,7 +77,7 @@ DragAdb(x1,y1,x2,y2,duration)
     sleep, %duration%
 }
 
-ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName) ;;클릭투이미지 클릭후이미지대기
+ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName, errorRange=60, trans="") ;;클릭투이미지 클릭후이미지대기
 {
     ;sleep, %ADB_TIME_REFRESH%
     x := clickX
@@ -93,7 +91,6 @@ ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName) ;;클릭투이미지 클릭
     Loop
     {
         ClickAdb(x, y)
-        ;objExec := objShell.Exec(adb " -s " AdbSN " shell input tap " x " " y )
         log := "  @ 이미지 대기 " ImageName
         AddLog(log)
         ;while(!objExec.status)
@@ -101,7 +98,7 @@ ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName) ;;클릭투이미지 클릭
         sleep, 1000 ;%ADB_TIME_REFRESH%		
         Loop, 10
         {
-            if(IsImgPlusAdb(clickX, clickY, ImageName, 60, 0))
+            if(IsImgPlusAdb(clickX, clickY, ImageName, errorRange, trans))
                 return true
             ; if(AfterRestart = 1)
             ; {
@@ -125,14 +122,21 @@ ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName) ;;클릭투이미지 클릭
 }
 
 Gdip_ImageSearchWithPbm(bmpHaystack, Byref X,Byref Y,bmpNeedle,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;pBitmap으로 부터 서치
-{
+{    
     RET := Gdip_ImageSearch(bmpHaystack,bmpNeedle,LIST,sX,sY,eX,eY,Variation,Trans,1,1)
     StringSplit, LISTArray, LIST, `,
     X := LISTArray1
     Y := LISTArray2
     
     if(RET = 1)
+    {
+        IfWinExist, 화면보기
+        {
+            Gdip_GetImageDimensions(bmpNeedle, Width, Height)
+            네모그리기(X,Y,Width,Height)
+        }
         return true
+    }
     else
         return false
 }
