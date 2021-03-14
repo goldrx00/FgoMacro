@@ -1,24 +1,4 @@
-﻿ClickImage()
-{
-    CoordMode, Mouse, Client
-    MouseGetPos, vx, vy
-    ;msgbox,Clicked %vx% %vy%
-    ClickAdb(vx, vy)
-    sleep, 2000
-    getAdbScreen()
-}
-
-
-이벤트배너()
-{
-    getAdbScreen()
-    ret := Gdip_CropImage(g_pScreenBmp, 420, 200, 160, 50)
-    Gdip_SaveBitmapToFile(ret,"Image\이벤트배너.bmp")      
-    Gdip_DisposeImage(ret)
-    return
-}
-
-LoadImage()
+﻿LoadImage()
 {
     For Key , in bmpPtrArr
         Gdip_DisposeImage(bmpPtrArr[(Key)]) ;기존에 로딩되어있던 이미지 메모리에서 지움
@@ -58,10 +38,14 @@ LoadImage()
     return
 }
 
-IniRead(key, Section = "Option")
+IniRead(key, gui = "1:", Section = "Option", errorDefalut = "", subCmd = "")
 {
-    IniRead, OutputVar, %ConfigFile%, %Section%, %key%
-    GuiControl,, %key%, %OutputVar%
+    IniRead, OutputVar, %ConfigFile%, %Section%, %key%, %errorDefalut%
+    ; if (cmd="choose" && OutputVar = "ERROR")
+	; 	GuiControl, %gui% %subCmd%, %key%, 1
+    ; else
+		GuiControl, %gui% %subCmd%, %key%, %OutputVar%
+    ;GuiControl, %gui% , %key%, %OutputVar%
 }
 
 LoadOption()
@@ -74,9 +58,16 @@ LoadOption()
         initY := 100
     }
     ;재입장
-    ; IniRead, IniAdbSN, %ConfigFile%, Option, AdbSN
-    ; GuiControl,, AdbSN, %IniAdbSN%
-    IniRead("AdbSN")
+    IniRead, IniAdbSN, %ConfigFile%, Option, AdbSN ,emulator-5554
+    GuiControl,1:, AdbSN, %IniAdbSN%||emulator-5554|127.0.0.1:5555|127.0.0.1:21503|127.0.0.1:62001
+    ;GuiControl,1:choose, AdbSN, %IniAdbSN%
+    ;IniRead("AdbSN")
+
+    ;퀘스트설정 목록 가져오기
+    IniRead, OutputVar, %ConfigFile%, LVitem, LV
+    GuiControl,1:, 퀘스트설정DDL, %OutputVar%
+    ;퀘스트설정 고르기
+    IniRead("퀘스트설정DDL", , , ,"choose")
     IniRead("botToken")
     IniRead("chatID")
     IniRead("Hibernate")
@@ -87,7 +78,7 @@ LoadOption()
     {       
         IniRead, 점사%a_index%, %ConfigFile%, Option, 점사%a_index%
         temp := 점사%a_index%
-        GuiControl, Choose, 점사%a_index%, %temp%
+        GuiControl, 1: Choose, 점사%a_index%, %temp%
     }
     loop,3
     {
@@ -114,15 +105,16 @@ LoadOption()
     return
 }
 
-IniWrite(key, section ="Option")
+IniWrite(key, gui = "1:", section ="Option")
 {
-    GuiControlGet, %key%, 1:
+    GuiControlGet, %key%, %gui%
     Value := %key%
     IniWrite, %Value%, %ConfigFile%,  %section%, %key%
 }
 
 SaveOption() ;세이브옵션
 {
+    ;Gui, Submit , NoHide
     WinGetPos, posX, posY, width, height,  %MacroID%
     IniWrite, %posX%, %ConfigFile%, Position, X
     IniWrite, %posY%, %ConfigFile%, Position, Y
@@ -130,6 +122,7 @@ SaveOption() ;세이브옵션
     ; GuiControlGet, AdbSN, 1:
     ; IniWrite, %AdbSN%, %ConfigFile%,  Option, AdbSN
     IniWrite("AdbSN")
+    IniWrite("퀘스트설정DDL")
     IniWrite("chatID")
     IniWrite("botToken")
     IniWrite("유휴시간")
@@ -168,24 +161,6 @@ SaveOption() ;세이브옵션
 }
 
 
-ScreensView()
-{
-    static toggle
-    if(!toggle)
-    {
-        RealWinSize(posX, posY, width, height, MacroID)
-        ChildX := posX + width + 10
-        ChildY := posY
-        Gui, 2: Show, x%ChildX% y%ChildY% w800 , 화면보기 ;w800 h450
-        toggle := !toggle
-    }
-    else
-    {
-        Gui, 2: Show, hide
-        toggle := !toggle
-    }
-}
-
 스샷폴더()
 {
     run adbCapture\
@@ -195,6 +170,13 @@ ScreensView()
 {
     run Image\
 }
+
+killAdb()
+{
+    objExec := objShell.Exec("taskkill /F /IM adb.exe" )
+    ;run, taskkill /F /IM adb.exe,,Hide
+}
+
 
 adbConnect()
 {
@@ -213,10 +195,11 @@ adbConnect()
     
 }
 
+
 절전모드()
 {
-    GuiControlGet, Hibernate,
-    GuiControlGet, 유휴시간, 
+    GuiControlGet, Hibernate, 1:
+    GuiControlGet, 유휴시간, 1:
     addlog("# TimeIdle: " A_TimeIdle)
     if(Hibernate = true && A_TimeIdle > 60000*유휴시간)
     {
@@ -254,8 +237,9 @@ adbConnect()
 
 스크린샷()
 {
-    adbConnect()	
-    fileName := A_yyyy a_mm A_DD "_" A_HOUR  A_MIN  A_SEC ".png"
+    adbConnect()
+    StringRight, A_YY, A_YYYY, 2
+    fileName := A_YY a_mm A_DD "_" A_HOUR  A_MIN  A_SEC ".png"
     CaptureAdb(fileName)
     return
 }
@@ -314,46 +298,24 @@ TelegramGetUpdates()
     ToolTip, %str%, %tipX%,%tipY%
 }
 
-global sqNum := 1
-네모그리기(x,y,w,h)
+이벤트배너()
 {
-    ;addlog("네모그리기")
-    pBitmap := Gdip_CreateBitmap(w, h)
-    G := Gdip_GraphicsFromImage(pBitmap)
-    pPen := Gdip_CreatePen(0xFFFF0000, 4)
-    ;pPen := Gdip_CreatePen(0xFFFFFFFF, 3)
-    Gdip_DrawRectangle(G, pPen, 1, 1, w-2, h-2)
-    hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-    ;GuiControl, 2: Hide,  Rectangle%sqNum%
-    GuiControl, 2: move,  square%sqNum%, x%x% y%y% w%w% h%h%
-    Guicontrol, 2: , square%sqNum%, HBITMAP:%hBitmap%
-    GuiControl, 2: Show,  square%sqNum%
-
-    ; pBitmap := Gdip_CreateBitmap(800, 450)
-    ; G := Gdip_GraphicsFromImage(pBitmap)
-    ; pPen := Gdip_CreatePen(0xFFFF0000, 1)
-    ; Gdip_DrawRectangle(G, pPen, x, y, w, h)
-    ; hBitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
-    ; Guicontrol, 2: , square1, HBITMAP:%hBitmap%     
-    
-    fn := Func("네모지우기").Bind(sqNum)
-    SetTimer, %fn%, -3000 ; 음수로 시간 적으면 한번만
-    ;addlog("타이머%aa% on")
-
-    Gdip_DeletePen(pPen)
-    Gdip_DeleteGraphics(G)
-    Gdip_DisposeImage(pBitmap)
-    DeleteObject(hBitmap)
-
-    sqNum++
-    if(sqNum >10)
-        sqNum := 1
+    getAdbScreen()
+    ret := Gdip_CropImage(g_pScreenBmp, 420, 200, 160, 50)
+    Gdip_SaveBitmapToFile(ret,"Image\이벤트배너.bmp")      
+    Gdip_DisposeImage(ret)
+    return
 }
 
-
-네모지우기(num)
+findiniStr(text)
 {
-    ;addlog(num " 끄기")
-    ;SetTimer, 네모지우기%num%, off    
-    GuiControl, 2: Hide,  square%num%
+    Loop, Parse, gSectionVal , `n, `r
+    {
+        StringSplit, word_array, A_LoopField, =        
+        if(word_array1 = text)
+        {
+            return word_array2
+        }
+    }
 }
+

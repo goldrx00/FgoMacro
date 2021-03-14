@@ -1,9 +1,11 @@
-﻿Menu, Tray, Icon, icon.ico
+﻿
+Menu, Tray, Icon, icon.ico
 
 Menu, Submenu, Add, 이미지 로드, LoadImage
 
 Menu, Submenu, Add, 스크린샷, 스크린샷
 Menu, Submenu, Add, 이벤트 배너, 이벤트배너
+Menu, Submenu, Add, ADB 강제종료, killAdb
 ;Menu, mymenu, Add, LoadImage, MenuHandler
 ;Menu, mymenu, Add,&File, :FileMenu
 Menu, menuBar,Add , menu, :Submenu
@@ -18,27 +20,34 @@ Gui, Add, Tab2, x10 w350 h240, 퀘스트|기타|텔레그램|추가설정|설명
 Gui, Tab, 퀘스트
 
 Gui, Add, Text, xp+5 yp+30, Android Serial Number:
-Gui, Add, Edit, x+10 vAdbSN,
+;Gui, Add, Edit, x+10 vAdbSN,
+Gui, Add, ComboBox, x+10 vAdbSN , ;emulator-5554||127.0.0.1:5555|127.0.0.1:21503|127.0.0.1:62001
 
-Gui, Add, Text, x15 y71 , 1라 점사: ;;점사 기준점
-Gui, Add, DropDownList,  Choose1 AltSubmit v점사1, 전|중|후
-Gui, Add, Text, , 2라 점사:
-Gui, Add, DropDownList, Choose1 AltSubmit v점사2, 전|중|후
-Gui, Add, Text, , 3라 점사:
-Gui, Add, DropDownList, Choose1 AltSubmit v점사3, 전|중|후
+Gui, Add, Text, x15 y71 , 퀘스트 설정 리스트: ;;점사 기준점
+Gui, Add, DropDownList,  v퀘스트설정DDL,
+Gui, Add, Button, gshowQusetConfig, 퀘스트 설정 열기
+Gui, Add, Button, gScreensView, 화면보기
 
-Gui, Add, Text, x+10 y71 , 보구 사용  ;;보구 사용 기준점
-Gui, Add, checkbox, xp yp+20 v보구1라1, 1
-Gui, Add, checkbox, xp+30 v보구1라2, 2
-Gui, Add, checkbox, xp+30  v보구1라3, 3
-Gui, Add, checkbox, xp-60 yp+45 v보구2라1, 1
-Gui, Add, checkbox, xp+30 v보구2라2, 2
-Gui, Add, checkbox, xp+30  v보구2라3, 3
-Gui, Add, checkbox, xp-60 yp+45 v보구3라1, 1
-Gui, Add, checkbox, xp+30 v보구3라2, 2
-Gui, Add, checkbox, xp+30 v보구3라3, 3
+; Gui, Add, Text, x15 y71 , 1라 타겟: ;;점사 기준점
+; Gui, Add, DropDownList,  AltSubmit v점사1, 전||중|후
+; Gui, Add, Text, , 2라 타겟:
+; Gui, Add, DropDownList, Choose1 AltSubmit v점사2, 전|중|후
+; Gui, Add, Text, , 3라 타겟:
+; Gui, Add, DropDownList, Choose1 AltSubmit v점사3, 전|중|후
 
-Gui, Add, Text, x+8 y71  w100, 공슼 차지 사용 ;;공멀 기술 기준점
+; Gui, Add, Text, x+10 y71 , 보구 사용  ;;보구 사용 기준점
+; Gui, Add, checkbox, xp yp+20 v보구1라1, 1
+; Gui, Add, checkbox, xp+30 v보구1라2, 2
+; Gui, Add, checkbox, xp+30  v보구1라3, 3
+; Gui, Add, checkbox, xp-60 yp+45 v보구2라1, 1
+; Gui, Add, checkbox, xp+30 v보구2라2, 2
+; Gui, Add, checkbox, xp+30  v보구2라3, 3
+; Gui, Add, checkbox, xp-60 yp+45 v보구3라1, 1
+; Gui, Add, checkbox, xp+30 v보구3라2, 2
+; Gui, Add, checkbox, xp+30 v보구3라3, 3
+
+Gui, Add, GroupBox, x220 y71 w120 h160 , 자동스킬
+Gui, Add, Text, xp+10 yp+20  w100, 공슼 차지 사용 ;;공멀 기술 기준점
 Gui, Add, checkbox, xp+10 yp+20 v공명1, 1
 Gui, Add, checkbox, xp+30  v공명2, 2
 Gui, Add, checkbox, xp+30   v공명3, 3
@@ -63,9 +72,9 @@ Gui, Add, Edit, w320 vbotToken,
 
 Gui, Tab, 설명
 Gui, Add, Text, ,앱플레이어 해상도: 800 x 450
-Gui, Add, Text, ,배틀 메뉴에서 스킬 사용 확인 OFF
-Gui, Add, Text, ,공멀슼 스킬은 항상 첫번째 자리에만 사용
-Gui, Add, Text, ,Ctrl+F6 : 스샷찍기
+Gui, Add, Text, ,배틀 메뉴에서 스킬 사용 확인 OFF, 속도 두배
+Gui, Add, Text, ,자동스킬 공멀슼 스킬은 1번칸에만 사용
+
 
 Gui, Tab, 기타
 Gui, Add, Button, h30 gLoadImage, 이미지 파일 로드
@@ -80,7 +89,8 @@ Gui, Add, Edit, x+10 v유휴시간,
 Gui, Add, Text, x22 y+8, 절전시간(분):
 Gui, Add, Edit, x+10 v절전시간,
 
-Gui, Add, Button, x22 y+8 gScreensView, 화면보기
+
+
 
 
 Gui, Tab
@@ -94,16 +104,6 @@ Gui, Add, Button, x+10 w70 h30  gPause, 일시정지
 ;Gui, Add, Button, x+10 w50 h30 gMenuInfo, 설명
 
 Gui, Add, ListBox, x10 y+10 w350 h200 vLogList,
-
- Gui, 2: +Owner1 ;메인 gui (1번)에 귀속시킨다. 추가로 작업표시줄에 안뜸
- Gui, 2: Add, Picture, x0 y0 w800 h450 gClickImage vPic,
-
- loop, 10
- {
-     Gui, 2: Add, Picture, x0 y0 w800 h450 BackGroundTrans vsquare%a_index%
- }
-
- ;Gui, 2: Add, Picture, 0xE w500 h300 hwndhPic          ; SS_Bitmap    = 0xE
 
 GuiControl, Focus, LogList 
 

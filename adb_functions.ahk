@@ -1,5 +1,6 @@
 ﻿global g_pScreenBmp := 0 ;전역 pBitmap
 global ADB_TIME_REFRESH := 200
+global CLICK_DELAY := 1000
 
 getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
 {
@@ -10,6 +11,18 @@ getAdbScreen() ;;adb에서 화면 가져와서 hBitmap에 저장
 
     g_pScreenBmp := ADBScreencapToPBitmap()
     return true
+}
+
+해상도검사()
+{
+    Gdip_GetImageDimensions(g_pScreenBmp, Width, Height)
+    if(g_pScreenBmp = 0)
+        return false
+    if(Width != 800 || Height != 450)
+    {
+        addlog("# 앱플 해상도 800x450 아님")
+        return false
+    }
 }
 
 SaveAdbCropImage(filename, x1, y1, x2, y2)
@@ -26,7 +39,7 @@ SaveAdbCropImage(filename, x1, y1, x2, y2)
     ret := Gdip_CreateBitmapFromHBITMAP(hBm)
     ret2 := Gdip_CropImage(ret, x1, y1, w, h)
     Gdip_SaveBitmapToFile(ret2, filename)
-    addlog("# ADB (" x1 ", " y1 ", " x2 ", " y2 ") " filename " 에 저장")
+    addlog("# (" x1 ", " y1 ", " x2 ", " y2 ") " filename " 에 저장")
     
     DllCall("DeleteObject", Ptr, hBm)
     Gdip_DisposeImage(ret)
@@ -65,19 +78,22 @@ ClickAdb(x, y) ; adb클릭
     }	
     objExec := objShell.Exec(adb " -s " AdbSN " shell input tap " x " " y )
     AddLog("# 클릭: " x ", " y)
+    IfWinExist, 화면보기
+    {
+       터치표시(x,y)        
+    }
     ;while(!objExec.status)
     ;	sleep, 10
-    sleep, %ADB_TIME_REFRESH%
+    ;sleep, %ADB_TIME_REFRESH%
 }
 
-DragAdb(x1,y1,x2,y2,duration)
+SwipeAdb(x1,y1,x2,y2,duration = 0)
 {	
-    objExec := objShell.Exec(adb " -s " AdbSN " shell input swipe " x1 " " y1 " " x2 " " y2) ;" " duration)
+    objExec := objShell.Exec(adb " -s " AdbSN " shell input swipe " x1 " " y1 " " x2 " " y2 " " duration) ;" " duration)
     AddLog("# 드래그: " x1 ", " y1 " to " x2 ", " y2)
-    sleep, %duration%
 }
 
-ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName, errorRange=60, trans="") ;;클릭투이미지 클릭후이미지대기
+ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName, errorRange=60, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;;클릭투이미지 클릭후이미지대기
 {
     ;sleep, %ADB_TIME_REFRESH%
     x := clickX
@@ -98,27 +114,39 @@ ClickToImgAdb(ByRef clickX, ByRef clickY, ImageName, errorRange=60, trans="") ;;
         sleep, 1000 ;%ADB_TIME_REFRESH%		
         Loop, 10
         {
-            if(IsImgPlusAdb(clickX, clickY, ImageName, errorRange, trans))
+            if(IsImgPlusAdb(clickX, clickY, ImageName, errorRange, trans, sX, sY, eX, eY))
                 return true
-            ; if(AfterRestart = 1)
-            ; {
-            ;     log := "# 재시작이 일어났습니다"
-            ;     AddLog(log)
-            ;     return false
-            ; }
+          
             sleep, 1000 ;%ADB_TIME_REFRESH%
         }
+
         if(A_Index > 10)
+        {
+            AddLog("제한시간 초과")
             return false
-            ;AfterRestart := 1
-        ; if(AfterRestart = 1)
-        ; {
-        ;     log := "# 재시작이 일어났습니다"
-        ;     AddLog(log)
-        ;     return false
-        ; }
-        sleep, 20000
+        }
+     
+        sleep, 10000
     }
+}
+
+WaitImageAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) 
+{	
+	;Delay = 0
+	Loop
+	{
+		if(IsImgPlusAdb(clickX, clickY, ImageName, errorRange, trans, sX, sY, eX, eY)) ;;찾는 이미지가 있다면 잠시 쉬고 트루 리턴
+		{
+			return true
+		}
+
+		if(a_index > 600) ;;찾는 이미지 없다면 루프 돌리다가 너무 오래걸리면 false 리턴
+		{			
+			AddLog("제한시간 초과")
+			return false		
+		}
+        sleep, 500
+	}
 }
 
 Gdip_ImageSearchWithPbm(bmpHaystack, Byref X,Byref Y,bmpNeedle,Variation=0,Trans="",sX = 0,sY = 0,eX = 0,eY = 0) ;pBitmap으로 부터 서치
@@ -143,8 +171,6 @@ Gdip_ImageSearchWithPbm(bmpHaystack, Byref X,Byref Y,bmpNeedle,Variation=0,Trans
 
 IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;이즈이미지플러스 adb
 {
-    ;StringReplace, ImageName2, ImageName, Image\ , , All
-    ;StringReplace, ImageName2, ImageName2, .bmp , , All
     if(!bmpPtrArr[(ImageName)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
         log := "  @ 이미지 없음: " ImageName
@@ -173,8 +199,6 @@ IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0
 ;캡쳐없이 미리 있던 파일에서 이미지 서치
 IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
 {
-    ; StringReplace, ImageName2, ImageName, Image\ , , All
-    ; StringReplace, ImageName2, ImageName2, .bmp , , All		
     If(!bmp_%ImageName%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
         log := "  @ 이미지 없음: " ImageName
@@ -201,10 +225,6 @@ IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX =
 
 IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
 {
-    
-    ;StringReplace, ImageName2, ImageName, Image\ , , All
-    ;StringReplace, ImageName2, ImageName2, .bmp , , All
-
     if(!bmpPtrArr[(ImageName)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
         log := "  @ 이미지 없음: " ImageName
@@ -228,9 +248,7 @@ IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0
 }
 
 IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;캡쳐, 로그 둘다 없이 서치
-{
-    ; StringReplace, ImageName2, ImageName, Image\ , , All
-    ; StringReplace, ImageName2, ImageName2, .bmp , , All		
+{		
     If(!bmpPtrArr[(ImageName)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
         log := "  @ 이미지 없음: " ImageName
@@ -263,7 +281,10 @@ ADBScreencapToPBitmap()
 
     ;hbitmap을 화면에 표시
     IfWinExist, 화면보기
+    {
         Guicontrol,2: , Pic, HBITMAP:%hBitmap%
+        ;GuiControl, 2: hide,  Touch
+    }
     ;리사이즈일때만 작동
     ; GuiControlGet, IsResize,
     ; if (IsResize)

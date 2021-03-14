@@ -18,8 +18,9 @@ CoordMode,ToolTip,Screen ;ToolTip
 #include adb_functions.ahk
 #Include telegram.ahk
 #Include 크기조절테스트.ahk
-#include GUI.ahk
 #include 서브함수.ahk
+#include GUI.ahk
+
 
 OnExit, Clean_up
 
@@ -31,6 +32,9 @@ global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포
 global ConfigFile := "Config.ini"
 global rCount ;
 global 메인종료 := 1 ; 1이되면 메인함수 종료
+global 퀘스트설정DDL ;현재 퀘스트 설정 이름
+global gSectionVal ;현재 퀘스트 설정 섹션 내용
+
 
 global SkillButtonPos := [{sX: 23, 	sY: 341,		eX: 63, 	eY: 380}
     ,{sX: 82, 	sY: 341,		eX: 122, 	eY: 380}
@@ -52,16 +56,47 @@ global CharacterPos := [{sX: 10, 	sY: 234,		eX: 195, 	eY: 450}
     ,{sX: 209, 	sY: 234,		eX: 395, 	eY: 450}
     ,{sX: 409, 	sY: 234,		eX: 594, 	eY: 450}]
 
+global SkillTargetPos := [{X: 200, 	Y: 270}
+    ,{X: 400, 	Y: 270}
+    ,{X: 600, 	Y: 270}]
+
+global MasterSkillPos := [{X: 565, 	Y: 200}
+    ,{X: 625, 	Y: 200}
+    ,{X: 680, 	Y: 200}]
+
+global NoblePhantasmPos := [{X: 260,	Y: 80}
+    ,{X: 405, 	Y: 80}
+    ,{X: 550, 	Y: 80}]
+
+global OrderChagePos := [{X: 80, 	Y: 200}
+    ,{X: 210, 	Y: 200}
+    ,{X: 340, 	Y: 200}
+    ,{X: 460, 	Y: 200}
+    ,{X: 580, 	Y: 200}
+    ,{X: 710, 	Y: 200}]
+
 global EnemyPos := [{X: 330, 	Y: 25}
     ,{X: 180, 	Y: 25}
     ,{X: 30, 	Y: 25}]
 
-global FriendListPos := [{sX: 30, 	sY: 113,		eX: 755, 	eY: 227}
-    ,{sX: 30, 	sY: 238,		eX: 755, 	eY: 351}]
+global PartyPos := [{X: 330, 	Y: 30}
+    ,{X: 346, 	Y: 30}
+    ,{X: 361, 	Y: 30}
+    ,{X: 377, 	Y: 30}
+    ,{X: 393, 	Y: 30}
+    ,{X: 408, 	Y: 30}
+    ,{X: 424, 	Y: 30}
+    ,{X: 440, 	Y: 30}
+    ,{X: 455, 	Y: 30}
+    ,{X: 471, 	Y: 30}]
+
+global FriendListPos := [{sX: 30, 	sY: 110,		eX: 755, 	eY: 240}
+    ,{sX: 30, 	sY: 240,		eX: 755, 	eY: 370}]
 
 global MacroID := "페그오 매크로"
 
 global initX, initY
+
 IfNotExist, %ConfigFile%
 {
     initX := 100
@@ -76,13 +111,17 @@ GuiControlGet, AdbSN, 1: ;adb 에뮬 시리얼
 GuiControlGet, chatID, 1: ;텔레그램
 GuiControlGet, botToken, 1:
 
-Gui, Show, x%initX% y%initY% , %MacroID% ; h350 w194 
+
+#include 화면보기.ahk
+#include QuestOption.ahk
+Gui, 1: Show, x%initX% y%initY% , %MacroID% ; h350 w194 
 
 gdipToken := Gdip_Startup()
 LoadImage()
 
 log := "# 동작 대기"
 AddLog(log)
+
 
 #Include HotKeys.ahk
 #Include Labels.ahk
@@ -98,19 +137,24 @@ return
     }
 }
 
+
 메인함수()
 {
     AddLog("# 페그오 매크로 시작 ")
     메인종료 := 0
     
-    GuiControlGet, chatID ,
-    GuiControlGet, botToken , 
+    GuiControlGet, chatID , 1:
+    GuiControlGet, botToken , 1:
     if(chatID)
         SetTimer, TelegramGetUpdates, 10000 ; 10초마다 텔레그램 메시지 읽어오기
 
     SetTimer, 튕김확인, 300000 ;튕김확인
     
-    GuiControlGet, AdbSN,  ;adb 에뮬 시리얼
+    GuiControlGet, AdbSN, 1:  ;adb 에뮬 시리얼
+    
+    GuiControlGet, 퀘스트설정DDL, 1:
+    IniRead, gSectionVal, %ConfigFile%, QUEST_%퀘스트설정DDL%   
+
     /*
     objExec := objShell.Exec(adb " connect " AdbSN)
     while(!objExec.status) ; objExec.status가 1이면 프로세스 완료된 상태
@@ -142,27 +186,129 @@ return
 
 퀘스트준비()
 {
+
+
+    
     getAdbScreen()
-    if(IsImgWithoutCap(clickX, clickY, "이전진행.bmp", 60, 0))
+    해상도검사()
+    if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
     {
         ap대기()
         getAdbScreen()
     }
 
-    if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))
+    ;if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))
+    if(IsImgWithoutCap(clickX, clickY, "리스트갱신.bmp", 60, 0))
     {
-        clickX := 400
-        clickY := 200
-        ClickToImgAdb(clickX, clickY, "퀘스트개시.bmp")
+        프렌드체크 := findiniStr("프렌드체크")
+        예장체크 := findiniStr("예장체크")
+        풀돌체크 := findiniStr("풀돌체크")      
+ 
+        loopBreak := 0
+        loop, {
+            if(프렌드체크 = 0 && 예장체크 = 0)
+            {
+                ClickAdb(400, 200) ;첫칸클릭
+                sleep, 3000
+                getAdbScreen()
+                break
+            }
+
+            getAdbScreen()            
+            ;프렌드체크
+            loop, 2 {
+                프렌드찾음 := 0
+                예장찾음 := 0
+                풀돌찾음 := 0
+                ;global 프렌드체크
+                addlog(프렌드체크 "ㅗㅓㅏ")
+                if ( !프렌드체크 || IsImgWithoutCap(clickX, clickY, "Quest\" 퀘스트설정DDL "_support.bmp", 90, 0, FriendListPos[a_index].sX, FriendListPos[a_index].sY,  FriendListPos[a_index].eX,  FriendListPos[a_index].eY))
+                {
+                    프렌드찾음 := 1                  
+                }
+                if (!예장체크 || IsImgWithoutCap(clickX, clickY, "Quest\" 퀘스트설정DDL "_frEssence.bmp", 90, 0, FriendListPos[a_index].sX, FriendListPos[a_index].sY,  FriendListPos[a_index].eX,  FriendListPos[a_index].eY))
+                {       
+                    예장찾음 := 1
+                }
+                if (!예장체크 || !풀돌체크 || IsImgWithoutCap(clickX, clickY, "풀돌.bmp", 90, "black", FriendListPos[a_index].sX+80, FriendListPos[a_index].sY+100,  FriendListPos[a_index].sX+100,  FriendListPos[a_index].eY))
+                {                         
+                    풀돌찾음 := 1
+                }
+
+                if(프렌드찾음 && 예장찾음 && 풀돌찾음)
+                {
+                    loopBreak := 1
+                    ClickAdb(FriendListPos[a_index].sX+30, FriendListPos[a_index].sY+30)
+                    sleep, 3000
+                    getAdbScreen()
+                    break
+                }              
+            }
+
+            if(loopBreak)
+                break
+            
+            if(IsImgWithoutCap(clickX, clickY, "스크롤끝.bmp", 60, 0, 760,420,799,449)
+            || IsImgWithoutCap(clickX, clickY, "스크롤끝2.bmp", 60, 0, 760,420,799,449)) {
+
+                loop {
+                    ClickAdb(535, 80) ;리스트 갱신
+                    sleep, 1000
+                    getAdbScreen()
+                    if (IsImgWithoutCap(clickX, clickY, "팝업닫기.bmp", 60, 0)) {
+                        ClickAdb(clickX, clickY)
+                        sleep, 3000
+                    }
+                    else if (IsImgWithoutCap(clickX, clickY, "리스트갱신네.bmp", 60, 0)) {
+                        ClickAdb(clickX, clickY)
+                        sleep, 2000
+                        break
+                    }
+                }
+                
+            }
+            else {
+                SwipeAdb(30,247,30,139,1000)
+                sleep, 1500
+            }
+            if (a_index > 500)
+            {
+                addlog("프렌드 검색 실패")
+                return false
+            }
+        }
+           
+
+        ; else
+        ; {           
+        ;     ClickAdb(400, 200) ;첫칸클릭
+        ;     sleep, 3000
+        ;     getAdbScreen()
+        ; }
+    }
+
+    if(IsImgWithoutCap(clickX, clickY, "퀘스트개시.bmp", 60, 0)) 
+    {
+        파티선택 := findiniStr("파티선택")
+        if(파티선택 > 1)
+        {
+            if(!IsImgWithoutCap(clickX, clickY, "파티선택.bmp", 60, 0,PartyPos[파티선택-1].X-5,PartyPos[파티선택-1].Y-5,PartyPos[파티선택-1].X+5,PartyPos[파티선택-1].Y+5))
+            {
+                addlog("# " 파티선택-1 " 번 파티 선택")
+                ClickAdb(PartyPos[파티선택-1].X, PartyPos[파티선택-1].Y)
+            }
+            
+        }
+        ;ClickToImgAdb(clickX, clickY, "퀘스트개시.bmp")
         sleep, 5000
-        ClickAdb(clickX, clickY)
+        ClickAdb(745, 420) ;퀘스트개시
         sleep, 1500
         if(IsImgPlusAdb(clickX, clickY, "아이템을사용하지않고.bmp", 60, 0)) ;퀘스트개시를 눌러도 뭐가 뜰때 여기 이미지 변경
         {
             ClickAdb(clickX, clickY)
         }
         addlog("# 반복 " rCount "회차 시작")
-        sleep, 10000 ; 10초 대기
+        sleep, 7000 ; 10초 대기
         ii = 0
         loop
         {
@@ -186,7 +332,7 @@ return
     }
     else
     {
-        addlog("매크로 시작 실패")
+        addlog("# 매크로 시작 실패")
         return false
     }
 }
@@ -218,101 +364,26 @@ return
                 라운드 := 3										
             }
             
-            ;; 점사 대상 선택
-            loop, 3
-            {
-                if(라운드 = a_index && 라운드시작 = 1)
-                {
-                    addlog("# " a_index "라 시작")
-                    라운드시작 := false
-                    GuiControlGet, 점사%a_index%, 1:
-                    if(점사%a_index% != 1)							
-                        ClickAdb(EnemyPos[점사%a_index%].X, EnemyPos[점사%a_index%].Y)
-                    sleep, 500
-                    ClickAdb(663,93)
-                    sleep, 1000
-                }
+            ;; 점사 타겟 선택
+            if(라운드시작) {
+
+                타겟선택(라운드)
+
+                스킬사용(라운드)                
+
+                마스터스킬(라운드)
+
+                오더체인지(라운드)
             }
 
-            ;;;;공멀 스킬사용
-            loop, 3
+            var = 자동스킬%라운드%
+            자동스킬%라운드% := findiniStr(var)
+            if(자동스킬%라운드% = true && 라운드시작 = false)
             {
-                GuiControlGet, 공명%a_index%,
-                if(라운드 = a_index && 공명%a_index%)
-                {					
-                    if(IsImgWithoutCap(clickX, clickY, "s_크리1.bmp", 60, 0, SkillButtonPos[7].sX, SkillButtonPos[7].sY, SkillButtonPos[7].eX, SkillButtonPos[7].eY)
-                    && IsImgWithoutCap(clickX, clickY, "공명.bmp", 120, "black", 500, 433, 550, 448))
-                    {
-                        ClickAdb(440, 360)
-                        sleep, 500
-                        ClickAdb(220, 260)
-                        sleep, 3000
-                        getAdbScreen()
-                    }
-                    if(IsImgWithoutCap(clickX, clickY, "s_np업1.bmp", 60, 0, SkillButtonPos[9].sX, SkillButtonPos[9].sY, SkillButtonPos[9].eX, SkillButtonPos[9].eY))
-                    && IsImgWithoutCap(clickX, clickY, "스카디.bmp", 120, "black", 500, 433, 550, 448)
-                    {
-                        ClickAdb(560, 360)
-                        sleep, 500
-                        ClickAdb(220, 260)
-                        sleep, 3000
-                        getAdbScreen()
-                    }
-                }
-                GuiControlGet, 멀린%a_index%,
-                if(라운드 = a_index && 멀린%a_index%)
-                {			
-                    if(IsImgWithoutCap(clickX, clickY, "s_버스터1.bmp", 60, 0, SkillButtonPos[9].sX, SkillButtonPos[9].sY, SkillButtonPos[9].eX, SkillButtonPos[9].eY))
-                    && IsImgWithoutCap(clickX, clickY, "멀린.bmp", 120, "black", 500, 433, 550, 448)
-                    {
-                        ClickAdb(560, 360)
-                        sleep, 500
-                        ClickAdb(220, 260)
-                        sleep, 3000
-                        getAdbScreen()
-                    }
-                }				
-                GuiControlGet, 스카디%a_index%,
-                if(라운드 = a_index && 스카디%a_index%)
-                {			
-                    if(IsImgWithoutCap(clickX, clickY, "s_퀵1.bmp", 60, 0, SkillButtonPos[7].sX, SkillButtonPos[7].sY, SkillButtonPos[7].eX, SkillButtonPos[7].eY))
-                    && IsImgWithoutCap(clickX, clickY, "스카디.bmp", 120, "black", 500, 433, 550, 448)
-                    {
-                        ClickAdb(440, 360)
-                        sleep, 500
-                        ClickAdb(220, 260)
-                        sleep, 3000
-                        getAdbScreen()
-                    }
-                }
+                자동스킬()
             }
 
-            ;;;;;;;;;;;;;;;;;;;;;;;;;; 스킬 사용 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-            loop, 3
-            {
-                if(IsImgWithoutCap(clickX, clickY, "적풀차지.bmp", 90, 0, EnemyPos[a_index].X, EnemyPos[a_index].Y, EnemyPos[a_index].X+90, EnemyPos[a_index].Y+40)
-                && IsImgWithoutCap(clickX, clickY, "적금테.bmp", 90, 0, EnemyPos[a_index].X+10, EnemyPos[a_index].Y-5, EnemyPos[a_index].X+25, EnemyPos[a_index].Y+5))
-                {
-                    ;적이 금테이고 풀차지일 때만 무적 사용
-                    ;addlog(a_index " 번 적 보구 준비")
-                    스킬사용("s_무적")
-                }
-            }
-            스킬사용("s_방업")
-            스킬사용("s_공업")
-            스킬사용("s_방깎")
-            스킬사용("s_공깎")
-            스킬사용("s_np획득량")
-            스킬사용("s_np업")
-            스킬사용("s_스타")
-            스킬사용("s_버스터", 110)
-            스킬사용("s_아츠")
-            스킬사용("s_퀵")
-            스킬사용("s_스집", 110)
-            스킬사용("s_내성깎", 120)
-            스킬사용("s_챠지깎")
-            스킬사용("s_거츠")
-            스킬사용("s_회피")
+            라운드시작 := false
 
             ClickAdb(710, 410) ;어택 클릭					
             sleep, 2000
@@ -327,124 +398,13 @@ return
                 }
                 ClickAdb(710, 410) ;어택클릭
                 sleep, 1500
-            }
+            }     
+
+            보구사용(라운드)       
+
+            카드사용()
             
-            
-            ;;;보구 사용
-            loop,3
-            {
-                ii := A_Index
-                loop, 3
-                {
-                    GuiControlGet, 보구%ii%라%a_index%, 1:							
-                }
-            }
-
-            if((라운드 = 1 && 보구1라1) || 라운드 = 2 && 보구2라1) || (라운드 = 3 && 보구3라1)
-            {
-                ClickAdb(260, 80)
-                sleep, 300
-            }
-            if((라운드 = 1 && 보구1라2) || 라운드 = 2 && 보구2라2) || (라운드 = 3 && 보구3라2)
-            {
-                ClickAdb(405, 80)
-                sleep, 300
-            }
-            if((라운드 = 1 && 보구1라3) || 라운드 = 2 && 보구2라3) || (라운드 = 3 && 보구3라3)
-            {
-                ClickAdb(550, 80)
-                sleep, 300
-            }					
-
-            loop, 5
-                card%a_index% := 0 ;skill 배열: 사용한 카드는 1
-
-            loop, 5 ;이펙티브 버스터 우선 사용
-            {
-                if(IsImgWithoutCapLog(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
-                && IsImgWithoutCapLog(clickX, clickY, "buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
-                && IsImgWithoutCapLog(clickX, clickY, "buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
-                {
-                    ClickAdb(CmdCardPos[a_index].sX + 80, 320)
-                    card%a_index% := 1
-                    sleep, 300
-                }
-            }
-            loop, 5 ;이펙티브 아츠 사용
-            {
-                if(card%a_index% = 1)
-                    continue
-                if(IsImgWithoutCapLog(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
-                && IsImgWithoutCapLog(clickX, clickY, "arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
-                && IsImgWithoutCapLog(clickX, clickY, "arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
-                {
-                    ClickAdb(CmdCardPos[a_index].sX + 80, 320)
-                    card%a_index% := 1
-                    sleep, 300
-                }
-            }
-            
-            loop, 5 ;레지스트 아닌 버스터 사용
-            {
-                if(card%a_index% = 1)
-                    continue
-                if(!IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
-                && IsImgWithoutCapLog(clickX, clickY, "buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
-                && IsImgWithoutCapLog(clickX, clickY, "buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
-                {
-                    ClickAdb(CmdCardPos[a_index].sX + 80, 320)
-                    card%a_index% := 1
-                    sleep, 300
-                }
-            }
-
-            loop, 5 ;남은 이펙티브 사용 (이펙티브 퀵)
-            {
-                if(card%a_index% = 1)
-                    continue
-                if(IsImgWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-20, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 ))
-                {
-                    ClickAdb(CmdCardPos[a_index].sX + 80, 320)
-                    card%a_index% := 1
-                    sleep, 300
-                }
-            }
-
-            loop, 5 ;레지스트 아닌 아츠 사용
-            {
-                if(card%a_index% = 1)
-                    continue
-                if(!IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
-                && IsImgWithoutCapLog(clickX, clickY, "arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
-                && IsImgWithoutCapLog(clickX, clickY, "arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
-                {
-                    ClickAdb(CmdCardPos[a_index].sX + 80, 320)
-                    card%a_index% := 1
-                    sleep, 300
-                }
-            }
-            loop, 5 ;남은 레지스트 아닌 기술 사용
-            {
-                if(card%a_index% = 1)
-                    continue
-                if(!IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-5, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 ))
-                {
-                    ClickAdb(CmdCardPos[a_index].sX + 80, 320)
-                    card%a_index% := 1
-                    sleep, 300
-                }
-            }
-            loop, 5 ;;남은 기술들 순서대로 사용
-            {
-                if(card%a_index% = 0)
-                {
-                    ClickAdb(CmdCardPos[a_index].sX + 80, 320)
-                    sleep, 300
-                }
-                ;sleep, 10
-            }
-
-        }
+        } ;attack
         sleep, 1000
 
         getAdbScreen()
@@ -604,8 +564,8 @@ ap대기()
                 addlog("# ap 없음")
                 sleep, 2000
 
-                GuiControlGet, Hibernate,
-                GuiControlGet, 유휴시간, 
+                GuiControlGet, Hibernate, 1:
+                GuiControlGet, 유휴시간, 1:
                 addlog("# TimeIdle: " A_TimeIdle)
                 if(Hibernate = true && A_TimeIdle > 60000*유휴시간)
                 {
@@ -619,7 +579,7 @@ ap대기()
                         fileName := "절전알림.png"
                         CaptureAdb(fileName)		
                         SendTelegramImg("adbCapture/" fileName)
-                        GuiControlGet, 절전시간,
+                        GuiControlGet, 절전시간, 1:
                         SendTelegram("절전 시작: " A_HOUR ":" A_MIN " ,  " 절전시간 "분")                        
                         addlog("# " 절전시간 "분 절전")
                         sleep, 1000
@@ -669,23 +629,451 @@ ap대기()
     }	
 }
 
-스킬사용(skillName, errorRange = 150) ;스킬이미지이름에서 숫자뺀거, 이미지 갯수
+타겟선택(라운드)
+{
+    loop, 3
+    {
+        if(라운드 = a_index)
+        {
+            var = 타겟%a_index%
+            타겟%a_index% := findiniStr(var)
+            ;IniRead, 타겟%a_index%, %ConfigFile%, QUEST_%퀘스트설정DDL%, 타겟%a_index% 
+            addlog("# " a_index "라 시작")
+            ;라운드시작 := false
+            ;GuiControlGet, 점사%a_index%, 1:  
+            if(타겟%a_index% != 1)							
+                ClickAdb(EnemyPos[타겟%a_index%].X, EnemyPos[타겟%a_index%].Y)
+            sleep, 500
+            ClickAdb(663,93)
+            sleep, 1000
+        }
+    }
+}
+
+스킬사용(라운드)
+{
+    addlog("# 스킬사용")
+    loop, 3
+    {
+        ii := a_index
+        if(라운드 = ii)
+        {
+            loop,9 
+            {
+                var = 스킬%ii%라%a_index%
+                스킬%ii%라%a_index% := findiniStr(var)
+                ;IniRead, 스킬%ii%라%a_index%, %ConfigFile%, QUEST_%퀘스트설정DDL%, 스킬%ii%라%a_index%
+                ;addlog(스킬1라%a_index% "asdf")
+                if(스킬%ii%라%a_index% = 2) ;사용
+                {
+                    ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
+                    sleep, 500
+                    ClickAdb(690, 110) ; 선택창 떴을 때 끄기
+                    sleep, 500
+                    WaitImageAdb(clickX, clickY, "attack.bmp", 60)
+                }
+                else if(스킬%ii%라%a_index% > 2) ;아군한테 사용
+                {
+                    jj := 스킬%ii%라%a_index% -2
+                    ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
+                    sleep, 500                        
+                    ClickAdb(SkillTargetPos[jj].X, SkillTargetPos[jj].Y)
+                    sleep, 500
+                    ClickAdb(690, 110) ; 선택창 떴을 때 끄기
+                    sleep, 500
+                    WaitImageAdb(clickX, clickY, "attack.bmp", 60)
+                }
+                ;addlog(a_index)
+            }
+        }
+    }
+}
+
+마스터스킬(라운드)
+{
+    addlog("# 마스터스킬사용")
+    loop, 3
+    {                    
+        ii := a_index
+        if(라운드 = ii)
+        {
+            loop,3 
+            {
+                var = 마스터%ii%라%a_index%
+                마스터%ii%라%a_index% := findiniStr(var)
+                ;IniRead, 마스터%ii%라%a_index%, %ConfigFile%, QUEST_%퀘스트설정DDL%, 마스터%ii%라%a_index%
+                ;addlog(마스터1라%a_index% "asdf")
+                if(마스터%ii%라%a_index% = 2) ;사용
+                {
+                    ClickAdb(745,200) ;마스터 스킬버튼
+                    sleep, 500
+                    ClickAdb(MasterSkillPos[a_index].X, MasterSkillPos[a_index].Y)
+                    sleep, 500
+                    ClickAdb(690, 110) ; 선택창 떴을 때 끄기
+                    sleep, 500
+                    ClickAdb(745,200) ;마스터 스킬버튼
+                    sleep, 500
+                    WaitImageAdb(clickX, clickY, "attack.bmp", 60)                      
+                }
+                else if(마스터%ii%라%a_index% > 2) ;아군한테 사용
+                {                            
+                    jj := 마스터%ii%라%a_index% -2
+                    ClickAdb(745,200) ;마스터 스킬버튼
+                    sleep, 500
+                    ClickAdb(MasterSkillPos[a_index].X, MasterSkillPos[a_index].Y)
+                    sleep, 500                        
+                    ClickAdb(SkillTargetPos[jj].X, SkillTargetPos[jj].Y)
+                    sleep, 500
+                    ClickAdb(690, 110) ; 선택창 떴을 때 끄기
+                    sleep, 500
+                    ClickAdb(745,200) ;마스터 스킬버튼
+                    sleep, 500
+                    WaitImageAdb(clickX, clickY, "attack.bmp", 60)
+                }
+                ;addlog(a_index)
+            }
+        }
+    }
+}
+
+오더체인지(라운드)
+{
+    ;addlog("오더체인지")
+    loop, 3
+    {                   
+        ii := a_index
+        if(라운드 = ii)
+        {                        
+            loop, 2
+            {
+                var = 오더%ii%라%a_index%
+                오더%ii%라%a_index% := findiniStr(var)
+                ;IniRead, 오더%ii%라%a_index%, %ConfigFile%, QUEST_%퀘스트설정DDL%, 오더%ii%라%a_index%
+            }
+
+            startingMember := 오더%ii%라1 -1
+            subMember := 오더%ii%라2 +2
+            ; addlog(startingMember)
+            ; addlog(subMember)                                           
+            if(startingMember > 0 && subMember >3 ) ;사용
+            {
+                ClickAdb(745,200) ;마스터 스킬버튼
+                sleep, 500
+                ClickAdb(MasterSkillPos[3].X, MasterSkillPos[3].Y)
+                sleep, 500
+                ClickAdb(OrderChagePos[startingMember].X, OrderChagePos[startingMember].Y)
+                sleep, 500
+                
+                ClickAdb(OrderChagePos[subMember].X, OrderChagePos[subMember].Y)
+                sleep, 500
+                ClickAdb(400, 400) ; 교체하기
+                sleep, 500
+                WaitImageAdb(clickX, clickY, "attack.bmp", 60)
+
+                loop, 3
+                {
+                    var = 오첸스킬%ii%라%a_index%
+                    오첸스킬%ii%라%a_index% := findiniStr(var)
+                    ;IniRead, 오첸스킬%ii%라%a_index%, %ConfigFile%, QUEST_%퀘스트설정DDL%, 오첸스킬%ii%라%a_index%
+                    num := a_index+((startingMember-1)*3)
+                    if(오첸스킬%ii%라%a_index% = 2) ;사용
+                    {                                
+                        ClickAdb(SkillButtonPos[num].sX+20, SkillButtonPos[num].sY+20)
+                        sleep, 500
+                        ClickAdb(690, 110) ; 선택창 떴을 때 끄기
+                        sleep, 500
+                        WaitImageAdb(clickX, clickY, "attack.bmp", 60)                           
+                    }
+                    else if(오첸스킬%ii%라%a_index% > 2) ;아군한테 사용
+                    {
+                        
+                        jj := 오첸스킬%ii%라%a_index% -2
+                        ClickAdb(SkillButtonPos[num].sX+20, SkillButtonPos[num].sY+20)
+                        sleep, 500
+                        ;                       
+                        ClickAdb(SkillTargetPos[jj].X, SkillTargetPos[jj].Y)
+                        sleep, 500
+                        ClickAdb(690, 110) ; 선택창 떴을 때 끄기
+                        sleep, 500
+                        WaitImageAdb(clickX, clickY, "attack.bmp", 60)
+                    }
+                }                           
+            }        
+        }
+    }
+}
+
+보구사용(라운드)
+{
+    ;;보구사용
+    loop,3 
+    {
+        ii := A_Index
+        if(라운드 = ii)
+        {
+            loop, 3
+            {
+                var = 보구%ii%라%a_index%
+                보구%ii%라%a_index% := findiniStr(var)
+                ;IniRead, 보구%ii%라%a_index%, %ConfigFile%, QUEST_%퀘스트설정DDL%, 보구%ii%라%a_index%                      
+                if(보구%ii%라%a_index% = 2) ;사용
+                {
+                    ClickAdb(NoblePhantasmPos[a_index].X, NoblePhantasmPos[a_index].Y)
+                    sleep, 300                                                    
+                }
+                ;GuiControlGet, 보구%ii%라%a_index%, 1:							
+            }
+        }        
+    }
+}
+
+카드사용()
+{
+    loop, 5
+        card%a_index% := 0 ;skill 배열: 사용한 카드는 1
+
+    카드순위 := findiniStr("카드순위")
+    ;addlog(카드순위)
+    if 카드순위 = ""
+        카드순위 := "EB>EA>EQ>B>A>Q>RB>RA>RQ"
+    ;IniRead, 카드순위, %ConfigFile%, QUEST_%퀘스트설정DDL%, 카드순위, EB>EA>EQ>B>A>Q>RB>RA>RQ
+    Loop, Parse, 카드순위, >
+    {
+        ;addlog(A_LoopField a_index)
+        Switch A_LoopField
+        {                    
+            Case "EB":
+                loop, 5 ;이펙티브 버스터
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(IsImgWithoutCapLog(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
+                    && IsImgWithoutCapLog(clickX, clickY, "buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }
+            Case "EA":
+                loop, 5 ;이펙티브 아츠
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(IsImgWithoutCapLog(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
+                    && IsImgWithoutCapLog(clickX, clickY, "arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }
+            Case "EQ":
+                loop, 5 ; 이펙티브 퀵
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(IsImgWithoutCapLog(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 )
+                    && IsImgWithoutCapLog(clickX, clickY, "quick1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "quick2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }
+            Case "B":
+                loop, 5 ;레지스트 아닌 버스터 사용 ( 버스터)
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(!IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
+                    && IsImgWithoutCapLog(clickX, clickY, "buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }
+            Case "A":
+                loop, 5 ;레지스트 아닌 아츠 사용 (아츠)
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(!IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
+                    && IsImgWithoutCapLog(clickX, clickY, "arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }
+            Case "Q":
+                loop, 5 ; 퀵
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(!IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
+                    && IsImgWithoutCapLog(clickX, clickY, "quick1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "quick2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }
+            Case "RB":
+                loop, 5 ; 레지스트 버스터
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
+                    && IsImgWithoutCapLog(clickX, clickY, "buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }
+            Case "RA":
+                loop, 5 ;레지스트 아츠
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
+                    && IsImgWithoutCapLog(clickX, clickY, "arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }
+            Case "RQ":
+                loop, 5 ; 레지스트 퀵 
+                {
+                    if(card%a_index% = 1)
+                        continue
+                    if(IsImgWithoutCapLog(clickX, clickY, "resist.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-30, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+20 )
+                    && IsImgWithoutCapLog(clickX, clickY, "quick1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+                    && IsImgWithoutCapLog(clickX, clickY, "quick2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+                    {
+                        ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+                        card%a_index% := 1
+                        sleep, 300
+                    }
+                }                    
+        } ;switch
+    } ;loop
+    loop, 5 ;;남은 기술들 순서대로 사용
+    {
+        if(card%a_index% = 0)
+        {
+            ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+            sleep, 300
+        }                
+    }
+}
+
+자동스킬()
+{
+    addlog("자동스킬")
+    loop, 3
+    {
+        if(IsImgWithoutCap(clickX, clickY, "적풀차지.bmp", 90, 0, EnemyPos[a_index].X, EnemyPos[a_index].Y, EnemyPos[a_index].X+90, EnemyPos[a_index].Y+40)
+        && IsImgWithoutCap(clickX, clickY, "적금테.bmp", 90, 0, EnemyPos[a_index].X+10, EnemyPos[a_index].Y-5, EnemyPos[a_index].X+25, EnemyPos[a_index].Y+5))
+        {
+            ;적이 금테이고 풀차지일 때만 무적 사용
+            ;addlog(a_index " 번 적 보구 준비")
+            스킬사용("s_무적")
+        }
+    }        
+    ;addlog(자동스킬%라운드%)
+    ;;;공멀슼 스킬사용
+    loop, 3
+    {
+        GuiControlGet, 공명%a_index%, 1:
+        if(라운드 = a_index && 공명%a_index%)
+        {					
+            if(IsImgWithoutCap(clickX, clickY, "skill\s_크리1.bmp", 60, 0, SkillButtonPos[7].sX, SkillButtonPos[7].sY, SkillButtonPos[7].eX, SkillButtonPos[7].eY)
+            && IsImgWithoutCap(clickX, clickY, "공명.bmp", 120, "black", 500, 433, 550, 448))
+            {
+                ClickAdb(440, 360)
+                sleep, 500
+                ClickAdb(220, 260)
+                sleep, 3000
+                getAdbScreen()
+            }
+            if(IsImgWithoutCap(clickX, clickY, "skill\s_np업1.bmp", 60, 0, SkillButtonPos[9].sX, SkillButtonPos[9].sY, SkillButtonPos[9].eX, SkillButtonPos[9].eY))
+            && IsImgWithoutCap(clickX, clickY, "스카디.bmp", 120, "black", 500, 433, 550, 448)
+            {
+                ClickAdb(560, 360)
+                sleep, 500
+                ClickAdb(220, 260)
+                sleep, 3000
+                getAdbScreen()
+            }
+        }
+        GuiControlGet, 멀린%a_index%, 1:
+        if(라운드 = a_index && 멀린%a_index%)
+        {			
+            if(IsImgWithoutCap(clickX, clickY, "skill\s_버스터1.bmp", 60, 0, SkillButtonPos[9].sX, SkillButtonPos[9].sY, SkillButtonPos[9].eX, SkillButtonPos[9].eY))
+            && IsImgWithoutCap(clickX, clickY, "멀린.bmp", 120, "black", 500, 433, 550, 448)
+            {
+                ClickAdb(560, 360)
+                sleep, 500
+                ClickAdb(220, 260)
+                sleep, 3000
+                getAdbScreen()
+            }
+        }				
+        GuiControlGet, 스카디%a_index%, 1:
+        if(라운드 = a_index && 스카디%a_index%)
+        {			
+            if(IsImgWithoutCap(clickX, clickY, "skill\s_퀵1.bmp", 60, 0, SkillButtonPos[7].sX, SkillButtonPos[7].sY, SkillButtonPos[7].eX, SkillButtonPos[7].eY))
+            && IsImgWithoutCap(clickX, clickY, "스카디.bmp", 120, "black", 500, 433, 550, 448)
+            {
+                ClickAdb(440, 360)
+                sleep, 500
+                ClickAdb(220, 260)
+                sleep, 3000
+                getAdbScreen()
+            }
+        }
+    }
+
+    이미지스킬("skill\s_방업")
+    이미지스킬("skill\s_공업")
+    이미지스킬("skill\s_방깎")
+    이미지스킬("skill\s_공깎")
+    이미지스킬("skill\s_np획득량")
+    이미지스킬("skill\s_np업")
+    이미지스킬("skill\s_스타")
+    이미지스킬("skill\s_버스터", 110)
+    이미지스킬("skill\s_아츠")
+    이미지스킬("skill\s_퀵")
+    이미지스킬("skill\s_스집", 110)
+    이미지스킬("skill\s_내성깎", 120)
+    이미지스킬("skill\s_챠지깎")
+    이미지스킬("skill\s_거츠")
+    이미지스킬("skill\s_회피")
+}
+
+이미지스킬(skillName, errorRange = 150) ;스킬이미지이름에서 숫자뺀거, 이미지 갯수
 {
     loop ;;스킬이미지가 몇개 인지 확인하는 루프
     {
         skillImageName := skillName a_index ".bmp"
-        ;addlog(skillImageName)
         if(!bmpPtrArr[(skillImageName)])
         {
             imageNum := a_index - 1
             break
         }
-        ;addlog(skillName)
-        ; if(!bmpPtrArr[(skillName) a_index])
-        ; {
-        ;     imageNum := a_index - 1
-        ;     break
-        ; }		
     }
 
     ;addlog(imageNum)

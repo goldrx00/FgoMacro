@@ -1,13 +1,17 @@
-﻿^f6::
-    스크린샷()
-return
+﻿; ^f6::
+;     스크린샷()
+; return
 
- x := 10  
+ 
 ^f10:: 
-
-네모그리기(x,10,30,50)
-x+=5
-;GuiControl, 2: move,  square1, x100 y100 w100 h450
+getAdbScreen()
+loop, 10
+{
+    if(IsImgWithoutCap(clickX, clickY, "파티선택.bmp", 60, 0,PartyPos[a_index].X-5,PartyPos[a_index].Y-5,PartyPos[a_index].X+5,PartyPos[a_index].Y+5))
+    {
+        addlog(a_index)
+    }
+}
 return
 
 hbm2 := 0
@@ -19,12 +23,67 @@ zsa(a,b)
 
 
 ^f11::
-a := 12
-b:=2
-fn := Func("zsa").Bind(a,b)
-SetTimer,%fn%, -1000
+;getAdbScreen()
+;loop,5
+;{
+    ; if( IsImgWithoutCap(clickX, clickY, "buster1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+    ; && IsImgWithoutCap(clickX, clickY, "buster2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+    ; {
+    ;     ;ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+    ;     card%a_index% := 1
+    ;     ;sleep, 300
+    ;     addlog("buster " a_index)
+    ; }
+    ; if( IsImgWithoutCap(clickX, clickY, "arts1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+    ; && IsImgWithoutCap(clickX, clickY, "arts2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+    ; {
+    ;     ;ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+    ;     card%a_index% := 1
+    ;     ;sleep, 300
+    ;     addlog("arts " a_index)
+    ; }
+    ; if( IsImgWithoutCap(clickX, clickY, "quick1.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 )
+    ; && IsImgWithoutCap(clickX, clickY, "quick2.bmp", 10, 0, CmdCardPos[a_index].sX+30, CmdCardPos[a_index].sY+85, CmdCardPos[a_index].eX-80, CmdCardPos[a_index].eY-30 ))
+    ; {
+    ;     ;ClickAdb(CmdCardPos[a_index].sX + 80, 320)
+    ;     ;card%a_index% := 1
+    ;     ;sleep, 300
+    ;     addlog("quick " a_index)
+    ; }
+    ; if(IsImgWithoutCap(clickX, clickY, "effective.bmp", 90, "white", CmdCardPos[a_index].sX+110, CmdCardPos[a_index].sY-40, CmdCardPos[a_index].eX-15, CmdCardPos[a_index].sY+5 ))
+    ; {   
+    ;     addlog("ef " a_index)
+    ; }
 
+   
+;}
+GuiControlGet, 퀘스트설정DDL, 1:
+IniRead, gSectionVal, %ConfigFile%, QUEST_%퀘스트설정DDL%
+; section := "QUEST_" 퀘스트설정DDL
+; IniRead, OutputVarSection, %ConfigFile%, %Section%
+; ;msgbox, % OutputVarSection
+; Loop, Parse, OutputVarSection , `n, `r
+; {
+;     StringSplit, word_array, A_LoopField, =
+;     addlog(word_array1 " " word_array2)
+; }
+;  gosub, 설정불러오기
+
+; aa := ini찾기("자동스킬3")
+; addlog(aa)
+;     bac()
+; addlog(g타겟1 "a")
+;     addlog(퀘스트설정DDL "b")
 return
+
+
+
+bac()
+{
+    
+    addlog(g타겟1 "a")
+    addlog(퀘스트설정DDL "b")
+}
 ; ^f4::
 ; addlog("하하")
 ; getAdbScreen()

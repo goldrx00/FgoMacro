@@ -1,6 +1,4 @@
-﻿
-
-global TIME_REFRESH := 250 ;매크로 대기시간 (화면전환 등)
+﻿global TIME_REFRESH := 250 ;매크로 대기시간 (화면전환 등)
 global EmulTitle:= ""
 
 ;global wFrame := 1 ;테두리 두께 border
@@ -392,9 +390,8 @@ Gdip_ImageSearchWithHwnd(Hwnd,Byref X,Byref Y,Image,Variation=0,Trans="",sX = 0,
 	Gdip_Shutdown(gdipToken)
 	StringSplit, LISTArray, LIST, `,
 	X := LISTArray1 - wFrame
-	Y := LISTArray2 - wCaption - wFrame
-	;GuiControl,,로그, %bmpHaystack%||%bmpNeedle%||%RET%
-	;msgbox, %bmpHaystack%,%bmpNeedle%,%RET%
+	Y := LISTArray2 - wCaption - wFrame	
+
 	if(RET = 1)
 		return true
 	else
