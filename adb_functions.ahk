@@ -197,17 +197,17 @@ IsImgPlusAdb(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0
 }
 
 ;캡쳐없이 미리 있던 파일에서 이미지 서치
-IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
+IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
 {
-    If(!bmp_%ImageName%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
-    {
-        log := "  @ 이미지 없음: " ImageName
-        AddLog(log)
-        return false
-    }
+    ; If(!bmp_%ImageName%) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
+    ; {
+    ;     log := "  @ 이미지 없음: " ImageName
+    ;     AddLog(log)
+    ;     return false
+    ; }
     
     file := "adbCapture\sc.png"
-    If(Gdip_ImageSearchWithFile(file, ClickX, ClickY, bmp_%ImageName%, errorRange, trans, sX, sY, eX, eY))
+    If(Gdip_ImageSearchWithFile(file, ClickX, ClickY, bmpPtrArr[(ImageName)], errorRange, trans, sX, sY, eX, eY))
     {
         log := "  @ 이미지 찾음 : " ImageName
         AddLog(log)	
@@ -223,7 +223,7 @@ IsImgPlusWithFile(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX =
     }
 }
 
-IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
+IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;gdip
 {
     if(!bmpPtrArr[(ImageName)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {
@@ -247,7 +247,7 @@ IsImgWithoutCap(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0
     }
 }
 
-IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans, sX = 0, sY = 0, eX = 0, eY = 0) ;캡쳐, 로그 둘다 없이 서치
+IsImgWithoutCapLog(ByRef clickX, ByRef clickY, ImageName, errorRange, trans="", sX = 0, sY = 0, eX = 0, eY = 0) ;캡쳐, 로그 둘다 없이 서치
 {		
     If(!bmpPtrArr[(ImageName)]) ;;해당 이미지가 없으면 이미지 없다는 로그 출력하고 리턴
     {

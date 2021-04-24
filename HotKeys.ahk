@@ -4,14 +4,19 @@
 
  
 ^f10:: 
+GuiControlGet, 퀘스트설정DDL, 1:
 getAdbScreen()
-loop, 10
-{
-    if(IsImgWithoutCap(clickX, clickY, "파티선택.bmp", 60, 0,PartyPos[a_index].X-5,PartyPos[a_index].Y-5,PartyPos[a_index].X+5,PartyPos[a_index].Y+5))
+
+    if ( IsImgWithoutCap(clickX, clickY, "팝업닫기.bmp", 60))
     {
-        addlog(a_index)
+        프렌드찾음 := 1                  
     }
-}
+    if (IsImgPlusWithFile(clickX, clickY, "팝업닫기.bmp", 60, 0))
+    {
+
+    }
+ 
+
 return
 
 hbm2 := 0
@@ -101,12 +106,9 @@ bac()
 ; return
 
 
-;  ^F2::
-; ;fileName := A_DD "d_" A_HOUR "h_" A_MIN "m_" A_SEC "s.png"
-; ;		CaptureAdb(fileName)
-; 		addlog("zz")
-; 		SendTelegramImg2("adbCapture/party.png")
-;  return
+ ^F2::
+DllCall( "PowrProf\SetSuspendState", UInt,1, UInt,0, UInt,0 )
+ return
 
 
 ; ^f4::

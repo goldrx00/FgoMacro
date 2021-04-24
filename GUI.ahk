@@ -69,11 +69,13 @@ Gui, Add, Text, ,텔레그램 Chat ID :
 Gui, Add, Edit, vChatID,
 Gui, Add, Text, ,텔레그램 BOT api Token :
 Gui, Add, Edit, w320 vbotToken,
+Gui, Add, Button, h30 g텔레그램테스트, 테스트 메시지
 
 Gui, Tab, 설명
 Gui, Add, Text, ,앱플레이어 해상도: 800 x 450
 Gui, Add, Text, ,배틀 메뉴에서 스킬 사용 확인 OFF, 속도 두배
 Gui, Add, Text, ,자동스킬 공멀슼 스킬은 1번칸에만 사용
+
 
 
 Gui, Tab, 기타

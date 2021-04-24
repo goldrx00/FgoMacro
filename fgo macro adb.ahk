@@ -30,7 +30,7 @@ global AdbSN ;에뮬레이터 adb 주소
 
 global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포인터를 저장하는 배열
 global ConfigFile := "Config.ini"
-global rCount ;
+global roundCount := 0 ;라운드
 global 메인종료 := 1 ; 1이되면 메인함수 종료
 global 퀘스트설정DDL ;현재 퀘스트 설정 이름
 global gSectionVal ;현재 퀘스트 설정 섹션 내용
@@ -162,13 +162,18 @@ return
     */    
     loop
     {        
-        rCount := a_index ; 반복 회차
         adbConnect()
-        
-        if(!퀘스트준비())
+
+        ret := 퀘스트준비()        
+        if(ret = 2)
+        {
+            continue
+        }
+        else if(ret = 0)
         {
             return false
         }
+
         if(!퀘스트배틀())
         {
             return false
@@ -180,25 +185,24 @@ return
         if(!ap대기())
         {
             return false
-        }		
+        }
+
+        roundCount++	
     }
 }
 
 퀘스트준비()
-{
-
-
-    
+{    
     getAdbScreen()
     해상도검사()
-    if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
+    if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60))
     {
         ap대기()
         getAdbScreen()
     }
 
-    ;if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))
-    if(IsImgWithoutCap(clickX, clickY, "리스트갱신.bmp", 60, 0))
+    ;if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60)
+    if(IsImgWithoutCap(clickX, clickY, "리스트갱신.bmp", 60))
     {
         프렌드체크 := findiniStr("프렌드체크")
         예장체크 := findiniStr("예장체크")
@@ -220,8 +224,7 @@ return
                 프렌드찾음 := 0
                 예장찾음 := 0
                 풀돌찾음 := 0
-                ;global 프렌드체크
-                addlog(프렌드체크 "ㅗㅓㅏ")
+  
                 if ( !프렌드체크 || IsImgWithoutCap(clickX, clickY, "Quest\" 퀘스트설정DDL "_support.bmp", 90, 0, FriendListPos[a_index].sX, FriendListPos[a_index].sY,  FriendListPos[a_index].eX,  FriendListPos[a_index].eY))
                 {
                     프렌드찾음 := 1                  
@@ -230,7 +233,7 @@ return
                 {       
                     예장찾음 := 1
                 }
-                if (!예장체크 || !풀돌체크 || IsImgWithoutCap(clickX, clickY, "풀돌.bmp", 90, "black", FriendListPos[a_index].sX+80, FriendListPos[a_index].sY+100,  FriendListPos[a_index].sX+100,  FriendListPos[a_index].eY))
+                if (!예장체크 || !풀돌체크 || IsImgWithoutCap(clickX, clickY, "풀돌.bmp", 110, "black", FriendListPos[a_index].sX+80, FriendListPos[a_index].sY+95,  FriendListPos[a_index].sX+100,  FriendListPos[a_index].eY))
                 {                         
                     풀돌찾음 := 1
                 }
@@ -255,11 +258,11 @@ return
                     ClickAdb(535, 80) ;리스트 갱신
                     sleep, 1000
                     getAdbScreen()
-                    if (IsImgWithoutCap(clickX, clickY, "팝업닫기.bmp", 60, 0)) {
+                    if (IsImgWithoutCap(clickX, clickY, "팝업닫기.bmp", 60)) {
                         ClickAdb(clickX, clickY)
                         sleep, 3000
                     }
-                    else if (IsImgWithoutCap(clickX, clickY, "리스트갱신네.bmp", 60, 0)) {
+                    else if (IsImgWithoutCap(clickX, clickY, "리스트갱신네.bmp", 60)) {
                         ClickAdb(clickX, clickY)
                         sleep, 2000
                         break
@@ -276,18 +279,10 @@ return
                 addlog("프렌드 검색 실패")
                 return false
             }
-        }
-           
+        } ;loop
+    } ;if
 
-        ; else
-        ; {           
-        ;     ClickAdb(400, 200) ;첫칸클릭
-        ;     sleep, 3000
-        ;     getAdbScreen()
-        ; }
-    }
-
-    if(IsImgWithoutCap(clickX, clickY, "퀘스트개시.bmp", 60, 0)) 
+    if(IsImgWithoutCap(clickX, clickY, "퀘스트개시.bmp", 60)) 
     {
         파티선택 := findiniStr("파티선택")
         if(파티선택 > 1)
@@ -307,18 +302,27 @@ return
         {
             ClickAdb(clickX, clickY)
         }
-        addlog("# 반복 " rCount "회차 시작")
+        addlog("# 반복 " roundCount "회차 시작")
         sleep, 7000 ; 10초 대기
         ii = 0
         loop
         {
-            if(IsImgPlusAdb(clickX, clickY, "attack.bmp", 60, 0))
+            getAdbScreen()
+            if(IsImgWithoutCap(clickX, clickY, "attack.bmp", 60, 0))
                 return true
 
-            if(ii > 60 && IsImgPlusAdb(clickX, clickY, "퀘스트개시.bmp", 60, 0))
+            if(ii > 60 && IsImgWithoutCap(clickX, clickY, "퀘스트개시.bmp", 60, 0))
             {
                 ClickAdb(clickX, clickY)
                 ii := 0
+            }
+
+            if (IsImgWithoutCap(clickX, clickY, "팝업닫기.bmp", 60)) {
+                ClickAdb(clickX, clickY)
+                sleep, 3000
+                ;;12시 문제 함수
+                열두시네시()
+                return 2
             }
 
             ii++
@@ -367,6 +371,9 @@ return
             ;; 점사 타겟 선택
             if(라운드시작) {
 
+                GuiControlGet, 퀘스트설정DDL, 1:
+                IniRead, gSectionVal, %ConfigFile%, QUEST_%퀘스트설정DDL%
+
                 타겟선택(라운드)
 
                 스킬사용(라운드)                
@@ -385,20 +392,17 @@ return
 
             라운드시작 := false
 
-            ClickAdb(710, 410) ;어택 클릭					
-            sleep, 2000
+            ; ClickAdb(710, 410) ;어택 클릭					
+            ; sleep, 2000 
 
-            ;;;;;;;;;;;;;;;;;;;커맨드 카드 사용;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-            Loop
+            getAdbScreen()
+            if(IsImgWithoutCap(clickX, clickY, "attack.bmp", 60, 0))
             {
-                getAdbScreen() ;한번 가져온 스샷으로 여러번 이미지 서치
-                if(!IsImgWithoutCap(clickX, clickY, "attack.bmp", 60, 0))
-                {
-                    break
-                }
-                ClickAdb(710, 410) ;어택클릭
+                ;ClickAdb(clickX, clickY)
+                ClickToImgAdb(clickX, clickY, "어택돌아가기.bmp")
                 sleep, 1500
-            }     
+                getAdbScreen()
+            } 
 
             보구사용(라운드)       
 
@@ -445,6 +449,7 @@ return
 
         if(메인종료 = 1)
             return false
+
         sleep, 1000
     } ;loop
 }
@@ -611,12 +616,12 @@ ap대기()
             }	
 
         }
-        else if(IsImgPlusAdb(clickX, clickY, "팝업닫기.bmp", 60, 0))
-        {
-            ClickAdb(clickX, clickY)
-            sleep, 3000
+        if(IsImgWithoutCap(clickX, clickY, "팝업닫기.bmp", 60, 0))
+        {   
+            열두시네시()
         }
-        else if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))	
+       
+        if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))	
             return true
 
         if(loopNum > 20) ;;화면프리징 또는 기타 에러시
@@ -666,7 +671,20 @@ ap대기()
                 ;addlog(스킬1라%a_index% "asdf")
                 if(스킬%ii%라%a_index% = 2) ;사용
                 {
+                    ; ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
+                    ; sleep, 500
+                    ; ClickAdb(690, 110) ; 선택창 떴을 때 끄기
+                    ; sleep, 500
+                    ; WaitImageAdb(clickX, clickY, "attack.bmp", 60)
+                    if(a_index <= 3)
+                        jj := 1
+                    else if(a_index <= 6)
+                        jj := 2
+                    else 
+                        jj := 3
                     ClickAdb(SkillButtonPos[a_index].sX+20, SkillButtonPos[a_index].sY+20)
+                    sleep, 500                        
+                    ClickAdb(SkillTargetPos[jj].X, SkillTargetPos[jj].Y)
                     sleep, 500
                     ClickAdb(690, 110) ; 선택창 떴을 때 끄기
                     sleep, 500
@@ -780,6 +798,8 @@ ap대기()
                     {                                
                         ClickAdb(SkillButtonPos[num].sX+20, SkillButtonPos[num].sY+20)
                         sleep, 500
+                        ClickAdb(SkillTargetPos[startingMember].X, SkillTargetPos[startingMember].Y)
+                        sleep, 500
                         ClickAdb(690, 110) ; 선택창 떴을 때 끄기
                         sleep, 500
                         WaitImageAdb(clickX, clickY, "attack.bmp", 60)                           
@@ -816,12 +836,11 @@ ap대기()
                 var = 보구%ii%라%a_index%
                 보구%ii%라%a_index% := findiniStr(var)
                 ;IniRead, 보구%ii%라%a_index%, %ConfigFile%, QUEST_%퀘스트설정DDL%, 보구%ii%라%a_index%                      
-                if(보구%ii%라%a_index% = 2) ;사용
+                if(보구%ii%라%a_index% = 1) ;사용
                 {
                     ClickAdb(NoblePhantasmPos[a_index].X, NoblePhantasmPos[a_index].Y)
                     sleep, 300                                                    
-                }
-                ;GuiControlGet, 보구%ii%라%a_index%, 1:							
+                }               					
             }
         }        
     }
@@ -1080,19 +1099,20 @@ ap대기()
     ;breakLoop := 0
     loop, 9
     {
-        buttonNum := a_index
+        buttonCnt := a_index
         loop, %imageNum%
         {
             ;addlog(skillName a_index ".bmp")			
-            if(IsImgWithoutCap(clickX, clickY, skillName a_index ".bmp", errorRange, 0, SkillButtonPos[buttonNum].sX, SkillButtonPos[buttonNum].sY, SkillButtonPos[buttonNum].eX, SkillButtonPos[buttonNum].eY))
+            if(IsImgWithoutCap(clickX, clickY, skillName a_index ".bmp", errorRange, 0, SkillButtonPos[buttonCnt].sX, SkillButtonPos[buttonCnt].sY, SkillButtonPos[buttonCnt].eX, SkillButtonPos[buttonCnt].eY))
             {
-                addlog("# " buttonNum " 번 칸 " skillName " 스킬 사용")
-                ClickAdb(SkillButtonPos[buttonNum].sX+20, SkillButtonPos[buttonNum].sY+20)
+                addlog("# " buttonCnt " 번 칸 " skillName " 스킬 사용")
+                ClickAdb(SkillButtonPos[buttonCnt].sX+20, SkillButtonPos[buttonCnt].sY+20)
+                sleep, 500
+                ClickAdb(SkillTargetPos[jj].X, SkillTargetPos[jj].Y)
                 sleep, 500
                 ClickAdb(690, 110) ; 선택창 떴을 때 끄기
-                sleep, 2000
-                ;breakLoop := 1
-                ;break
+                sleep, 500
+                WaitImageAdb(clickX, clickY, "attack.bmp", 60)
                 return
             }			
         }		
@@ -1136,5 +1156,36 @@ ap대기()
         sleep, 1000
     }
     return
+}
+
+열두시네시()
+{
+    loop, 10
+    {
+        getAdbScreen()
+        if(IsImgWithoutCap(clickX, clickY, "팝업닫기.bmp", 60, 0)
+        || IsImgWithoutCap(clickX, clickY, "친구포인트닫기.bmp", 60, 0))
+        {
+            ClickAdb(clickX, clickY)
+            sleep, 3000
+        }
+        if(IsImgWithoutCap(clickX, clickY, "칼데아게이트.bmp", 90, 0))
+        {
+            break
+        }
+        if(IsImgWithoutCap(clickX, clickY, "이전진행.bmp", 60, 0))
+        {
+            return
+        }
+        
+        ClickAdb(100, 100)
+        sleep, 3000
+    }
+    getAdbScreen()
+    if(IsImgWithoutCap(clickX, clickY, "이벤트배너.bmp", 60, 0))
+    {
+        ClickAdb(clickX, clickY)
+        sleep, 3000
+    }
 }
 

@@ -33,9 +33,13 @@ loop, 3
 	Gui, q: Add, DropDownList, w60 AltSubmit v타겟%a_index%, 전||중|후
 
 	Gui, q: Add, Text, x+30 ys , 보구 
-	Gui, q: Add, DropDownList,  w60 AltSubmit v보구%a_index%라1, ||사용
-	Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v보구%a_index%라2, ||사용
-	Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v보구%a_index%라3, ||사용
+	;;Gui, q: Add, DropDownList,  w60 AltSubmit v보구%a_index%라1, ||사용
+	; Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v보구%a_index%라2, ||사용
+	; Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v보구%a_index%라3, ||사용
+	Gui, q: Add, Checkbox,  w60 v보구%a_index%라1, 보구1
+	Gui, q: Add, Checkbox, x+1 yp w60  v보구%a_index%라2, 보구2
+	Gui, q: Add, Checkbox, x+1 yp w60  v보구%a_index%라3, 보구3
+	
 
 	Gui, q: Add, Text, x+30 ys , 마스터 스킬
 	Gui, q: Add, DropDownList, w60 AltSubmit v마스터%a_index%라1, ||사용|사용:1|사용:2|사용:3
@@ -52,14 +56,14 @@ loop, 3
 			aa+=15
 		if a_index>6
 			aa+=15
-		Gui, q: Add, DropDownList, AltSubmit xs+%aa% yp w60 v스킬%ii%라%a_index%, ||사용|사용:1|사용:2|사용:3
+		Gui, q: Add, DropDownList, AltSubmit xs+%aa% yp w60 v스킬%ii%라%a_index%, ||사용:자신|사용:1|사용:2|사용:3
 	}
 	Gui, q: Add, Text, xs y+10 , 오더 체인지       오첸후 스킬
 	Gui, q: Add, DropDownList, y+5 w30 AltSubmit v오더%a_index%라1, ||1|2|3
 	Gui, q: Add, DropDownList, x+1 w30 AltSubmit v오더%a_index%라2, ||4|5|6
-	Gui, q: Add, DropDownList, x+30 yp w60 AltSubmit v오첸스킬%a_index%라1, ||사용|사용:1|사용:2|사용:3
-	Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v오첸스킬%a_index%라2, ||사용|사용:1|사용:2|사용:3
-	Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v오첸스킬%a_index%라3, ||사용|사용:1|사용:2|사용:3
+	Gui, q: Add, DropDownList, x+30 yp w60 AltSubmit v오첸스킬%a_index%라1, ||사용:자신|사용:1|사용:2|사용:3
+	Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v오첸스킬%a_index%라2, ||사용:자신|사용:1|사용:2|사용:3
+	Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v오첸스킬%a_index%라3, ||사용:자신|사용:1|사용:2|사용:3
 	Gui, q: Add, Checkbox, xs+450 yp v자동스킬%a_index% ,1턴 후부터 자동스킬
 	Gui, q: Add, Text, xs-10 yp+10 Hidden section, ;;다음그룹과 위치조절
 	
@@ -389,7 +393,7 @@ loadData(text)
     {
         ii := a_index
         loop, 3
-            IniRead("보구" ii "라" a_index, gui, section, 1, "choose") 
+            IniRead("보구" ii "라" a_index, gui, section, 0) 
     }
 	loop,3
     {

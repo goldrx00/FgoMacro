@@ -319,3 +319,10 @@ findiniStr(text)
     }
 }
 
+텔레그램테스트()
+{
+    StringRight, A_YY, A_YYYY, 2
+    msg := A_YY "/" a_mm "/" A_DD " " A_HOUR ":" A_MIN ":" A_SEC " 테스트"    
+    SendTelegram(msg)
+}
+
