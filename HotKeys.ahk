@@ -106,8 +106,8 @@ bac()
 ; return
 
 
- ^F2::
-DllCall( "PowrProf\SetSuspendState", UInt,1, UInt,0, UInt,0 )
+ ^F9::
+    블루스택설정읽기()
  return
 
 

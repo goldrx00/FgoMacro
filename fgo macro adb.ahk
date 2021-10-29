@@ -30,6 +30,7 @@ global AdbSN ;에뮬레이터 adb 주소
 
 global bmpPtrArr := [] ; 이미지서치에 사용할 이미지 비트맵의 포인터를 저장하는 배열
 global ConfigFile := "Config.ini"
+global bluestacksConf := "C:\ProgramData\BlueStacks_nxt\bluestacks.conf"
 global roundCount := 0 ;라운드
 global 메인종료 := 1 ; 1이되면 메인함수 종료
 global 퀘스트설정DDL ;현재 퀘스트 설정 이름
@@ -104,6 +105,8 @@ IfNotExist, %ConfigFile%
 }
 IfExist, %ConfigFile%
     LoadOption()
+
+블루스택설정읽기()
 
 Gosub, Attach
 
@@ -355,13 +358,13 @@ return
             getAdbScreen()				
 
             ;;라운드 알아내기
-            if(IsImgWithoutCap(clickX, clickY, "Battle2.bmp", 120, "black", 541, 9, 551, 22))
+            if(IsImgWithoutCap(clickX, clickY, "Battle2.bmp", 120, "black", 552, 9, 562, 22))
             {
                 if(라운드 = 1)
                     라운드시작 := true	
                 라운드 := 2											
             }
-            else if(IsImgWithoutCap(clickX, clickY, "Battle3.bmp", 120, "black", 541, 9, 551, 22))
+            else if(IsImgWithoutCap(clickX, clickY, "Battle3.bmp", 120, "black", 552, 9, 562, 22))
             {
                 if(라운드 = 2)
                     라운드시작 := true
@@ -472,7 +475,7 @@ return
             break
         }
         if(mod(a_index , 5) = 0)
-            ClickAdb(100, 100)
+            ClickAdb(50, 100)
     }
     loop
     {
@@ -505,6 +508,8 @@ return
             sleep, 2000
             break
         }
+        ClickAdb(50, 100)
+        sleep, 1000
     }
     ;sleep, 3000
     loop, 5
@@ -541,7 +546,7 @@ ap대기()
          if(메인종료 = 1)
             return false
 
-        ClickAdb(650, 120) ;;첫번째 퀘스트 다시 누르기
+        ClickAdb(650, 115) ;;첫번째 퀘스트 다시 누르기
         sleep, 3000
         getAdbScreen()
         if(IsImgWithoutCap(clickX, clickY, "ap회복.bmp", 60, 0))
@@ -599,7 +604,7 @@ ap대기()
                         if(IsImgWithoutCap(clickX, clickY, "메뉴.bmp", 60, 0))
                         {
                             ClickToImgAdb(clickX, clickY, "마이룸버튼.bmp")
-                            ClickToImgAdb(clickX, clickY, "마이룸.bmp")
+                            ClickToImgAdb(clickX, clickY, "마테리얼.bmp")
                             ClickAdb(70, 25) ;닫기 버튼
                             sleep, 4000
                         }
@@ -1178,7 +1183,7 @@ ap대기()
             return
         }
         
-        ClickAdb(100, 100)
+        ClickAdb(50, 100)
         sleep, 3000
     }
     getAdbScreen()

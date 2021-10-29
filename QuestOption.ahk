@@ -64,7 +64,7 @@ loop, 3
 	Gui, q: Add, DropDownList, x+30 yp w60 AltSubmit v오첸스킬%a_index%라1, ||사용:자신|사용:1|사용:2|사용:3
 	Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v오첸스킬%a_index%라2, ||사용:자신|사용:1|사용:2|사용:3
 	Gui, q: Add, DropDownList, x+1 yp w60 AltSubmit v오첸스킬%a_index%라3, ||사용:자신|사용:1|사용:2|사용:3
-	Gui, q: Add, Checkbox, xs+450 yp v자동스킬%a_index% ,1턴 후부터 자동스킬
+	Gui, q: Add, Checkbox, xs+450 yp v자동스킬%a_index% ,2턴부터 자동스킬
 	Gui, q: Add, Text, xs-10 yp+10 Hidden section, ;;다음그룹과 위치조절
 	
 }
@@ -76,12 +76,12 @@ Gui, q: Add, Edit, x+m w250 v카드순위 , ;be>ae>qe>bn>an>qn>br>ar>qr
 Gui, q: Add, Checkbox, xs v프렌드체크 section ,프렌드 서번트 선택
 Gui, q: Add, Button, g프렌드버튼 , 프렌드 서번트 캡쳐
 Gui, q: Add, Button, g프렌드삭제버튼 , 프렌드 서번트 삭제
-Gui, q: Add, Picture,  ys w45 h35  vSupportPic, 프렌드 서번트
+Gui, q: Add, Picture,  ys w45  vSupportPic, 프렌드 서번트 ;w85 h35
 Gui, q: Add, Checkbox, ys v예장체크, 프렌드 예장 선택
 Gui, q: Add, Checkbox, xp y+m v풀돌체크, 예장 풀돌만
 Gui, q: Add, Button, xp y+m g예장버튼 , 프렌드 예장 캡쳐
 Gui, q: Add, Button,  xp y+m g예장삭제버튼 , 프렌드 예장 삭제
-Gui, q: Add, Picture, ys  vfrEssencePic, 개념예장
+Gui, q: Add, Picture, ys w70 vfrEssencePic, 개념예장 ;w70 h20
 
 
 
@@ -171,7 +171,7 @@ showQusetConfig()
 	else if OutputVar
 	{		
 		length := LV_GetCount()		
-		loop, %length%
+		loop, %length% 
 		{
 			LV_GetText(text, a_index)			
 			if(OutputVar = text)

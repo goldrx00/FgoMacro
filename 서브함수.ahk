@@ -326,3 +326,36 @@ findiniStr(text)
     SendTelegram(msg)
 }
 
+레지스트리읽기()
+{
+    SetRegView 64 ;https://ahkscript.github.io/ko/docs/commands/SetRegView.htm
+    RegRead, OutputVar, HKEY_LOCAL_MACHINE\SOFTWARE\BlueStacks_bgp64_hyperv\Guests\Android\Network\0, InboundRules
+
+    pos := RegExMatch(OutputVar, "tcp:5555:(.*?)`n", ret)
+    ;addlog(ret)
+    addlog(ret1)
+    if(ret1 != "")
+    {
+        ;바꾸기
+        GuiControl,1:, AdbSN, 127.0.0.1:%ret1%||
+ 
+    }
+}
+
+블루스택설정읽기()
+{
+    ;IniRead, OutputVar, %bluestacksConf%, bst.instance.Nougat64.status.adb_port,
+    ;IniRead, OutputVar, C:\ProgramData\BlueStacks_nxt\bluestacks.conf ;, "" , bst.instance.Nougat64.status.adb_port
+    FileRead, OutputVar, %bluestacksConf%
+    ;addlog(OutputVar)
+    pos := RegExMatch(OutputVar, "status.adb_port=""(.*?)""\n", ret)    
+    if(ret1 != "")
+    {
+        addlog(ret1)
+        ;바꾸기
+        GuiControl,1:, AdbSN, 127.0.0.1:%ret1%||
+ 
+    }
+
+}
+
