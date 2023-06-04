@@ -25,19 +25,20 @@ Gui, 2: Add, Button, x+10 w100 ggetAdbScreen, 화면업데이트
 
 ScreensView()
 {
-    ;static toggle
-    IfWinNotExist, 화면보기    
+    static toggle
+    ;IfWinNotExist, 화면보기
+    if(!toggle)   
     {
         RealWinSize(posX, posY, width, height, MacroID)
         ChildX := posX + width + 10
         ChildY := posY
         Gui, 2: Show, x%ChildX% y%ChildY% w800 , 화면보기 ;w800 h450
-        ;toggle := !toggle
+        toggle := !toggle
     }
     else
     {
         Gui, 2: Show, hide
-        ;toggle := !toggle
+        toggle := !toggle
     }
 }
 

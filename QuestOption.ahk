@@ -130,7 +130,9 @@ Gui, q: Add, Picture, ys w70 vfrEssencePic, 개념예장 ;w70 h20
 
 showQusetConfig()
 {
-	IfWinNotExist, 퀘스트 설정    
+	static toggle
+	;IfWinNotExist, 퀘스트 설정
+	if(!toggle)
     {
         RealWinSize(posX, posY, width, height, MacroID)
         ChildX := posX + width + 10
@@ -147,11 +149,13 @@ showQusetConfig()
 			if (RetrievedText = 퀘스트설정DDL)
 				LV_Modify(A_Index, "Select")  ; 첫 필드에 여과 텍스트가 들어 있는 행을 선택합니다.
 		}				
-		loadData(퀘스트설정DDL)		
+		loadData(퀘스트설정DDL)
+		toggle := !toggle
     }
     else
     {
-        Gui, q: Show, hide        
+        Gui, q: Show, hide
+		toggle := !toggle
     }
 }
 

@@ -107,7 +107,7 @@ bac()
 
 
  ^F9::
-    블루스택설정읽기()
+    SendTelegram("https://fmkorea.com")
  return
 
 
