@@ -103,7 +103,7 @@ IfNotExist, %ConfigFile%
 IfExist, %ConfigFile%
     LoadOption()
 
-블루스택설정읽기()
+;블루스택설정읽기() ;;블루스택 업그레이드 되서 5555 고정됨
 
 Gosub, Attach
 
