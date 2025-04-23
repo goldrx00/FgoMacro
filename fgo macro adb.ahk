@@ -192,13 +192,13 @@ return
 {
     getAdbScreen()
     해상도검사()
-    if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60))
+    if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60)
+        || IsImgWithoutCap(clickX, clickY, "오딜콜프퀘.bmp", 60))
     {
         ap대기()
         getAdbScreen()
     }
 
-    ;if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60)
     if(IsImgWithoutCap(clickX, clickY, "리스트갱신.bmp", 60))
     {
         프렌드체크 := findiniStr("프렌드체크")
@@ -506,7 +506,8 @@ return
             ClickAdb(clickX, clickY)
             sleep, 1000
         }
-        if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
+        if(IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0)
+            || IsImgWithoutCap(clickX, clickY, "오딜콜프퀘.bmp", 60))
         {
             ;ClickAdb(clickX, clickY)
             sleep, 2000
@@ -539,11 +540,12 @@ ap대기()
 {
     addlog("# ap대기")
     getAdbScreen()
-    if(!IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0))
+    if(!IsImgWithoutCap(clickX, clickY, "닫기.bmp", 60, 0)
+        && !IsImgWithoutCap(clickX, clickY, "오딜콜프퀘.bmp", 60))
     {
         return false
     }
-    ;;ap없으면 ap찰때까지 반복
+    ;ap없으면 ap찰때까지 반복
     loopNum := 0
     loop
     {
@@ -625,12 +627,19 @@ ap대기()
             }
 
         }
+
+        if(IsImgWithoutCap(clickX, clickY, "스톰포드소비.bmp", 60))
+        {
+            ClickAdb(clickX, clickY)
+            Sleep, 3000
+        }
+
         if(IsImgWithoutCap(clickX, clickY, "팝업닫기.bmp", 60, 0))
         {
             열두시네시()
         }
 
-        if(IsImgWithoutCap(clickX, clickY, "돌아가기.bmp", 60, 0))
+        if(IsImgWithoutCap(clickX, clickY, "리스트갱신.bmp", 60, 0))
             return true
 
         if(loopNum > 20) ;;화면프리징 또는 기타 에러시
